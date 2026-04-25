@@ -127,16 +127,16 @@ const chartData = [
 ]
 
 const chartConfig = {
-  visitors: {
-    label: "Visitors",
+  sales: {
+    label: "Sales (Rp)",
   },
-  desktop: {
-    label: "Desktop",
+  orders: {
+    label: "Orders",
     color: "var(--primary)",
   },
-  mobile: {
-    label: "Mobile",
-    color: "var(--primary)",
+  performance: {
+    label: "Performance",
+    color: "hsl(var(--primary) / 0.8)",
   },
 } satisfies ChartConfig
 
@@ -167,10 +167,10 @@ export function ChartAreaInteractive() {
   return (
     <Card className="@container/card">
       <CardHeader>
-        <CardTitle>Total Visitors</CardTitle>
+        <CardTitle>Sales Performance</CardTitle>
         <CardDescription>
           <span className="hidden @[540px]/card:block">
-            Total for the last 3 months
+            Revenue and Order flow for the last 3 months
           </span>
           <span className="@[540px]/card:hidden">Last 3 months</span>
         </CardDescription>
@@ -275,6 +275,7 @@ export function ChartAreaInteractive() {
               fill="url(#fillMobile)"
               stroke="var(--color-mobile)"
               stackId="a"
+              name="Orders"
             />
             <Area
               dataKey="desktop"
@@ -282,6 +283,7 @@ export function ChartAreaInteractive() {
               fill="url(#fillDesktop)"
               stroke="var(--color-desktop)"
               stackId="a"
+              name="Sales Performance"
             />
           </AreaChart>
         </ChartContainer>

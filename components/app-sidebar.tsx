@@ -6,6 +6,8 @@ import { NavDocuments } from "@/components/nav-documents"
 import { NavMain } from "@/components/nav-main"
 import { NavSecondary } from "@/components/nav-secondary"
 import { NavUser } from "@/components/nav-user"
+import { StoreSwitcher } from "@/components/store-switcher"
+import { ModeToggle } from "@/components/mode-toggle"
 import {
   Sidebar,
   SidebarContent,
@@ -15,163 +17,124 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { IconDashboard, IconListDetails, IconChartBar, IconFolder, IconUsers, IconCamera, IconFileDescription, IconFileAi, IconSettings, IconHelp, IconSearch, IconDatabase, IconReport, IconFileWord, IconInnerShadowTop } from "@tabler/icons-react"
+import { 
+  IconDashboard, 
+  IconCashRegister, 
+  IconArmchair, 
+  IconPackage, 
+  IconReceipt, 
+  IconCalendarStats, 
+  IconTicket, 
+  IconUsers,
+  IconSettings, 
+  IconHelp, 
+  IconSearch, 
+  IconDatabase, 
+  IconReport, 
+  IconFileWord, 
+  IconInnerShadowTop,
+  IconBuildingStore,
+  IconFlame,
+  IconCoffee
+} from "@tabler/icons-react"
 
 const data = {
   user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
+    name: "Admin POS",
+    email: "admin@pos.com",
+    avatar: "/avatars/admin.jpg",
   },
+  stores: [
+    {
+      name: "Toko Utama POS",
+      logo: IconBuildingStore,
+      plan: "Enterprise",
+    },
+    {
+      name: "Cabang Bandung",
+      logo: IconFlame,
+      plan: "Professional",
+    },
+    {
+      name: "Cabang Jakarta",
+      logo: IconCoffee,
+      plan: "Free",
+    },
+  ],
   navMain: [
     {
       title: "Dashboard",
       url: "#",
-      icon: (
-        <IconDashboard
-        />
-      ),
+      icon: <IconDashboard />,
     },
     {
-      title: "Lifecycle",
+      title: "Cashier",
       url: "#",
-      icon: (
-        <IconListDetails
-        />
-      ),
+      icon: <IconCashRegister />,
     },
     {
-      title: "Analytics",
+      title: "Table",
       url: "#",
-      icon: (
-        <IconChartBar
-        />
-      ),
+      icon: <IconArmchair />,
     },
     {
-      title: "Projects",
+      title: "Product",
       url: "#",
-      icon: (
-        <IconFolder
-        />
-      ),
+      icon: <IconPackage />,
     },
     {
-      title: "Team",
+      title: "Transaction",
       url: "#",
-      icon: (
-        <IconUsers
-        />
-      ),
-    },
-  ],
-  navClouds: [
-    {
-      title: "Capture",
-      icon: (
-        <IconCamera
-        />
-      ),
-      isActive: true,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
+      icon: <IconReceipt />,
     },
     {
-      title: "Proposal",
-      icon: (
-        <IconFileDescription
-        />
-      ),
+      title: "Reservation",
       url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
+      icon: <IconCalendarStats />,
     },
     {
-      title: "Prompts",
-      icon: (
-        <IconFileAi
-        />
-      ),
+      title: "Voucher",
       url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
+      icon: <IconTicket />,
+    },
+    {
+      title: "Employee",
+      url: "#",
+      icon: <IconUsers />,
     },
   ],
   navSecondary: [
     {
       title: "Settings",
       url: "#",
-      icon: (
-        <IconSettings
-        />
-      ),
+      icon: <IconSettings />,
     },
     {
       title: "Get Help",
       url: "#",
-      icon: (
-        <IconHelp
-        />
-      ),
+      icon: <IconHelp />,
     },
     {
       title: "Search",
       url: "#",
-      icon: (
-        <IconSearch
-        />
-      ),
+      icon: <IconSearch />,
     },
   ],
   documents: [
     {
-      name: "Data Library",
+      name: "Inventory Report",
       url: "#",
-      icon: (
-        <IconDatabase
-        />
-      ),
+      icon: <IconDatabase />,
     },
     {
-      name: "Reports",
+      name: "Sales Report",
       url: "#",
-      icon: (
-        <IconReport
-        />
-      ),
+      icon: <IconReport />,
     },
     {
-      name: "Word Assistant",
+      name: "Employee Log",
       url: "#",
-      icon: (
-        <IconFileWord
-        />
-      ),
+      icon: <IconFileWord />,
     },
   ],
 }
@@ -180,19 +143,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              className="data-[slot=sidebar-menu-button]:p-1.5!"
-            >
-              <a href="#">
-                <IconInnerShadowTop className="size-5!" />
-                <span className="text-base font-semibold">Acme Inc.</span>
-              </a>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <StoreSwitcher stores={data.stores} />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
@@ -200,7 +151,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <div className="flex items-center justify-between p-2">
+          <NavUser user={data.user} />
+          <ModeToggle />
+        </div>
       </SidebarFooter>
     </Sidebar>
   )
