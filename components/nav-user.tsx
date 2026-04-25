@@ -21,6 +21,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { IconDotsVertical, IconUserCircle, IconCreditCard, IconNotification, IconLogout } from "@tabler/icons-react"
+import { logout } from "@/lib/auth-actions"
 
 export function NavUser({
   user,
@@ -94,9 +95,8 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <IconLogout
-              />
+            <DropdownMenuItem onClick={() => logout()}>
+              <IconLogout />
               Log out
             </DropdownMenuItem>
           </DropdownMenuContent>

@@ -95,8 +95,8 @@ import {
 import { IconGripVertical, IconCircleCheckFilled, IconLoader, IconDotsVertical, IconLayoutColumns, IconChevronDown, IconPlus, IconChevronsLeft, IconChevronLeft, IconChevronRight, IconChevronsRight, IconTrendingUp } from "@tabler/icons-react"
 
 export const schema = z.object({
-  id: z.number(),
-  header: z.string(),
+  id: z.string(),
+  customer: z.string(),
   type: z.string(),
   status: z.string(),
   target: z.string(),
@@ -105,7 +105,7 @@ export const schema = z.object({
 })
 
 // Create a separate component for the drag handle
-function DragHandle({ id }: { id: number }) {
+function DragHandle({ id }: { id: string }) {
   const { attributes, listeners } = useSortable({
     id,
   })
@@ -157,7 +157,7 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "header",
+    accessorKey: "customer",
     header: "Customer / Tab",
     cell: ({ row }) => {
       return <TableCellViewer item={row.original} />
@@ -198,7 +198,7 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
         onSubmit={(e) => {
           e.preventDefault()
           toast.promise(new Promise((resolve) => setTimeout(resolve, 1000)), {
-            loading: `Saving ${row.original.header}`,
+            loading: `Saving ${row.original.customer}`,
             success: "Done",
             error: "Error",
           })
@@ -223,7 +223,7 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
         onSubmit={(e) => {
           e.preventDefault()
           toast.promise(new Promise((resolve) => setTimeout(resolve, 1000)), {
-            loading: `Saving ${row.original.header}`,
+            loading: `Saving ${row.original.customer}`,
             success: "Done",
             error: "Error",
           })
@@ -654,12 +654,12 @@ function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
     <Drawer direction={isMobile ? "bottom" : "right"}>
       <DrawerTrigger asChild>
         <Button variant="link" className="w-fit px-0 text-left text-foreground">
-          {item.header}
+          {item.customer}
         </Button>
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader className="gap-1">
-          <DrawerTitle>{item.header}</DrawerTitle>
+          <DrawerTitle>{item.customer}</DrawerTitle>
           <DrawerDescription>
             Showing total visitors for the last 6 months
           </DrawerDescription>
@@ -724,8 +724,8 @@ function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
           )}
           <form className="flex flex-col gap-4">
             <div className="flex flex-col gap-3">
-              <Label htmlFor="header">Header</Label>
-              <Input id="header" defaultValue={item.header} />
+              <Label htmlFor="customer">Customer</Label>
+              <Input id="customer" defaultValue={item.customer} />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-3">
