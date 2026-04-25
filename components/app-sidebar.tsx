@@ -2,7 +2,6 @@
 
 import * as React from "react"
 
-import { NavDocuments } from "@/components/nav-documents"
 import { NavMain } from "@/components/nav-main"
 import { NavSecondary } from "@/components/nav-secondary"
 import { NavUser } from "@/components/nav-user"
@@ -13,38 +12,23 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
+  SidebarGroupLabel,
 } from "@/components/ui/sidebar"
 import { 
   IconDashboard, 
   IconCashRegister, 
-  IconArmchair, 
   IconPackage, 
   IconReceipt, 
-  IconCalendarStats, 
-  IconTicket, 
-  IconUsers,
   IconSettings, 
   IconHelp, 
-  IconSearch, 
-  IconDatabase, 
-  IconReport, 
-  IconFileWord, 
-  IconInnerShadowTop,
   IconBuildingStore,
   IconFlame,
   IconCoffee,
-  IconTag
+  IconTag,
+  IconUserCircle
 } from "@tabler/icons-react"
 
 const data = {
-  user: {
-    name: "Admin POS",
-    email: "admin@pos.com",
-    avatar: "/avatars/admin.jpg",
-  },
   stores: [
     {
       name: "Toko Utama POS",
@@ -66,76 +50,48 @@ const data = {
     {
       title: "Dashboard",
       url: "/dashboard",
-      icon: <IconDashboard />,
+      icon: <IconDashboard className="size-4" />,
     },
     {
-      title: "Cashier",
+      title: "Kasir",
       url: "/dashboard/cashier",
-      icon: <IconCashRegister />,
+      icon: <IconCashRegister className="size-4" />,
     },
+  ],
+  inventory: [
     {
-      title: "Product",
+      title: "Produk",
       url: "/dashboard/products",
-      icon: <IconPackage />,
+      icon: <IconPackage className="size-4" />,
     },
     {
-      title: "Category",
+      title: "Kategori",
       url: "/dashboard/categories",
-      icon: <IconTag />,
-    },
-    {
-      title: "Transaction",
-      url: "#",
-      icon: <IconReceipt />,
-    },
-    {
-      title: "Reservation",
-      url: "#",
-      icon: <IconCalendarStats />,
-    },
-    {
-      title: "Voucher",
-      url: "#",
-      icon: <IconTicket />,
-    },
-    {
-      title: "Employee",
-      url: "#",
-      icon: <IconUsers />,
+      icon: <IconTag className="size-4" />,
     },
   ],
-  navSecondary: [
+  reports: [
     {
-      title: "Settings",
-      url: "#",
-      icon: <IconSettings />,
-    },
-    {
-      title: "Get Help",
-      url: "#",
-      icon: <IconHelp />,
-    },
-    {
-      title: "Search",
-      url: "#",
-      icon: <IconSearch />,
+      title: "Riwayat Transaksi",
+      url: "/dashboard/transactions",
+      icon: <IconReceipt className="size-4" />,
     },
   ],
-  documents: [
+  settings: [
     {
-      name: "Inventory Report",
-      url: "#",
-      icon: <IconDatabase />,
+      title: "Profil Saya",
+      url: "/dashboard/settings/profile",
+      icon: <IconUserCircle className="size-4" />,
     },
     {
-      name: "Sales Report",
-      url: "#",
-      icon: <IconReport />,
+      title: "Pengaturan Toko",
+      url: "/dashboard/settings/store",
+      icon: <IconBuildingStore className="size-4" />,
     },
     {
-      name: "Employee Log",
+      title: "Bantuan",
       url: "#",
-      icon: <IconFileWord />,
+      icon: <IconHelp className="size-4" />,
     },
   ],
 }
@@ -152,11 +108,34 @@ export function AppSidebar({
         <StoreSwitcher stores={data.stores} />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavDocuments items={data.documents} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        {/* Utama Section */}
+        <div className="px-2 pt-4">
+           <SidebarGroupLabel className="px-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 mb-2">
+             Utama
+           </SidebarGroupLabel>
+           <NavMain items={data.navMain} />
+        </div>
+
+        {/* Inventory Section */}
+        <div className="px-2 pt-2">
+           <SidebarGroupLabel className="px-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 mb-2">
+             Inventaris
+           </SidebarGroupLabel>
+           <NavMain items={data.inventory} />
+        </div>
+
+        {/* Laporan Section */}
+        <div className="px-2 pt-2">
+           <SidebarGroupLabel className="px-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 mb-2">
+             Laporan
+           </SidebarGroupLabel>
+           <NavMain items={data.reports} />
+        </div>
+
+        {/* Pengaturan Section */}
+        <NavSecondary items={data.settings} className="mt-auto border-t bg-muted/20" />
       </SidebarContent>
-      <SidebarFooter>
+      <SidebarFooter className="border-t bg-background">
         <div className="flex items-center justify-between p-2">
           <NavUser user={user} />
           <ModeToggle />
