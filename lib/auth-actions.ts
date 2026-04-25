@@ -54,3 +54,20 @@ export async function logout() {
   revalidatePath("/", "layout")
   redirect("/login")
 }
+
+export async function updateProfile(data: { full_name?: string; avatar_url?: string }) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) throw new Error("Unauthorized")
+
+  const { error } = await supabase
+    .from("profiles")
+    .update(data)
+    .eq("id", user.id)
+
+  if (error) return { error: error.message }
+
+  revalidatePath("/dashboard", "layout")
+  return { success: true }
+}

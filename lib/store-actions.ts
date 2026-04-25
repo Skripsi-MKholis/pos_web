@@ -42,3 +42,16 @@ export async function createStore(name: string, address?: string) {
 
   return { success: true, data: store }
 }
+
+export async function updateStore(storeId: string, data: { name?: string; address?: string; phone?: string; email?: string }) {
+  const supabase = await createClient()
+  
+  const { error } = await supabase
+    .from("stores")
+    .update(data)
+    .eq("id", storeId)
+
+  if (error) return { error: error.message }
+
+  return { success: true }
+}
