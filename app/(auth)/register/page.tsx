@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
-import { IconBuildingStore, IconLoader2 } from "@tabler/icons-react"
+import { IconBrandGoogle, IconBuildingStore, IconLoader2 } from "@tabler/icons-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { signup } from "@/lib/auth-actions"
+import { signup, signInWithGoogle } from "@/lib/auth-actions"
 
 const registerSchema = z.object({
   fullName: z.string().min(2, "Nama minimal 2 karakter"),
@@ -159,7 +159,30 @@ export default function RegisterPage() {
                 )}
                 Daftar Sekarang
               </Button>
-              <p className="px-8 text-center text-sm text-muted-foreground">
+
+              <div className="relative w-full">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">
+                    Atau daftar dengan
+                  </span>
+                </div>
+              </div>
+
+              <Button 
+                variant="outline" 
+                type="button" 
+                className="w-full" 
+                onClick={() => signInWithGoogle()}
+                disabled={isLoading}
+              >
+                <IconBrandGoogle className="mr-2 h-4 w-4" />
+                Google
+              </Button>
+
+              <p className="px-8 text-center text-sm text-muted-foreground pt-2">
                 Sudah punya akun?{" "}
                 <Link
                   href="/login"
