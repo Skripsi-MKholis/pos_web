@@ -43,6 +43,55 @@ export async function createTransaction(payload: TransactionPayload) {
 
   revalidatePath("/dashboard/products")
   revalidatePath("/dashboard/cashier")
+  revalidatePath("/dashboard/transactions")
+  revalidatePath("/dashboard")
   
   return { success: true, transactionId: data?.transaction_id }
+}
+
+export async function getTransactions(storeId: string) {
+  const supabase = await createClient()
+  
+  const { data, error } = await supabase
+    .from("transactions")
+    .select(`
+      *,
+      transaction_items (
+        *,
+        products (image_url)
+      )
+    `)
+    .eq("store_id", storeId)
+    .order("created_at", { ascending: false })
+
+  if (error) {
+    console.error("Error fetching transactions:", error)
+    return []
+  }
+
+  return data
+}
+
+export async function getDashboardMetrics(storeId: string) {
+  const supabase = await createClient()
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  // Today's Sales
+  const { data: todaySales, error: salesError } = await supabase
+    .from("transactions")
+    .select("total_amount")
+    .eq("store_id", storeId)
+    .gte("created_at", today.toISOString())
+    .eq("status", "Berhasil")
+
+  if (salesError) console.error("Metrics Error:", salesError)
+
+  const revenue = todaySales?.reduce((sum, t) => sum + Number(t.total_amount), 0) || 0
+  const count = todaySales?.length || 0
+
+  return {
+    todayRevenue: revenue,
+    todaySalesCount: count,
+  }
 }

@@ -9,95 +9,72 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { IconTrendingUp, IconTrendingDown } from "@tabler/icons-react"
+import { IconTrendingUp, IconShoppingCart, IconCash, IconPackage, IconArrowUpRight } from "@tabler/icons-react"
 
-export function SectionCards() {
+export function SectionCards({ metrics }: { metrics: any }) {
   return (
-    <div className="grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4 dark:*:data-[slot=card]:bg-card">
-      <Card className="@container/card">
+    <div className="grid grid-cols-1 gap-4 px-4 lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4 pt-4">
+      <Card className="@container/card bg-gradient-to-br from-primary/10 to-background border-primary/20 shadow-sm">
         <CardHeader>
-          <CardDescription>Today's Revenue</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            Rp 4.250.000
-          </CardTitle>
-          <CardAction>
-            <Badge variant="outline">
-              <IconTrendingUp />
-              +12.5%
-            </Badge>
-          </CardAction>
-        </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Trending up today{" "}
-            <IconTrendingUp className="size-4" />
+          <div className="flex items-center justify-between">
+            <CardDescription className="font-medium">Total Pendapatan Hari Ini</CardDescription>
+            <IconCash className="h-5 w-5 text-primary opacity-60" />
           </div>
-          <div className="text-muted-foreground">
-            Compared to yesterday
+          <CardTitle className="text-2xl font-bold tabular-nums @[250px]/card:text-3xl text-primary">
+            Rp {metrics.todayRevenue.toLocaleString()}
+          </CardTitle>
+        </CardHeader>
+        <CardFooter className="flex-col items-start gap-1.5 text-xs text-muted-foreground pt-0">
+          <div className="flex items-center gap-1.5">
+            <IconTrendingUp className="h-3 w-3 text-emerald-500" />
+            <span className="text-emerald-500 font-bold">100%</span>
+            <span>Real-time data</span>
           </div>
         </CardFooter>
       </Card>
-      <Card className="@container/card">
+
+      <Card className="@container/card shadow-sm border-border/50">
         <CardHeader>
-          <CardDescription>Total Orders</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            156
+          <div className="flex items-center justify-between">
+            <CardDescription className="font-medium">Transaksi Selesai</CardDescription>
+            <IconShoppingCart className="h-5 w-5 text-muted-foreground opacity-60" />
+          </div>
+          <CardTitle className="text-2xl font-bold tabular-nums @[250px]/card:text-3xl">
+            {metrics.todaySalesCount}
           </CardTitle>
-          <CardAction>
-            <Badge variant="outline">
-              <IconTrendingUp />
-              +8%
-            </Badge>
-          </CardAction>
         </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Steady orders today{" "}
-            <IconTrendingUp className="size-4" />
-          </div>
-          <div className="text-muted-foreground">
-            Processed across all counters
-          </div>
+        <CardFooter className="flex-col items-start gap-1.5 text-xs text-muted-foreground pt-0">
+          <p>Total transaksi yang berhasil diproses hari ini</p>
         </CardFooter>
       </Card>
-      <Card className="@container/card">
+
+      <Card className="@container/card shadow-sm border-border/50">
         <CardHeader>
-          <CardDescription>Active Tables</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            18/25
-          </CardTitle>
-          <CardAction>
-            <Badge variant="outline">
-              Occupancy 72%
-            </Badge>
-          </CardAction>
-        </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            High occupancy period{" "}
-            <IconTrendingUp className="size-4" />
+          <div className="flex items-center justify-between">
+            <CardDescription className="font-medium">Stok Rendah</CardDescription>
+            <IconPackage className="h-5 w-5 text-orange-500 opacity-60" />
           </div>
-          <div className="text-muted-foreground">7 tables currently available</div>
+          <CardTitle className="text-2xl font-bold tabular-nums @[250px]/card:text-3xl text-orange-600">
+            0
+          </CardTitle>
+        </CardHeader>
+        <CardFooter className="flex-col items-start gap-1.5 text-xs text-muted-foreground pt-0">
+          <p>Produk yang mendekati batas stok minimum</p>
         </CardFooter>
       </Card>
-      <Card className="@container/card">
+
+      <Card className="@container/card shadow-sm border-border/50">
         <CardHeader>
-          <CardDescription>Reservations</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            12
-          </CardTitle>
-          <CardAction>
-            <Badge variant="outline">
-              Next in 30m
-            </Badge>
-          </CardAction>
-        </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Fully booked for dinner{" "}
-            <IconTrendingUp className="size-4" />
+          <div className="flex items-center justify-between">
+            <CardDescription className="font-medium">Metode Favorit</CardDescription>
+            <IconArrowUpRight className="h-5 w-5 text-muted-foreground opacity-60" />
           </div>
-          <div className="text-muted-foreground">Total guests: 48</div>
+          <CardTitle className="text-2xl font-bold tabular-nums @[250px]/card:text-3xl">
+            Tunai
+          </CardTitle>
+        </CardHeader>
+        <CardFooter className="flex-col items-start gap-1.5 text-xs text-muted-foreground pt-0">
+          <p>Metode pembayaran paling sering digunakan</p>
         </CardFooter>
       </Card>
     </div>
