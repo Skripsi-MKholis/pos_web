@@ -24,7 +24,7 @@ export default async function DashboardLayout({
     .from("profiles")
     .select("*")
     .eq("id", user.id)
-    .single()
+    .maybeSingle()
 
   const userData = {
     name: profile?.full_name || user.email?.split("@")[0] || "User",

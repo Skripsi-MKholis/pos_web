@@ -35,7 +35,8 @@ import {
   IconInnerShadowTop,
   IconBuildingStore,
   IconFlame,
-  IconCoffee
+  IconCoffee,
+  IconTag
 } from "@tabler/icons-react"
 
 const data = {
@@ -64,23 +65,23 @@ const data = {
   navMain: [
     {
       title: "Dashboard",
-      url: "#",
+      url: "/dashboard",
       icon: <IconDashboard />,
     },
     {
       title: "Cashier",
-      url: "#",
+      url: "/dashboard/cashier",
       icon: <IconCashRegister />,
     },
     {
-      title: "Table",
-      url: "#",
-      icon: <IconArmchair />,
+      title: "Product",
+      url: "/dashboard/products",
+      icon: <IconPackage />,
     },
     {
-      title: "Product",
-      url: "#",
-      icon: <IconPackage />,
+      title: "Category",
+      url: "/dashboard/categories",
+      icon: <IconTag />,
     },
     {
       title: "Transaction",
