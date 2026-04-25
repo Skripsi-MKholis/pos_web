@@ -1,5 +1,6 @@
 "use client"
 
+import * as React from "react"
 import { Badge } from "@/components/ui/badge"
 import {
   Card,
@@ -12,6 +13,18 @@ import {
 import { IconTrendingUp, IconShoppingCart, IconCash, IconPackage, IconArrowUpRight } from "@tabler/icons-react"
 
 export function SectionCards({ metrics }: { metrics: any }) {
+  const [mounted, setMounted] = React.useState(false)
+
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // Force a consistent fallback for SSR
+  const formatCurrency = (val: number) => {
+    if (!mounted) return `Rp ${val}`
+    return `Rp ${val.toLocaleString('id-ID')}`
+  }
+
   return (
     <div className="grid grid-cols-1 gap-4 px-4 lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4 pt-4">
       <Card className="@container/card bg-gradient-to-br from-primary/10 to-background border-primary/20 shadow-sm">
@@ -21,7 +34,7 @@ export function SectionCards({ metrics }: { metrics: any }) {
             <IconCash className="h-5 w-5 text-primary opacity-60" />
           </div>
           <CardTitle className="text-2xl font-bold tabular-nums @[250px]/card:text-3xl text-primary">
-            Rp {metrics.todayRevenue.toLocaleString()}
+            {formatCurrency(metrics.todayRevenue)}
           </CardTitle>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-xs text-muted-foreground pt-0">

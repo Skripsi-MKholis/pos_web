@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -35,6 +36,7 @@ type RegisterFormValues = z.infer<typeof registerSchema>
 
 export default function RegisterPage() {
   const [isLoading, setIsLoading] = React.useState(false)
+  const router = useRouter()
 
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
@@ -59,7 +61,8 @@ export default function RegisterPage() {
       if (result?.error) {
         toast.error(result.error)
       } else {
-        toast.success("Registrasi berhasil! Silakan cek email Anda untuk verifikasi.")
+        toast.success("Registrasi berhasil! Menyiapkan toko...")
+        router.push("/setup")
       }
     } catch (error) {
       toast.error("Terjadi kesalahan saat registrasi")
