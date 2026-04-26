@@ -36,6 +36,8 @@ export function CheckoutDialog({
   onClose,
   cartItems,
   total,
+  discountTotal = 0,
+  voucherInfo = null,
   storeId,
   storeName,
   address,
@@ -47,6 +49,8 @@ export function CheckoutDialog({
   onClose: () => void
   cartItems: any[]
   total: number
+  discountTotal?: number
+  voucherInfo?: any
   storeId: string
   storeName: string
   address?: string
@@ -74,6 +78,8 @@ export function CheckoutDialog({
         storeId,
         totalAmount: total,
         paymentMethod,
+        discountTotal,
+        voucherInfo,
         items: cartItems.map(item => ({
           product_id: item.id,
           product_name: item.name,
@@ -171,11 +177,17 @@ export function CheckoutDialog({
         </DialogHeader>
         <div className="space-y-6 py-4">
           <div className="bg-muted p-4 rounded-lg space-y-2">
-            <div className="flex justify-between text-muted-foreground">
+            <div className="flex justify-between text-muted-foreground text-sm">
               <span>Total Belanja</span>
-              <span>Rp {total.toLocaleString()}</span>
+              <span>Rp {(total + discountTotal).toLocaleString()}</span>
             </div>
-            <div className="flex justify-between font-bold text-xl text-primary">
+            {discountTotal > 0 && (
+              <div className="flex justify-between text-emerald-600 text-sm italic">
+                <span>Diskon / Voucher</span>
+                <span>-Rp {discountTotal.toLocaleString()}</span>
+              </div>
+            )}
+            <div className="flex justify-between font-bold text-xl text-primary border-t pt-2 mt-2">
               <span>Total Tagihan</span>
               <span>Rp {total.toLocaleString()}</span>
             </div>

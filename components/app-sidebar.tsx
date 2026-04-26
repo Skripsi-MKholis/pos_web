@@ -67,6 +67,11 @@ const data = {
       url: "/dashboard/customers",
       icon: <IconUserCircle className="size-4" />,
     },
+    {
+      title: "Promosi",
+      url: "/dashboard/promotions",
+      icon: <IconTag className="size-4" />,
+    },
   ],
   communication: [
     {
@@ -177,7 +182,12 @@ export function AppSidebar({
            <SidebarGroupLabel className="px-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 mb-2">
              Utama
            </SidebarGroupLabel>
-           <NavMain items={data.navMain} />
+           <NavMain items={
+             data.navMain.filter(item => {
+               if (isOwner) return true
+               return ["Dashboard", "Kasir", "Pelanggan"].includes(item.title)
+             })
+           } />
         </div>
 
         {/* Komunikasi Section */}

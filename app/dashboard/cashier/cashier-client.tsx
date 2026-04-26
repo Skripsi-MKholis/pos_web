@@ -13,6 +13,8 @@ import {
 } from "@tabler/icons-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { toast } from "sonner"
+import { Label } from "@/components/ui/label"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -26,6 +28,8 @@ import {
 import { ProductCard } from "./product-card"
 import { CheckoutDialog } from "./checkout-dialog"
 import { cn } from "@/lib/utils"
+import { validateVoucher } from "@/lib/promotion-actions"
+import { IconTicket } from "@tabler/icons-react"
 
 export function CashierClient({ 
   store,
@@ -43,6 +47,9 @@ export function CashierClient({
   const [cart, setCart] = React.useState<any[]>([])
   const [isCheckoutOpen, setIsCheckoutOpen] = React.useState(false)
   const [isCartOpen, setIsCartOpen] = React.useState(false)
+  const [voucherCode, setVoucherCode] = React.useState("")
+  const [appliedVoucher, setAppliedVoucher] = React.useState<any>(null)
+  const [isValidatingVoucher, setIsValidatingVoucher] = React.useState(false)
 
   // Filter products
   const filteredProducts = initialProducts.filter(p => {
@@ -80,6 +87,47 @@ export function CashierClient({
   }
 
   const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+
+  // Calculate Discount
+  const discountAmount = React.useMemo(() => {
+    if (!appliedVoucher) return 0
+    
+    if (appliedVoucher.type === "percentage") {
+      let amount = (cartTotal * appliedVoucher.value) / 100
+      if (appliedVoucher.max_discount) {
+        amount = Math.min(amount, appliedVoucher.max_discount)
+      }
+      return amount
+    } else {
+      return appliedVoucher.value
+    }
+  }, [appliedVoucher, cartTotal])
+
+  const finalTotal = Math.max(0, cartTotal - discountAmount)
+
+  const handleApplyVoucher = async () => {
+    if (!voucherCode) return
+    setIsValidatingVoucher(true)
+    try {
+      const res = await validateVoucher(store.id, voucherCode, cartTotal)
+      if (res.success) {
+        setAppliedVoucher(res.voucher)
+        toast.success(`Voucher "${res.voucher.code}" berhasil dipasang!`)
+      } else {
+        toast.error(res.error || "Voucher tidak ditemukan")
+      }
+    } catch (err) {
+      toast.error("Terjadi kesalahan saat memvalidasi voucher")
+    } finally {
+      setIsValidatingVoucher(false)
+    }
+  }
+
+  const removeVoucher = () => {
+    setAppliedVoucher(null)
+    setVoucherCode("")
+    toast.info("Voucher dilepas")
+  }
 
   // Reusable Cart Content
   const CartContent = () => (
@@ -155,10 +203,73 @@ export function CashierClient({
       </ScrollArea>
 
       <footer className="p-6 border-t bg-background space-y-4 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+        {/* Voucher Section */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
+              <IconTicket size={14} />
+              Voucher / Promo
+            </Label>
+            {appliedVoucher && (
+              <button onClick={removeVoucher} className="text-[10px] text-destructive font-bold uppercase hover:underline">
+                Hapus
+              </button>
+            )}
+          </div>
+          
+          {appliedVoucher ? (
+            <div className="flex items-center justify-between p-3 rounded-xl bg-primary/5 border border-primary/20 border-dashed">
+               <div className="flex items-center gap-3">
+                 <div className="h-10 w-10 flex items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm">
+                   <IconTicket size={20} />
+                 </div>
+                 <div>
+                   <p className="text-xs font-black uppercase tracking-tight">{appliedVoucher.code}</p>
+                   <p className="text-[10px] text-muted-foreground">Tersimpan: Rp {discountAmount.toLocaleString()}</p>
+                 </div>
+               </div>
+               <div className="text-right">
+                  <span className="text-[10px] font-bold bg-primary/20 text-primary px-2 py-0.5 rounded-full">AKTIF</span>
+               </div>
+            </div>
+          ) : (
+            <div className="flex gap-2">
+              <Input 
+                placeholder="Kode promo..." 
+                className="bg-muted/50 border-none h-11"
+                value={voucherCode}
+                onChange={(e) => setVoucherCode(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleApplyVoucher()}
+              />
+              <Button 
+                variant="secondary" 
+                size="icon" 
+                className="h-11 w-11 shrink-0"
+                onClick={handleApplyVoucher}
+                disabled={isValidatingVoucher || !voucherCode}
+              >
+                <IconPlus className={cn("h-4 w-4", isValidatingVoucher && "animate-spin")} />
+              </Button>
+            </div>
+          )}
+        </div>
+
+        <Separator className="opacity-50" />
+
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Total</span>
-            <span className="text-primary font-bold text-lg">Rp {cartTotal.toLocaleString()}</span>
+            <span className="text-muted-foreground">Subtotal</span>
+            <span className="font-medium">Rp {cartTotal.toLocaleString()}</span>
+          </div>
+          {appliedVoucher && (
+             <div className="flex justify-between text-sm text-green-600 font-medium">
+                <span>Diskon Promo</span>
+                <span>-Rp {discountAmount.toLocaleString()}</span>
+             </div>
+          )}
+          <div className="flex justify-between items-end pt-2">
+            <span className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Total</span>
+            <span className="text-primary font-black text-2xl">Rp {finalTotal.toLocaleString()}</span>
           </div>
         </div>
 
@@ -285,13 +396,19 @@ export function CashierClient({
         isOpen={isCheckoutOpen}
         onClose={() => setIsCheckoutOpen(false)}
         cartItems={cart}
-        total={cartTotal}
+        total={finalTotal}
+        discountTotal={discountAmount}
+        voucherInfo={appliedVoucher ? { code: appliedVoucher.code, amount: discountAmount } : null}
         storeId={store.id}
         storeName={store.name}
         address={store.address}
         phone={store.phone}
         userName={userName}
-        onSuccess={() => setCart([])}
+        onSuccess={() => {
+          setCart([])
+          setAppliedVoucher(null)
+          setVoucherCode("")
+        }}
       />
     </div>
   )

@@ -107,13 +107,14 @@ Memberikan kendali penuh bagi Owner untuk berkomunikasi secara efisien dengan se
 - [x] **Broadcast Templates**: Penyediaan template siap pakai untuk Rapat, Info Stok, Promo, dan Maintenance.
 - [x] **Sidebar Integration**: Menu khusus "Komunikasi" untuk akses cepat ke fitur Broadcast dan Notifikasi.
 
-## Fase 13: Promotions, Discounts & Vouchers (Next Phase) 🔵
-Meningkatkan daya tarik penjualan melalui sistem promosi yang fleksibel.
+## Fase 13: Promotions, Discounts & Vouchers (Selesai) ✅
+Meningkatkan daya tarik penjualan melalui sistem promosi yang fleksibel dan terintegrasi.
 
-- [ ] **Discount Schema**: Implementasi diskon produk (persentase/nominal) dengan periode waktu tertentu.
-- [ ] **Voucher System**: Pembuatan kode voucher/kupon (misal: "PROMO10") dengan batasan penggunaan dan masa berlaku.
-- [ ] **Applied Promotions at POS**: Integrasi antarmuka Kasir untuk memilih diskon aktif atau memasukkan kode voucher saat checkout.
-- [ ] **Financial Adjustment**: Penyesuaian kalkulasi laba rugi dan laporan finansial untuk menghitung efektivitas promosi.
+- [x] **Voucher System**: Owner dapat membuat kode voucher (Persentase/Nominal) dengan batasan minimal belanja dan limit penggunaan.
+- [x] **Store-wide Discounts**: Pengaturan diskon otomatis yang berlaku untuk periode tertentu di seluruh toko.
+- [x] **Cashier Integration**: Input voucher real-time di layar Kasir dengan validasi otomatis terhadap total belanja.
+- [x] **Transaction Tracking**: Pencatatan nilai diskon dalam setiap transaksi untuk laporan laba rugi yang akurat.
+- [x] **Promotion Hub**: Dashboard khusus bagi Owner untuk memantau performa voucher dan mengelola promo aktif.
 
 ## Prioritas MVP (MoSCoW)
 - **Must Have**: Login, CRUD Produk, Kasir, Riwayat Transaksi, Multi-Store Selection.

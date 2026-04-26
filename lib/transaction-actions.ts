@@ -16,6 +16,8 @@ export type TransactionPayload = {
   totalAmount: number
   paymentMethod: string
   items: TransactionItem[]
+  discountTotal?: number
+  voucherInfo?: any
 }
 
 export async function createTransaction(payload: TransactionPayload) {
@@ -24,12 +26,14 @@ export async function createTransaction(payload: TransactionPayload) {
   
   if (!user) return { error: "Unauthorized" }
 
-  const { data, error } = await supabase.rpc("create_transaction_v1", {
+  const { data, error } = await supabase.rpc("create_transaction_v2", {
     p_store_id: payload.storeId,
     p_cashier_id: user.id,
     p_total_amount: payload.totalAmount,
     p_payment_method: payload.paymentMethod,
-    p_items: payload.items
+    p_items: payload.items,
+    p_discount_total: payload.discountTotal || 0,
+    p_voucher_info: payload.voucherInfo || {}
   })
 
   if (error) {
