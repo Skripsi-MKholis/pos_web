@@ -82,6 +82,23 @@ Mendukung pengelolaan banyak toko dan pembatasan hak akses karyawan.
 - [x] **Server-side RBAC**: Proteksi route secara ketat untuk mencegah akses ilegal ke fitur Owner.
 - [x] **Cross-Store Membership**: Satu akun dapat terdaftar di banyak toko dengan peran berbeda.
 
+## Fase 10: Notification System (Selesai) ✅
+Meningkatkan kesadaran operasional melalui sistem pemberitahuan real-time.
+
+- [x] **Notification Center**: UI ikon lonceng pada header dengan dropdown daftar notifikasi terbaru.
+- [x] **Low Stock Alerts**: Notifikasi otomatis (via DB Trigger) saat stok produk mencapai ambang batas minimum.
+- [x] **Stock Movement Notifications**: Pemberitahuan realtime saat stok berkurang via transaksi atau update manual.
+- [x] **Real-time Sync**: Penggunaan Supabase Realtime untuk memunculkan notifikasi instan dan Toast pop-up.
+
+## Fase 11: Omni-Channel Notifications & Admin Messaging (Next Phase) 🔵
+Menyatukan fitur Inbox dan Notifikasi ke dalam satu sistem komunikasi yang terintegrasi.
+
+- [ ] **Unified Inbox**: Mengintegrasikan pesan internal (Owner <-> Staf) ke dalam sistem notifikasi.
+- [ ] **Role-Based Targeting**: Kemampuan untuk mengirim notifikasi khusus ke peran tertentu (misal: promo hanya untuk Owner, atau info teknis untuk Kasir).
+- [ ] **System Announcements**: Fitur bagi Admin Pusat untuk mengirim pesan global ke seluruh pengguna/toko.
+- [ ] **Custom Notifications**: UI sederhana bagi Owner untuk "membuat" pengumuman internal bagi seluruh staf toko tersebut.
+- [ ] **Rich Contextual Action**: Notifikasi yang membawa aksi khusus (seperti tautan promo atau instruksi operasional).
+
 ## Prioritas MVP (MoSCoW)
 - **Must Have**: Login, CRUD Produk, Kasir, Riwayat Transaksi, Multi-Store Selection.
 - **Should Have**: Dashboard Analytics, Cetak Struk, Manajemen Stok, Laporan Laba Kotor.

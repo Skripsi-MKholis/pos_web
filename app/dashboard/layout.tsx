@@ -65,7 +65,7 @@ export default async function DashboardLayout({
         variant="inset" 
       />
       <SidebarInset>
-        <SiteHeader />
+        <SiteHeader storeId={activeStoreId} />
         {children}
       </SidebarInset>
     </SidebarProvider>
