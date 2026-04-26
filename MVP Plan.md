@@ -124,19 +124,18 @@ Konfigurasi branding struk dan fleksibilitas perangkat keras.
 - [x] **Print Preview & Test**: Fitur pratinjau struk secara live dan simulasi cetak.
 - [x] **Branding Integration**: Penggunaan Logo Toko secara dinamis pada struk.
 
-## Fase 15: Manajemen Meja & Open Bill (Sedang Berjalan) ⏳
+## Fase 15: Manajemen Meja & Open Bill (Selesai) ✅
 Transformasi POS untuk F&B dengan sistem pesanan per meja dan pembayaran tunda.
 
 - [x] **Table Management**: CRUD daftar meja dan kapasitas.
 - [x] **Visual Floor Plan**: Tampilan grid meja dengan indikator status real-time.
 - [x] **Table Selection**: Alur kasir terintegrasi dengan pemilihan meja.
-- [ ] **Open Bill / Pay Later**: Kemampuan menyimpan pesanan ke meja (Status `Pending`) dan menambah item di kemudian waktu.
-- [ ] **Table Monitoring Dashboard**: Monitoring terpusat untuk melihat meja mana yang sedang aktif memesan.
-- [ ] **Split Bill / Partial Payment**: Fitur untuk membayar sebagian pesanan atau membagi tagihan per item dalam satu meja.
-- [ ] **Kitchen Ticket (KOT)**: Format struk khusus pesanan dapur (tanpa harga).
+- [x] **Open Bill / Pay Later**: Kemampuan menyimpan pesanan ke meja (Status `Pending`) dan menambah item di kemudian waktu.
+- [x] **Table Monitoring Dashboard**: Monitoring terpusat untuk melihat meja mana yang sedang aktif memesan.
+- [x] **Split Bill / Partial Payment**: Fitur untuk membayar sebagian pesanan atau membagi tagihan per item dalam satu meja.
+- [x] **Kitchen Ticket (KOT)**: Format struk khusus pesanan dapur (tanpa harga).
 
 ## Fase 16: Reservasi & Booking Meja ⏳
-Sistem pengelolaan antrean dan pemesanan tempat di masa mendatang.
 Sistem pengelolaan antrean dan pemesanan tempat di masa mendatang.
 
 - [ ] **Reservation Management**: Dashboard untuk mencatat pesan tempat (Nama, Jam, Jumlah Orang).

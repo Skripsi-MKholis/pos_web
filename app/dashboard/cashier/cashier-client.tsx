@@ -13,8 +13,10 @@ import {
   IconArmchair,
   IconChevronDown,
   IconTicket,
-  IconDeviceFloppy
+  IconDeviceFloppy,
+  IconPrinter
 } from "@tabler/icons-react"
+import { ReceiptPrint } from "@/components/receipt-print"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
@@ -38,7 +40,7 @@ import { ProductCard } from "./product-card"
 import { CheckoutDialog } from "./checkout-dialog"
 import { cn, formatCurrency } from "@/lib/utils"
 import { validateVoucher } from "@/lib/promotion-actions"
-import { useSearchParams } from "next/navigation"
+import { useSearchParams, useRouter } from "next/navigation"
 import { createTransaction, TransactionPayload } from "@/lib/transaction-actions"
 
 // Sub-component for Voucher to prevent full parent re-renders on every keystroke
@@ -138,7 +140,11 @@ export function CashierClient({
   const [isValidatingVoucher, setIsValidatingVoucher] = React.useState(false)
   const [selectedTable, setSelectedTable] = React.useState<any>(null)
   const [isTableSelectOpen, setIsTableSelectOpen] = React.useState(false)
+  const [printData, setPrintData] = React.useState<any>(null)
+  const [isKitchenPrint, setIsKitchenPrint] = React.useState(false)
   const searchParams = useSearchParams()
+  const router = useRouter()
+  const notifiedTableRef = React.useRef<string | null>(null)
 
   // Handle auto-selected table from URL
   React.useEffect(() => {
@@ -147,8 +153,10 @@ export function CashierClient({
       const table = initialTables.find(t => t.id === tableId)
       if (table) {
         setSelectedTable(table)
-        if (table.status === 'occupied') {
+        // Only show toast if we haven't notified for THIS tableId yet
+        if (table.status === 'occupied' && notifiedTableRef.current !== tableId) {
           toast.info(`Melanjutkan pesanan untuk ${table.name}`)
+          notifiedTableRef.current = tableId
         }
       }
     }
@@ -231,7 +239,7 @@ export function CashierClient({
     toast.info("Voucher dilepas")
   }
 
-  const handleSaveOrder = async () => {
+  const handleSaveOrder = async (shouldPrint: boolean = false) => {
     if (cart.length === 0) return
     if (!selectedTable) {
       toast.error("Pilih meja terlebih dahulu untuk menyimpan pesanan tunda")
@@ -262,10 +270,31 @@ export function CashierClient({
         toast.error(res.error)
       } else {
         toast.success(`Pesanan untuk ${selectedTable.name} berhasil disimpan!`)
-        setCart([])
-        setAppliedVoucher(null)
-        setSelectedTable(null)
-        setIsCartOpen(false)
+        
+        if (shouldPrint) {
+          setIsKitchenPrint(true)
+          setPrintData({
+            id: res.transactionId,
+            total: finalTotal,
+            items: cart.map(item => ({
+              name: item.name,
+              quantity: item.quantity,
+              price: item.price
+            }))
+          })
+          setTimeout(() => {
+            window.print()
+            setCart([])
+            setAppliedVoucher(null)
+            setSelectedTable(null)
+            setIsCartOpen(false)
+          }, 300)
+        } else {
+          setCart([])
+          setAppliedVoucher(null)
+          setSelectedTable(null)
+          setIsCartOpen(false)
+        }
       }
     } catch (err) {
       toast.error("Gagal menyimpan pesanan")
@@ -286,6 +315,32 @@ export function CashierClient({
           {cart.length} Item
         </span>
       </header>
+
+      {/* Continuation Indicator */}
+      {selectedTable?.status === 'occupied' && (
+        <div className="bg-primary/5 border-b border-primary/20 px-4 py-3 flex items-center justify-between">
+           <div className="flex items-center gap-2">
+              <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+              <div className="space-y-0.5">
+                 <p className="text-[10px] font-black uppercase tracking-widest text-primary">Melanjutkan Pesanan</p>
+                 <p className="text-xs font-bold uppercase">{selectedTable.name}</p>
+              </div>
+           </div>
+           <Button 
+            variant="ghost" 
+            size="sm" 
+            className="h-8 rounded-lg text-[10px] font-bold uppercase gap-1 text-primary hover:bg-primary/10"
+            onClick={() => {
+               setSelectedTable(null)
+               notifiedTableRef.current = null
+               router.push("/dashboard/cashier")
+               toast.info("Kembali ke transaksi baru")
+            }}
+           >
+             <IconX size={14} /> Batal
+           </Button>
+        </div>
+      )}
 
       <ScrollArea className="flex-1 p-0">
         {cart.length > 0 ? (
@@ -378,12 +433,22 @@ export function CashierClient({
         <div className="flex gap-3">
           <Button 
             variant="outline"
-            className="flex-1 h-12 font-bold gap-2"
+            className="flex-1 h-12 font-bold gap-2 text-xs"
             disabled={cart.length === 0 || isValidatingVoucher}
-            onClick={handleSaveOrder}
+            onClick={() => handleSaveOrder(false)}
           >
             <IconDeviceFloppy size={18} />
             Simpan
+          </Button>
+
+          <Button 
+            variant="outline"
+            className="flex-1 h-12 font-bold gap-2 text-xs border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300"
+            disabled={cart.length === 0 || isValidatingVoucher || !selectedTable}
+            onClick={() => handleSaveOrder(true)}
+          >
+            <IconPrinter size={18} />
+            KOT
           </Button>
 
           <Button 
@@ -418,16 +483,19 @@ export function CashierClient({
               />
             </div>
             <Popover open={isTableSelectOpen} onOpenChange={setIsTableSelectOpen}>
-              <PopoverTrigger asChild>
+              <PopoverTrigger asChild disabled={selectedTable?.status === 'occupied'}>
                 <Button variant="outline" className={cn(
                   "h-11 rounded-xl gap-2 font-bold transition-all",
-                  selectedTable ? "bg-primary text-primary-foreground border-primary" : "bg-muted/30"
+                  selectedTable ? "bg-primary text-primary-foreground border-primary" : "bg-muted/30",
+                  selectedTable?.status === 'occupied' && "opacity-100 cursor-not-allowed border-dashed"
                 )}>
                   <IconArmchair size={18} />
                   <span className="max-w-[80px] truncate">
                     {selectedTable ? selectedTable.name : "Meja"}
                   </span>
-                  <IconChevronDown size={14} className={cn("transition-transform", isTableSelectOpen && "rotate-180")} />
+                  {selectedTable?.status !== 'occupied' && (
+                    <IconChevronDown size={14} className={cn("transition-transform", isTableSelectOpen && "rotate-180")} />
+                  )}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-64 p-0 rounded-2xl overflow-hidden shadow-2xl border-none" align="start">
@@ -577,6 +645,23 @@ export function CashierClient({
           setSelectedTable(null)
         }}
       />
+
+      {/* Hidden Printing Area */}
+      {printData && (
+        <ReceiptPrint
+          storeName={store.name}
+          address={store.address}
+          phone={store.phone}
+          logoUrl={store.logo_url}
+          transactionId={printData.id}
+          cashierName={userName}
+          items={printData.items}
+          total={printData.total || 0}
+          paymentMethod="Pending"
+          tableName={selectedTable?.name}
+          mode={isKitchenPrint ? "kitchen" : "invoice"}
+        />
+      )}
     </div>
   )
 }

@@ -113,6 +113,10 @@ export function CheckoutDialog({
         }
       }}>
         <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Transaksi Berhasil</DialogTitle>
+            <DialogDescription>Rincian kembalian dan opsi cetak struk.</DialogDescription>
+          </DialogHeader>
           <div className="flex flex-col items-center justify-center py-6 space-y-4">
             <div className="h-20 w-20 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 animate-in zoom-in">
               <IconCheck size={40} strokeWidth={3} />

@@ -9,8 +9,10 @@ import {
   IconPlus,
   IconChevronRight,
   IconCheck,
-  IconCurrencyDollar
+  IconCurrencyDollar,
+  IconPrinter
 } from "@tabler/icons-react"
+import { ReceiptPrint } from "@/components/receipt-print"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -33,10 +35,10 @@ import { Checkbox } from "@/components/ui/checkbox"
 
 export function TablesMonitoringClient({ 
   initialTables, 
-  storeId 
+  store 
 }: { 
   initialTables: any[]
-  storeId: string
+  store: any
 }) {
   const [selectedTable, setSelectedTable] = React.useState<any>(null)
   const [isDetailOpen, setIsDetailOpen] = React.useState(false)
@@ -44,6 +46,8 @@ export function TablesMonitoringClient({
   const [splitItems, setSplitItems] = React.useState<Record<string, number>>({})
   const [paymentMethod, setPaymentMethod] = React.useState("Tunai")
   const [isProcessing, setIsProcessing] = React.useState(false)
+  const [printData, setPrintData] = React.useState<any>(null)
+  const [isKitchenPrint, setIsKitchenPrint] = React.useState(false)
   const router = useRouter()
 
   const handleTableClick = (table: any) => {
@@ -77,7 +81,7 @@ export function TablesMonitoringClient({
         originalTransactionId: activeTx.id,
         paidItems,
         paymentMethod,
-        storeId
+        storeId: store.id
       })
 
       if (res.error) {
@@ -175,7 +179,7 @@ export function TablesMonitoringClient({
           )}>
             <div className="flex justify-between items-start">
                <div className="space-y-1">
-                  <h2 className="text-4xl font-black uppercase leading-none">{selectedTable?.name}</h2>
+                  <DialogTitle className="text-4xl font-black uppercase leading-none">{selectedTable?.name}</DialogTitle>
                   <p className="flex items-center gap-2 text-xs font-bold opacity-80 uppercase tracking-widest">
                      <IconUsers size={14} /> Kapasitas {selectedTable?.capacity} Orang
                   </p>
@@ -250,7 +254,7 @@ export function TablesMonitoringClient({
                               unit_price: item.unit_price
                             })),
                             paymentMethod: "Tunai",
-                            storeId
+                            storeId: store.id
                           })
                           if (res.error) toast.error(res.error)
                           else {
@@ -265,6 +269,47 @@ export function TablesMonitoringClient({
                      }}
                    >
                      {isProcessing ? "..." : <><IconReceipt size={18} /> Bayar Semua</>}
+                   </Button>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 pb-2 pt-1">
+                   <Button 
+                     variant="outline"
+                     className="rounded-[1.25rem] h-11 font-black uppercase text-[10px] gap-2 border-2 text-blue-600 border-blue-100 hover:bg-blue-50 hover:border-blue-200"
+                     onClick={() => {
+                       setIsKitchenPrint(true)
+                       setPrintData({
+                         id: activeTx.id,
+                         items: activeTx.transaction_items.map((it: any) => ({
+                           name: it.product_name,
+                           quantity: it.quantity,
+                           price: it.unit_price,
+                           notes: it.notes
+                         }))
+                       })
+                       setTimeout(() => window.print(), 100)
+                     }}
+                   >
+                     <IconPrinter size={16} /> Cetak Dapur
+                   </Button>
+                   <Button 
+                     variant="outline"
+                     className="rounded-[1.25rem] h-11 font-black uppercase text-[10px] gap-2 border-2 text-emerald-600 border-emerald-100 hover:bg-emerald-50 hover:border-emerald-200"
+                     onClick={() => {
+                       setIsKitchenPrint(false)
+                       setPrintData({
+                         id: activeTx.id,
+                         total: activeTx.total_amount,
+                         items: activeTx.transaction_items.map((it: any) => ({
+                           name: it.product_name,
+                           quantity: it.quantity,
+                           price: it.unit_price
+                         }))
+                       })
+                       setTimeout(() => window.print(), 100)
+                     }}
+                   >
+                     <IconReceipt size={16} /> Struk Tagihan
                    </Button>
                 </div>
                 
@@ -374,6 +419,23 @@ export function TablesMonitoringClient({
            </div>
         </DialogContent>
       </Dialog>
+
+      {/* Hidden Printing Area */}
+      {printData && (
+        <ReceiptPrint
+          storeName={store.name}
+          address={store.address}
+          phone={store.phone}
+          logoUrl={store.logo_url}
+          transactionId={printData.id}
+          cashierName="Kasir"
+          items={printData.items}
+          total={printData.total || 0}
+          paymentMethod="Pending"
+          tableName={selectedTable?.name}
+          mode={isKitchenPrint ? "kitchen" : "invoice"}
+        />
+      )}
     </div>
   )
 }

@@ -28,7 +28,7 @@ export default async function TablesMonitoringPage() {
       
       <TablesMonitoringClient 
         initialTables={tables || []} 
-        storeId={activeStore.id}
+        store={activeStore}
       />
     </div>
   )
