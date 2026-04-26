@@ -28,7 +28,8 @@ Sistem menggunakan Role-Based Access Control (RBAC) untuk membatasi akses fitur:
 
 ### 1. Multi-Store Management
 - Satu akun dapat memiliki atau bergabung ke banyak toko.
-- Switcher toko yang seamless di sidebar.
+- Switcher toko yang seamless di sidebar dengan dukungan logo kustom.
+- **Identitas Toko**: Setiap toko bisa memiliki logo/avatar sendiri untuk branding yang lebih profesional.
 - Alur setup awal untuk pengguna baru yang belum memiliki toko.
 
 ### 2. Pusat Inventaris & Produk
@@ -65,7 +66,7 @@ Sistem menggunakan Role-Based Access Control (RBAC) untuk membatasi akses fitur:
 ## 📊 Model Data (Schema Supabase)
 
 ### Inti Bisnis
-- **`stores`**: Menyimpan informasi utama toko (Nama, Alamat, Owner ID).
+- **`stores`**: Menyimpan informasi utama toko (Nama, Alamat, Owner ID, Logo URL).
 - **`store_members`**: Tabel penghubung antara user dan toko beserta role mereka.
 - **`products`**: Data barang dagangan (Harga, Stok, SKU, HPP).
 - **`categories`**: Pengelompokan produk.
