@@ -16,6 +16,13 @@ const fontMono = Geist_Mono({
 })
 
 
+import { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Parzello POS - Sistem Kasir Cloud Masa Depan",
+  description: "Parzello POS adalah sistem kasir modern berbasis cloud untuk UMKM hingga Enterprise. Kelola stok, laporan, dan cabang dengan mudah.",
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
