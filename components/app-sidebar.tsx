@@ -27,7 +27,9 @@ import {
   IconTag,
   IconUserCircle,
   IconShieldCheck,
-  IconCrown
+  IconCrown,
+  IconHistory,
+  IconTrendingUp
 } from "@tabler/icons-react"
 
 const data = {
@@ -86,7 +88,12 @@ const data = {
     {
       title: "Riwayat Transaksi",
       url: "/dashboard/transactions",
-      icon: <IconReceipt className="size-4" />,
+      icon: <IconHistory className="size-4" />,
+    },
+    {
+      title: "Laporan Laba Rugi",
+      url: "/dashboard/reports/profit",
+      icon: <IconTrendingUp className="size-4" />,
     },
   ],
   settings: [

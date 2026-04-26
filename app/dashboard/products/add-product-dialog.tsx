@@ -44,6 +44,7 @@ export function AddProductDialog({
   const [formData, setFormData] = React.useState({
     name: "",
     price: "",
+    cost_price: "",
     sku: "",
     category_id: "none",
     stock_quantity: "0",
@@ -54,6 +55,7 @@ export function AddProductDialog({
     setFormData({
       name: "",
       price: "",
+      cost_price: "",
       sku: "",
       category_id: "none",
       stock_quantity: "0",
@@ -108,6 +110,7 @@ export function AddProductDialog({
       const payload = {
         name: formData.name,
         price: parseFloat(formData.price),
+        cost_price: parseFloat(formData.cost_price || "0"),
         sku: formData.sku || null,
         category_id: formData.category_id === "none" ? null : formData.category_id,
         stock_quantity: parseInt(formData.stock_quantity),
@@ -203,7 +206,7 @@ export function AddProductDialog({
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="product-price">Harga (Rp)*</Label>
+                  <Label htmlFor="product-price">Harga Jual (Rp)*</Label>
                   <Input
                     id="product-price"
                     type="number"
@@ -215,6 +218,19 @@ export function AddProductDialog({
                   />
                 </div>
                 <div className="grid gap-2">
+                  <Label htmlFor="product-cost-price">Harga Modal (Rp)</Label>
+                  <Input
+                    id="product-cost-price"
+                    type="number"
+                    value={formData.cost_price}
+                    onChange={(e) => setFormData({ ...formData, cost_price: e.target.value })}
+                    placeholder="0"
+                    disabled={isLoading}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
                   <Label htmlFor="product-sku">SKU / Kode</Label>
                   <Input
                     id="product-sku"
@@ -224,23 +240,23 @@ export function AddProductDialog({
                     disabled={isLoading}
                   />
                 </div>
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="product-category">Kategori</Label>
-                <Select 
-                  value={formData.category_id} 
-                  onValueChange={(val) => setFormData({ ...formData, category_id: val })}
-                >
-                  <SelectTrigger id="product-category">
-                    <SelectValue placeholder="Pilih kategori" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">Tanpa Kategori</SelectItem>
-                    {categories.map((c) => (
-                      <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="grid gap-2">
+                  <Label htmlFor="product-category">Kategori</Label>
+                  <Select 
+                    value={formData.category_id} 
+                    onValueChange={(val) => setFormData({ ...formData, category_id: val })}
+                  >
+                    <SelectTrigger id="product-category">
+                      <SelectValue placeholder="Pilih kategori" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">Tanpa Kategori</SelectItem>
+                      {categories.map((c) => (
+                        <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">

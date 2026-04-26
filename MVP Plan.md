@@ -66,6 +66,14 @@ Skalasi bisnis dengan pengelolaan banyak cabang dalam satu akun.
 - [x] **Laporan Konsolidasi**: Dashboard ringkasan stok global dari seluruh outlet secara real-time.
 - [x] **Enterprise Billing**: Penyesuaian skema langganan (Free vs Pro vs Enterprise).
 
+## Fase 8: Financials & Profitability (Next Phase) 🔵
+Memberikan wawasan tentang keuntungan bisnis melalui pelacakan HPP (Harga Pokok Penjualan).
+
+- [ ] **HPP Tracking**: Input harga modal pada setiap produk.
+- [ ] **Historical COGS**: Mencatat harga modal pada setiap item transaksi untuk akurasi laporan profit masa lalu.
+- [ ] **Gross Profit Analysis**: Laporan laba kotor per produk, per kategori, dan per outlet.
+- [ ] **Profit Margin**: Visualisasi margin keuntungan pada dashboard utama.
+
 ## Prioritas MVP (MoSCoW)
 - **Must Have**: Login, CRUD Produk, Kasir, Riwayat Transaksi.
 - **Should Have**: Dashboard Analytics, Cetak Struk, Manajemen Stok.

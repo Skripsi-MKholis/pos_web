@@ -76,18 +76,18 @@ export function SectionCards({ metrics }: { metrics: any }) {
         </CardFooter>
       </Card>
 
-      <Card className="@container/card shadow-sm border-border/50">
+      <Card className="@container/card border-emerald-500/20 bg-emerald-500/5 shadow-sm">
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardDescription className="font-medium">Metode Favorit</CardDescription>
-            <IconArrowUpRight className="h-5 w-5 text-muted-foreground opacity-60" />
+            <CardDescription className="font-medium text-emerald-700">Estimasi Laba Kotor</CardDescription>
+            <IconTrendingUp className="h-5 w-5 text-emerald-600 opacity-60" />
           </div>
-          <CardTitle className="text-2xl font-bold tabular-nums @[250px]/card:text-3xl">
-            Tunai
+          <CardTitle className="text-2xl font-bold tabular-nums @[250px]/card:text-3xl text-emerald-600">
+            {formatCurrency(metrics.todayProfit || 0)}
           </CardTitle>
         </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-xs text-muted-foreground pt-0">
-          <p>Metode pembayaran paling sering digunakan</p>
+        <CardFooter className="flex-col items-start gap-1.5 text-xs text-emerald-700/70 pt-0">
+          <p>Total pendapatan dikurangi modal (HPP) hari ini</p>
         </CardFooter>
       </Card>
     </div>
