@@ -2,8 +2,10 @@ import { getStores } from "@/lib/store-actions"
 import { getStoreStaff } from "@/lib/staff-actions"
 import { redirect } from "next/navigation"
 import { StaffListClient } from "./staff-list-client"
+import { enforceOwner } from "@/lib/rbac"
 
 export default async function StaffSettingsPage() {
+  await enforceOwner()
   const stores = await getStores()
   
   if (stores.length === 0) {
@@ -11,19 +13,6 @@ export default async function StaffSettingsPage() {
   }
 
   const store = stores[0]
-  // Check if owner
-  const isOwner = store.store_members[0].role === "Owner"
-
-  if (!isOwner) {
-    return (
-      <div className="flex-1 flex items-center justify-center p-8 text-center h-[50vh]">
-        <div className="space-y-2">
-          <h2 className="text-xl font-bold italic">Akses Dibatasi</h2>
-          <p className="text-muted-foreground">Hanya Owner yang dapat mengelola staf toko.</p>
-        </div>
-      </div>
-    )
-  }
 
   const staff = await getStoreStaff(store.id)
 

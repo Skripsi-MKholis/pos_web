@@ -1,9 +1,11 @@
 import { getStores } from "@/lib/store-actions"
 import { redirect } from "next/navigation"
 import { StoreForm } from "./store-form"
+import { enforceOwner } from "@/lib/rbac"
 
 
 export default async function StoreSettingsPage() {
+  await enforceOwner()
   const stores = await getStores()
   
   if (stores.length === 0) {
@@ -12,18 +14,6 @@ export default async function StoreSettingsPage() {
 
   // Assuming active store is the first one for now
   const store = stores[0]
-  const isOwner = store.store_members[0].role === "Owner"
-
-  if (!isOwner) {
-    return (
-      <div className="flex-1 flex items-center justify-center p-8">
-        <div className="text-center space-y-2">
-          <h2 className="text-xl font-bold">Akses Dibatasi</h2>
-          <p className="text-muted-foreground">Hanya Owner yang dapat mengubah pengaturan toko.</p>
-        </div>
-      </div>
-    )
-  }
 
   return (
     <div className="flex-1 space-y-6 p-4 md:p-8 pt-6">

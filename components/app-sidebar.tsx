@@ -129,12 +129,30 @@ export function AppSidebar({
   user,
   stores,
   activeStoreId,
+  userRole = "Owner",
   ...props 
 }: { 
   user: { name: string; email: string; avatar: string } 
   stores: any[]
   activeStoreId?: string
+  userRole?: string
 } & React.ComponentProps<typeof Sidebar>) {
+  const isOwner = userRole === "Owner"
+
+  // Filter settings for Karyawan
+  const filteredSettings = data.settings.filter(item => {
+    if (isOwner) return true
+    // Karyawan only see Profile and Help
+    return ["Profil Saya", "Bantuan"].includes(item.title)
+  })
+
+  // Filter reports for Karyawan
+  const filteredReports = data.reports.filter(item => {
+    if (isOwner) return true
+    // Karyawan only see History
+    return ["Riwayat Transaksi"].includes(item.title)
+  })
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -149,24 +167,26 @@ export function AppSidebar({
            <NavMain items={data.navMain} />
         </div>
 
-        {/* Inventory Section */}
-        <div className="px-2 pt-2">
-           <SidebarGroupLabel className="px-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 mb-2">
-             Inventaris
-           </SidebarGroupLabel>
-           <NavMain items={data.inventory} />
-        </div>
+        {/* Inventory Section - ONLY FOR OWNER */}
+        {isOwner && (
+          <div className="px-2 pt-2">
+             <SidebarGroupLabel className="px-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 mb-2">
+               Inventaris
+             </SidebarGroupLabel>
+             <NavMain items={data.inventory} />
+          </div>
+        )}
 
         {/* Laporan Section */}
         <div className="px-2 pt-2">
            <SidebarGroupLabel className="px-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 mb-2">
              Laporan
            </SidebarGroupLabel>
-           <NavMain items={data.reports} />
+           <NavMain items={filteredReports} />
         </div>
 
         {/* Pengaturan Section */}
-        <NavSecondary items={data.settings} className="mt-auto border-t bg-muted/20" />
+        <NavSecondary items={filteredSettings} className="mt-auto border-t bg-muted/20" />
       </SidebarContent>
       <SidebarFooter className="border-t bg-background">
         <div className="flex items-center justify-between p-2">

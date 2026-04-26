@@ -35,6 +35,18 @@ export default async function DashboardLayout({
 
   const stores = await getStores()
   const activeStoreId = await getActiveStoreId()
+  
+  if (!activeStoreId && stores.length > 0) {
+    redirect("/select-store")
+  }
+
+  if (stores.length === 0) {
+    redirect("/setup")
+  }
+
+  // Get role for active store
+  const activeStore = stores.find(s => s.id === activeStoreId) || stores[0]
+  const userRole = (activeStore as any)?.store_members?.[0]?.role || "Owner"
 
   return (
     <SidebarProvider
@@ -49,6 +61,7 @@ export default async function DashboardLayout({
         user={userData} 
         stores={stores} 
         activeStoreId={activeStoreId} 
+        userRole={userRole}
         variant="inset" 
       />
       <SidebarInset>

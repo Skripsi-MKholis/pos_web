@@ -4,8 +4,10 @@ import { redirect } from "next/navigation"
 import { ProfitChartClient } from "./profit-chart-client"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { IconCash, IconTrendingUp, IconPercentage } from "@tabler/icons-react"
+import { enforceOwner } from "@/lib/rbac"
 
 export default async function ProfitReportPage() {
+  await enforceOwner()
   const stores = await getStores()
   
   if (stores.length === 0) {

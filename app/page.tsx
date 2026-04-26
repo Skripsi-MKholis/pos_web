@@ -10,7 +10,17 @@ import {
 } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 
-export default function LandingPage() {
+import { createClient } from "@/lib/supabase/server"
+import { redirect } from "next/navigation"
+
+export default async function LandingPage() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (user) {
+    redirect("/select-store")
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-background">
       {/* Navigation */}

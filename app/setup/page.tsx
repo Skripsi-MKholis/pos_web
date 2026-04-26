@@ -11,16 +11,7 @@ export default async function SetupPage() {
     redirect("/login")
   }
 
-  // Check if they already have a store
-  const { data: storeMember } = await supabase
-    .from("store_members")
-    .select("store_id")
-    .eq("user_id", user.id)
-    .single()
-
-  if (storeMember) {
-    redirect("/dashboard")
-  }
+  // No longer redirect if they have a store, because they might be adding a NEW one.
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/30 p-4">

@@ -66,3 +66,23 @@ export async function updateStore(storeId: string, data: { name?: string; addres
 
   return { success: true }
 }
+
+export async function getUserRole(storeId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
+
+  const { data, error } = await supabase
+    .from("store_members")
+    .select("role")
+    .eq("store_id", storeId)
+    .eq("user_id", user.id)
+    .maybeSingle()
+
+  if (error) {
+    console.error("Error fetching user role:", error)
+    return null
+  }
+
+  return data?.role
+}

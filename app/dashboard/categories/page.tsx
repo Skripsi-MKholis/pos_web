@@ -2,8 +2,10 @@ import { getCategories } from "@/lib/product-actions"
 import { getStores, getActiveStoreId } from "@/lib/store-actions"
 import { AddCategoryDialog } from "./add-category-dialog"
 import { CategoryTableClient } from "./category-table-client"
+import { enforceOwner } from "@/lib/rbac"
 
 export default async function CategoriesPage() {
+  await enforceOwner()
   const stores = await getStores()
   
   if (stores.length === 0) {

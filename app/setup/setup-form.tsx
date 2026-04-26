@@ -28,9 +28,12 @@ export function SetupForm() {
         toast.error(result.error)
       } else {
         toast.success("Toko berhasil dibuat! Menyiapkan dashboard...")
-        setTimeout(() => {
+        
+        // Use the newly created store ID
+        if (result.data?.id) {
+          await setActiveStoreId(result.data.id)
           window.location.href = "/dashboard"
-        }, 1000)
+        }
       }
     } catch (error) {
       toast.error("Terjadi kesalahan")

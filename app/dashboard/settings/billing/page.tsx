@@ -2,8 +2,10 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { IconCheck, IconStar, IconCrown, IconBolt } from "@tabler/icons-react"
+import { enforceOwner } from "@/lib/rbac"
 
-export default function BillingPage() {
+export default async function BillingPage() {
+  await enforceOwner()
   const plans = [
     {
       name: "Free",

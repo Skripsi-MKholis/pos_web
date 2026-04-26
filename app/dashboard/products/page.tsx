@@ -2,8 +2,10 @@ import { getProducts, getCategories } from "@/lib/product-actions"
 import { getStores, getActiveStoreId } from "@/lib/store-actions"
 import { AddProductDialog } from "./add-product-dialog"
 import { ProductTableClient } from "./product-table-client"
+import { enforceOwner } from "@/lib/rbac"
 
 export default async function ProductsPage() {
+  await enforceOwner()
   const stores = await getStores()
   
   if (stores.length === 0) {

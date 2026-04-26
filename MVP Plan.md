@@ -66,19 +66,27 @@ Skalasi bisnis dengan pengelolaan banyak cabang dalam satu akun.
 - [x] **Laporan Konsolidasi**: Dashboard ringkasan stok global dari seluruh outlet secara real-time.
 - [x] **Enterprise Billing**: Penyesuaian skema langganan (Free vs Pro vs Enterprise).
 
-## Fase 8: Financials & Profitability (Next Phase) 🔵
+## Fase 8: Financials & Profitability (Selesai) ✅
 Memberikan wawasan tentang keuntungan bisnis melalui pelacakan HPP (Harga Pokok Penjualan).
 
-- [ ] **HPP Tracking**: Input harga modal pada setiap produk.
-- [ ] **Historical COGS**: Mencatat harga modal pada setiap item transaksi untuk akurasi laporan profit masa lalu.
-- [ ] **Gross Profit Analysis**: Laporan laba kotor per produk, per kategori, dan per outlet.
-- [ ] **Profit Margin**: Visualisasi margin keuntungan pada dashboard utama.
+- [x] **HPP Tracking**: Input harga modal pada setiap produk.
+- [x] **Historical COGS**: Mencatat harga modal pada setiap item transaksi untuk akurasi laporan profit masa lalu.
+- [x] **Gross Profit Analysis**: Laporan laba kotor per produk dan harian.
+- [x] **Profit Margin**: Visualisasi trend laba pada dashboard dan laporan baru.
+
+## Fase 9: Multi-Tenancy & Role-Based Access Control (Selesai) ✅
+Mendukung pengelolaan banyak toko dan pembatasan hak akses karyawan.
+
+- [x] **Intermediate Store Selection**: Halaman pilih toko setelah login untuk menentukan sesi aktif.
+- [x] **Role Kasir/Karyawan**: Pembatasan UI dan akses menu (menyembunyikan inventaris & pengaturan).
+- [x] **Server-side RBAC**: Proteksi route secara ketat untuk mencegah akses ilegal ke fitur Owner.
+- [x] **Cross-Store Membership**: Satu akun dapat terdaftar di banyak toko dengan peran berbeda.
 
 ## Prioritas MVP (MoSCoW)
-- **Must Have**: Login, CRUD Produk, Kasir, Riwayat Transaksi.
-- **Should Have**: Dashboard Analytics, Cetak Struk, Manajemen Stok.
-- **Could Have**: Manajemen Meja (F&B), Voucher/Diskon, Laporan Lanjut.
-- **Won't Have (Next Version)**: Manajemen Karyawan, Reservasi, Multi-outlet (Global Inventory).
+- **Must Have**: Login, CRUD Produk, Kasir, Riwayat Transaksi, Multi-Store Selection.
+- **Should Have**: Dashboard Analytics, Cetak Struk, Manajemen Stok, Laporan Laba Kotor.
+- **Could Have**: Manajemen Meja (F&B), Voucher/Diskon, Manajemen Karyawan (RBAC).
+- **Won't Have (Next Version)**: Manajemen Inventaris Global (Sync Antar Cabang), Customer Loyalty Points.
 
 ## Rencana Verifikasi
 - **UAT (User Acceptance Testing)**: Melakukan simulasi transaksi dari awal (dari input produk hingga checkout).
