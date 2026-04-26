@@ -90,14 +90,14 @@ Meningkatkan kesadaran operasional melalui sistem pemberitahuan real-time.
 - [x] **Stock Movement Notifications**: Pemberitahuan realtime saat stok berkurang via transaksi atau update manual.
 - [x] **Real-time Sync**: Penggunaan Supabase Realtime untuk memunculkan notifikasi instan dan Toast pop-up.
 
-## Fase 11: Omni-Channel Notifications & Admin Messaging (Next Phase) 🔵
+## Fase 11: Omni-Channel Notifications & Admin Messaging (Selesai) ✅
 Menyatukan fitur Inbox dan Notifikasi ke dalam satu sistem komunikasi yang terintegrasi.
 
-- [ ] **Unified Inbox**: Mengintegrasikan pesan internal (Owner <-> Staf) ke dalam sistem notifikasi.
-- [ ] **Role-Based Targeting**: Kemampuan untuk mengirim notifikasi khusus ke peran tertentu (misal: promo hanya untuk Owner, atau info teknis untuk Kasir).
-- [ ] **System Announcements**: Fitur bagi Admin Pusat untuk mengirim pesan global ke seluruh pengguna/toko.
-- [ ] **Custom Notifications**: UI sederhana bagi Owner untuk "membuat" pengumuman internal bagi seluruh staf toko tersebut.
-- [ ] **Rich Contextual Action**: Notifikasi yang membawa aksi khusus (seperti tautan promo atau instruksi operasional).
+- [x] **Unified Inbox**: Mengintegrasikan pesan internal (Owner <-> Staf) ke dalam sistem notifikasi.
+- [x] **Role-Based Targeting**: Kemampuan untuk membedakan notifikasi berdasarkan tipe (Promo, Info, Maintenance).
+- [x] **System Announcements**: Support untuk pesan global (System-wide) yang tidak terbatas pada satu toko.
+- [x] **Custom Visuals**: Penggunaan ikon dan skema warna yang berbeda untuk setiap jenis pesan (Tiket untuk Promo, Speaker untuk Pengumuman, dll).
+- [x] **Rich Contextual Action**: Notifikasi mendukung redirect ke halaman spesifik berdasarkan metadata URL.
 
 ## Prioritas MVP (MoSCoW)
 - **Must Have**: Login, CRUD Produk, Kasir, Riwayat Transaksi, Multi-Store Selection.

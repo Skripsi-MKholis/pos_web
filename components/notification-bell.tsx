@@ -1,9 +1,22 @@
 "use client"
 
 import * as React from "react"
-import { IconBell, IconCheck, IconChecks, IconInfoCircle, IconAlertTriangle, IconTrash, IconX } from "@tabler/icons-react"
+import { 
+  IconBell, 
+  IconCheck, 
+  IconChecks, 
+  IconInfoCircle, 
+  IconAlertTriangle, 
+  IconTrash, 
+  IconX,
+  IconTicket,
+  IconSpeakerphone,
+  IconMessage,
+  IconTool
+} from "@tabler/icons-react"
 import { createClient } from "@/lib/supabase/client"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { getNotifications, markAsRead, markAllAsRead, deleteNotification, clearNotifications } from "@/lib/notification-actions"
 import { 
   Popover, 
@@ -17,7 +30,27 @@ import { formatDistanceToNow } from "date-fns"
 import { id } from "date-fns/locale"
 import { toast } from "sonner"
 
-import { useRouter } from "next/navigation"
+const getNotificationIcon = (type: string) => {
+  switch (type) {
+    case 'low_stock': return <IconAlertTriangle className="text-destructive" size={20} />;
+    case 'promo': return <IconTicket className="text-indigo-500" size={20} />;
+    case 'announcement': return <IconSpeakerphone className="text-blue-500" size={20} />;
+    case 'message': return <IconMessage className="text-green-500" size={20} />;
+    case 'maintenance': return <IconTool className="text-orange-500" size={20} />;
+    default: return <IconInfoCircle className="text-primary" size={20} />;
+  }
+}
+
+const getNotificationColor = (type: string) => {
+  switch (type) {
+    case 'low_stock': return 'bg-destructive/10 text-destructive';
+    case 'promo': return 'bg-indigo-500/10 text-indigo-500';
+    case 'announcement': return 'bg-blue-500/10 text-blue-500';
+    case 'message': return 'bg-green-500/10 text-green-500';
+    case 'maintenance': return 'bg-orange-500/10 text-orange-500';
+    default: return 'bg-primary/10 text-primary';
+  }
+}
 
 export function NotificationBell({ storeId }: { storeId: string }) {
   const [notifications, setNotifications] = React.useState<any[]>([])
@@ -27,11 +60,9 @@ export function NotificationBell({ storeId }: { storeId: string }) {
   const router = useRouter()
 
   const fetchNotifications = React.useCallback(async () => {
-    console.log("Fetching notifications for store:", storeId)
     setIsLoading(true)
     try {
       const data = await getNotifications(storeId)
-      console.log("Found notifications:", data.length)
       setNotifications(data)
       setUnreadCount(data.filter((n: any) => !n.is_read).length)
     } catch (err) {
@@ -44,7 +75,6 @@ export function NotificationBell({ storeId }: { storeId: string }) {
   React.useEffect(() => {
     fetchNotifications()
 
-    // Subscribe to real-time changes
     const channel = supabase
       .channel("notifications-changes")
       .on(
@@ -53,16 +83,16 @@ export function NotificationBell({ storeId }: { storeId: string }) {
           event: "INSERT",
           schema: "public",
           table: "notifications",
-          filter: `store_id=eq.${storeId}`,
         },
         (payload) => {
+          if (payload.new.store_id && payload.new.store_id !== storeId) return;
+
           setNotifications((prev) => [payload.new, ...prev])
           setUnreadCount((prev) => prev + 1)
           
-          // Show toast for new notification
           toast(payload.new.title, {
             description: payload.new.message,
-            icon: payload.new.type === 'low_stock' ? <IconAlertTriangle className="text-destructive" /> : <IconInfoCircle className="text-primary" />,
+            icon: getNotificationIcon(payload.new.type),
           })
         }
       )
@@ -107,11 +137,12 @@ export function NotificationBell({ storeId }: { storeId: string }) {
       await handleMarkAsRead(n.id)
     }
     
-    // Redirect based on type
     if (n.type === 'low_stock') {
       router.push("/dashboard/products")
     } else if (n.type === 'transaction') {
       router.push("/dashboard/transactions")
+    } else if (n.metadata?.url) {
+      router.push(n.metadata.url)
     }
   }
 
@@ -121,7 +152,7 @@ export function NotificationBell({ storeId }: { storeId: string }) {
         <Button variant="ghost" size="icon" className="relative h-9 w-9 rounded-full">
           <IconBell className="h-5 w-5" />
           {!isLoading && unreadCount > 0 && (
-            <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-white">
+            <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-white shadow-sm">
               {unreadCount > 9 ? "9+" : unreadCount}
             </span>
           )}
@@ -143,7 +174,7 @@ export function NotificationBell({ storeId }: { storeId: string }) {
                 variant="ghost" 
                 size="sm" 
                 className="h-auto p-0 text-xs text-primary hover:bg-transparent"
-                onClick={handleMarkAllAsRead}
+                onClick={(e) => { e.stopPropagation(); handleMarkAllAsRead(); }}
               >
                 Baca semua
               </Button>
@@ -153,7 +184,7 @@ export function NotificationBell({ storeId }: { storeId: string }) {
                 variant="ghost" 
                 size="sm" 
                 className="h-auto p-0 text-xs text-destructive hover:bg-transparent"
-                onClick={handleClearAll}
+                onClick={(e) => { e.stopPropagation(); handleClearAll(); }}
               >
                 Hapus semua
               </Button>
@@ -193,14 +224,14 @@ export function NotificationBell({ storeId }: { storeId: string }) {
                       />
                     </div>
                   ) : (
-                    <div className="h-10 w-10 shrink-0 flex items-center justify-center rounded-lg bg-primary/10 text-primary">
-                       <IconInfoCircle size={20} />
+                    <div className={`h-10 w-10 shrink-0 flex items-center justify-center rounded-lg border shadow-sm ${getNotificationColor(notification.type)}`}>
+                       {getNotificationIcon(notification.type)}
                     </div>
                   )}
 
                   <div className="flex flex-col gap-1 overflow-hidden flex-1">
                     <p className="text-xs font-bold leading-none">{notification.title}</p>
-                    <p className="text-[11px] text-muted-foreground line-clamp-2 mt-1">
+                    <p className="text-[11px] text-muted-foreground line-clamp-2 mt-1 leading-relaxed">
                       {notification.message}
                     </p>
                     <div className="flex items-center justify-between mt-2">
@@ -216,7 +247,7 @@ export function NotificationBell({ storeId }: { storeId: string }) {
                             variant="ghost"
                             size="icon"
                             className="h-6 w-6 rounded-full text-primary hover:text-primary hover:bg-primary/10"
-                            onClick={() => handleMarkAsRead(notification.id)}
+                            onClick={(e) => { e.stopPropagation(); handleMarkAsRead(notification.id); }}
                             title="Tandai dibaca"
                           >
                             <IconCheck className="h-3 w-3" />
@@ -226,7 +257,7 @@ export function NotificationBell({ storeId }: { storeId: string }) {
                           variant="ghost"
                           size="icon"
                           className="h-6 w-6 rounded-full text-destructive hover:text-destructive hover:bg-destructive/10"
-                          onClick={() => handleDelete(notification.id)}
+                          onClick={(e) => { e.stopPropagation(); handleDelete(notification.id); }}
                           title="Hapus"
                         >
                           <IconTrash className="h-3 w-3" />
@@ -241,7 +272,7 @@ export function NotificationBell({ storeId }: { storeId: string }) {
         </ScrollArea>
         <div className="border-t p-2">
            <Link href="/dashboard/notifications" className="block w-full">
-            <Button variant="ghost" className="w-full text-xs text-muted-foreground hover:text-primary">
+            <Button variant="ghost" className="w-full text-xs text-muted-foreground hover:text-primary font-medium">
               Lihat Semua Notifikasi
             </Button>
           </Link>

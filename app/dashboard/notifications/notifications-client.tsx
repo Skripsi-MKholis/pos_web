@@ -9,7 +9,11 @@ import {
   IconAlertTriangle, 
   IconChecks,
   IconSearch,
-  IconFilter
+  IconFilter,
+  IconTicket,
+  IconSpeakerphone,
+  IconMessage,
+  IconTool
 } from "@tabler/icons-react"
 import { createClient } from "@/lib/supabase/client"
 import { getNotifications, markAsRead, markAllAsRead, deleteNotification, clearNotifications } from "@/lib/notification-actions"
@@ -21,8 +25,29 @@ import { formatDistanceToNow } from "date-fns"
 import { id } from "date-fns/locale"
 import { toast } from "sonner"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-
 import { useRouter } from "next/navigation"
+
+const getNotificationIcon = (type: string) => {
+  switch (type) {
+    case 'low_stock': return <IconAlertTriangle className="text-destructive" size={28} />;
+    case 'promo': return <IconTicket className="text-indigo-500" size={28} />;
+    case 'announcement': return <IconSpeakerphone className="text-blue-500" size={28} />;
+    case 'message': return <IconMessage className="text-green-500" size={28} />;
+    case 'maintenance': return <IconTool className="text-orange-500" size={28} />;
+    default: return <IconInfoCircle className="text-primary" size={28} />;
+  }
+}
+
+const getNotificationColor = (type: string) => {
+  switch (type) {
+    case 'low_stock': return 'bg-destructive/10 border-destructive/20';
+    case 'promo': return 'bg-indigo-500/10 border-indigo-500/20';
+    case 'announcement': return 'bg-blue-500/10 border-blue-500/20';
+    case 'message': return 'bg-green-500/10 border-green-500/20';
+    case 'maintenance': return 'bg-orange-500/10 border-orange-500/20';
+    default: return 'bg-primary/10 border-primary/20';
+  }
+}
 
 export function NotificationsClient({ storeId, initialData }: { storeId: string, initialData: any[] }) {
   const [notifications, setNotifications] = React.useState<any[]>(initialData)
@@ -44,9 +69,10 @@ export function NotificationsClient({ storeId, initialData }: { storeId: string,
           event: "*",
           schema: "public",
           table: "notifications",
-          filter: `store_id=eq.${storeId}`,
+          // Removed filter to see global ones too
         },
-        () => {
+        (payload: any) => {
+          if (payload.new && payload.new.store_id && payload.new.store_id !== storeId) return;
           fetchLatest()
         }
       )
@@ -92,6 +118,8 @@ export function NotificationsClient({ storeId, initialData }: { storeId: string,
       router.push("/dashboard/products")
     } else if (n.type === 'transaction') {
       router.push("/dashboard/transactions")
+    } else if (n.metadata?.url) {
+      router.push(n.metadata.url)
     }
   }
 
@@ -156,7 +184,7 @@ export function NotificationsClient({ storeId, initialData }: { storeId: string,
                 <div className="flex gap-4 p-5 items-start">
                    <div className={`mt-1.5 h-2 w-2 rounded-full shrink-0 ${notification.is_read ? 'bg-transparent' : 'bg-primary'}`} />
                    
-                   {notification.image_url ? (
+                  {notification.image_url ? (
                     <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-muted border-2 shadow-sm">
                       <img 
                         src={notification.image_url} 
@@ -165,8 +193,8 @@ export function NotificationsClient({ storeId, initialData }: { storeId: string,
                       />
                     </div>
                   ) : (
-                    <div className="h-14 w-14 shrink-0 flex items-center justify-center rounded-xl bg-background border-2 text-primary shadow-sm">
-                       {notification.type === 'low_stock' ? <IconAlertTriangle size={28} className="text-destructive" /> : <IconInfoCircle size={28} />}
+                    <div className={`h-14 w-14 shrink-0 flex items-center justify-center rounded-xl border-2 shadow-sm ${getNotificationColor(notification.type)}`}>
+                       {getNotificationIcon(notification.type)}
                     </div>
                   )}
 
@@ -188,7 +216,7 @@ export function NotificationsClient({ storeId, initialData }: { storeId: string,
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 rounded-lg text-primary hover:bg-primary/10"
-                        onClick={() => handleMarkAsRead(notification.id)}
+                        onClick={(e) => { e.stopPropagation(); handleMarkAsRead(notification.id); }}
                       >
                         <IconCheck className="h-4 w-4" />
                       </Button>
@@ -197,7 +225,7 @@ export function NotificationsClient({ storeId, initialData }: { storeId: string,
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8 rounded-lg text-destructive hover:bg-destructive/10"
-                      onClick={() => handleDelete(notification.id)}
+                      onClick={(e) => { e.stopPropagation(); handleDelete(notification.id); }}
                     >
                       <IconTrash className="h-4 w-4" />
                     </Button>

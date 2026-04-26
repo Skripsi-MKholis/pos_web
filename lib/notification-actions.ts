@@ -11,9 +11,9 @@ export async function getNotifications(storeId: string) {
   const { data, error } = await supabase
     .from("notifications")
     .select("*")
-    .or(`user_id.eq.${user.id},and(user_id.is.null,store_id.eq.${storeId})`)
+    .or(`user_id.eq.${user.id},store_id.is.null,and(user_id.is.null,store_id.eq.${storeId})`)
     .order("created_at", { ascending: false })
-    .limit(20)
+    .limit(50)
 
   if (error) {
     console.error("Error fetching notifications:", error)
@@ -24,11 +24,13 @@ export async function getNotifications(storeId: string) {
 }
 
 export async function createNotification(data: {
-  store_id: string;
+  store_id?: string | null;
   user_id?: string | null;
   type: string;
   title: string;
   message: string;
+  image_url?: string | null;
+  metadata?: any;
 }) {
   const supabase = await createClient()
   
