@@ -2,7 +2,7 @@
 
 Dokumen ini merinci rencana pengembangan bertahap untuk mencapai versi **Minimum Viable Product (MVP)** dari sistem Point of Sale (POS) Web ini. Fokus utama adalah pada fungsionalitas inti: manajemen produk, proses transaksi (kasir), dan pencatatan riwayat.
 
-## Fase 1: Fondasi & Autentikasi (Minggu 1)
+## Fase 1: Fondasi & Autentikasi (Selesai) ✅
 Menyiapkan infrastruktur dasar dan akses pengguna.
 
 - [x] **Setup Database (Supabase)**: Migrasi skema untuk profil, toko, produk, dan transaksi.
@@ -10,7 +10,7 @@ Menyiapkan infrastruktur dasar dan akses pengguna.
 - [x] **Manajemen Toko**: Pengguna dapat membuat toko pertama atau beralih antar toko (Store Switcher fungsional).
 - [x] **Sidebar Dinamis**: Navigasi yang aktif sesuai dengan role dan status login.
 
-## Fase 2: Manajemen Produk & Stok (Minggu 2)
+## Fase 2: Manajemen Produk & Stok (Selesai) ✅
 Membangun inventaris produk yang akan dijual.
 
 - [x] **Kategori Produk**: CRUD kategori untuk pengelompokan produk.
@@ -18,7 +18,7 @@ Membangun inventaris produk yang akan dijual.
 - [x] **Manajemen Stok**: Update stok otomatis saat terjadi transaksi atau input manual.
 - [x] **Data Table**: Implementasi pencarian, sorting, dan filter pada daftar produk.
 
-## Fase 3: Core POS / Interface Kasir (Minggu 3)
+## Fase 3: Core POS / Interface Kasir (Selesai) ✅
 Fitur paling kritikal untuk operasional bisnis.
 
 - [x] **Antarmuka Kasir**: Grid produk dengan pencarian cepat dan filter kategori.
@@ -29,7 +29,7 @@ Fitur paling kritikal untuk operasional bisnis.
     - [x] Pemilihan metode pembayaran (Tunai, QRIS, Transfer).
 - [x] **Struk Digital**: Ringkasan transaksi setelah pembayaran berhasil.
 
-## Fase 4: Riwayat Transaksi & Laporan Dasar (Minggu 4)
+## Fase 4: Riwayat Transaksi & Laporan Dasar (Selesai) ✅
 Memastikan data terekam dengan baik dan dapat dianalisa.
 
 - [x] **Log Transaksi**: Daftar semua transaksi yang telah selesai.
@@ -40,7 +40,7 @@ Memastikan data terekam dengan baik dan dapat dianalisa.
     - [ ] Top 5 Produk Terlaris.
 - [x] **Ekspor Data**: Download laporan penjualan dalam format CSV/Excel (opsional untuk MVP).
 
-## Fase 5: Polish, Testing & Deployment (Minggu 5)
+## Fase 5: Polish, Testing & Deployment (Selesai) ✅
 Menghaluskan UI/UX dan publikasi.
 
 - [x] **Settings**: Update Profil Toko (Alamat, Logo, No. Telp untuk Struk).
@@ -50,7 +50,7 @@ Menghaluskan UI/UX dan publikasi.
 
 ---
 
-## Fase 6: Analytics Lanjut & Customer Engagement
+## Fase 6: Analytics Lanjut & Customer Engagement (Selesai) ✅
 Meningkatkan wawasan bisnis dan loyalitas pelanggan.
 
 - [x] **Visualisasi Data**: Menghidupkan grafik Recharts di Dashboard dengan data transaksi real.

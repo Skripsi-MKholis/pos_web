@@ -2,6 +2,7 @@
 
 import { IconPlus, IconPackage } from "@tabler/icons-react"
 import { Badge } from "@/components/ui/badge"
+import { formatCurrency } from "@/lib/utils"
 
 export function ProductCard({ 
   product, 
@@ -51,7 +52,7 @@ export function ProductCard({
         </h3>
         <div className="flex items-center justify-between mt-1">
           <span className="font-extrabold text-primary text-sm">
-            Rp {product.price.toLocaleString()}
+            Rp {formatCurrency(product.price)}
           </span>
           <div className="bg-primary/20 backdrop-blur-md rounded-full p-1 group-hover:bg-primary group-hover:scale-110 transition-all duration-300">
             <IconPlus className="h-4 w-4 text-primary group-hover:text-primary-foreground" />

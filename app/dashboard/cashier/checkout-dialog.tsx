@@ -23,6 +23,7 @@ import {
 import { createTransaction } from "@/lib/transaction-actions"
 import { toast } from "sonner"
 import { ReceiptPrint } from "@/components/receipt-print"
+import { formatCurrency } from "@/lib/utils"
 
 type Product = {
   id: string
@@ -121,7 +122,7 @@ export function CheckoutDialog({
             </div>
             <div className="text-center space-y-1">
               <h2 className="text-2xl font-bold">Transaksi Berhasil!</h2>
-              <p className="text-muted-foreground text-sm">Kembalian: Rp {(changeAmount < 0 ? 0 : changeAmount).toLocaleString()}</p>
+              <p className="text-muted-foreground text-sm">Kembalian: Rp {formatCurrency(changeAmount < 0 ? 0 : changeAmount)}</p>
             </div>
           </div>
           
@@ -168,7 +169,6 @@ export function CheckoutDialog({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
-// ... existing content (I'll keep it via TargetContent/ReplacementContent)
         <DialogHeader>
           <DialogTitle>Selesaikan Pembayaran</DialogTitle>
           <DialogDescription>
@@ -179,17 +179,17 @@ export function CheckoutDialog({
           <div className="bg-muted p-4 rounded-lg space-y-2">
             <div className="flex justify-between text-muted-foreground text-sm">
               <span>Total Belanja</span>
-              <span>Rp {(total + discountTotal).toLocaleString()}</span>
+              <span>Rp {formatCurrency(total + discountTotal)}</span>
             </div>
             {discountTotal > 0 && (
               <div className="flex justify-between text-emerald-600 text-sm italic">
                 <span>Diskon / Voucher</span>
-                <span>-Rp {discountTotal.toLocaleString()}</span>
+                <span>-Rp {formatCurrency(discountTotal)}</span>
               </div>
             )}
             <div className="flex justify-between font-bold text-xl text-primary border-t pt-2 mt-2">
               <span>Total Tagihan</span>
-              <span>Rp {total.toLocaleString()}</span>
+              <span>Rp {formatCurrency(total)}</span>
             </div>
           </div>
 
@@ -225,7 +225,7 @@ export function CheckoutDialog({
                 <div className="flex justify-between items-center p-3 bg-primary/5 border border-primary/20 rounded-md">
                   <span className="text-sm font-medium">Kembalian</span>
                   <span className={`font-bold ${changeAmount < 0 ? 'text-destructive' : 'text-primary'}`}>
-                    Rp {(changeAmount < 0 ? 0 : changeAmount).toLocaleString()}
+                    Rp {formatCurrency(changeAmount < 0 ? 0 : changeAmount)}
                   </span>
                 </div>
               </div>

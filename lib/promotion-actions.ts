@@ -35,6 +35,42 @@ export async function createDiscount(data: {
   return { success: true }
 }
 
+export async function updateDiscount(id: string, data: any) {
+  const supabase = await createClient()
+  const { error } = await supabase
+    .from("discounts")
+    .update(data)
+    .eq("id", id)
+
+  if (error) return { error: error.message }
+  revalidatePath("/dashboard/promotions")
+  return { success: true }
+}
+
+export async function deleteDiscount(id: string) {
+  const supabase = await createClient()
+  const { error } = await supabase
+    .from("discounts")
+    .delete()
+    .eq("id", id)
+
+  if (error) return { error: error.message }
+  revalidatePath("/dashboard/promotions")
+  return { success: true }
+}
+
+export async function toggleDiscount(id: string, currentStatus: boolean) {
+  const supabase = await createClient()
+  const { error } = await supabase
+    .from("discounts")
+    .update({ is_active: !currentStatus })
+    .eq("id", id)
+
+  if (error) return { error: error.message }
+  revalidatePath("/dashboard/promotions")
+  return { success: true }
+}
+
 // --- VOUCHERS ---
 
 export async function getVouchers(storeId: string) {
@@ -72,10 +108,46 @@ export async function validateVoucher(storeId: string, code: string, currentTota
   }
 
   if (currentTotal < voucher.min_purchase) {
-    return { error: `Minimal pembelian untuk voucher ini adalah Rp ${voucher.min_purchase.toLocaleString()}` }
+    return { error: `Minimal pembelian untuk voucher ini adalah Rp ${new Intl.NumberFormat("id-ID").format(voucher.min_purchase)}` }
   }
 
   return { success: true, voucher }
+}
+
+export async function updateVoucher(id: string, data: any) {
+  const supabase = await createClient()
+  const { error } = await supabase
+    .from("vouchers")
+    .update({ ...data, code: data.code?.toUpperCase() })
+    .eq("id", id)
+
+  if (error) return { error: error.message }
+  revalidatePath("/dashboard/promotions")
+  return { success: true }
+}
+
+export async function deleteVoucher(id: string) {
+  const supabase = await createClient()
+  const { error } = await supabase
+    .from("vouchers")
+    .delete()
+    .eq("id", id)
+
+  if (error) return { error: error.message }
+  revalidatePath("/dashboard/promotions")
+  return { success: true }
+}
+
+export async function toggleVoucher(id: string, currentStatus: boolean) {
+  const supabase = await createClient()
+  const { error } = await supabase
+    .from("vouchers")
+    .update({ is_active: !currentStatus })
+    .eq("id", id)
+
+  if (error) return { error: error.message }
+  revalidatePath("/dashboard/promotions")
+  return { success: true }
 }
 
 export async function createVoucher(data: {
