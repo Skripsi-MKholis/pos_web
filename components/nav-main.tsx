@@ -35,8 +35,8 @@ export function NavMain({
                   tooltip={item.title}
                   isActive={isActive}
                   className={cn(
-                    "transition-none",
-                    isActive && "bg-primary text-primary-foreground font-semibold shadow-sm hover:bg-primary hover:text-primary-foreground"
+                    "transition-all duration-200",
+                    isActive && "!bg-primary !text-primary-foreground font-black shadow-lg shadow-primary/20 hover:!bg-primary hover:!text-primary-foreground"
                   )}
                 >
                   <Link href={item.url}>

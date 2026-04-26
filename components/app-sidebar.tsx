@@ -19,7 +19,6 @@ import {
   IconCashRegister, 
   IconPackage, 
   IconReceipt, 
-  IconSettings, 
   IconHelp, 
   IconBuildingStore,
   IconFlame,
@@ -33,7 +32,9 @@ import {
   IconTrendingUp,
   IconSpeakerphone,
   IconArmchair,
-  IconToolsKitchen2
+  IconToolsKitchen2,
+  IconTicket,
+  IconLayoutGrid
 } from "@tabler/icons-react"
 
 const data = {
@@ -54,29 +55,21 @@ const data = {
       plan: "Free",
     },
   ],
-  navMain: [
+  overview: [
     {
       title: "Dashboard",
       url: "/dashboard",
       icon: <IconDashboard className="size-4" />,
-    },
+    }
+  ],
+  pos: [
     {
-      title: "Kasir",
+      title: "Kasir (POS)",
       url: "/dashboard/cashier",
       icon: <IconCashRegister className="size-4" />,
     },
     {
-      title: "Pelanggan",
-      url: "/dashboard/customers",
-      icon: <IconUserCircle className="size-4" />,
-    },
-    {
-      title: "Promosi",
-      url: "/dashboard/promotions",
-      icon: <IconTag className="size-4" />,
-    },
-    {
-      title: "Monitoring Meja",
+      title: "Manajemen Meja",
       url: "/dashboard/tables",
       icon: <IconArmchair className="size-4" />,
     },
@@ -91,18 +84,6 @@ const data = {
       icon: <IconToolsKitchen2 className="size-4" />,
     },
   ],
-  communication: [
-    {
-      title: "Broadcast",
-      url: "/dashboard/broadcast",
-      icon: <IconSpeakerphone className="size-4" />,
-    },
-    {
-      title: "Notifikasi",
-      url: "/dashboard/notifications",
-      icon: <IconHistory className="size-4" />,
-    },
-  ],
   inventory: [
     {
       title: "Produk",
@@ -112,12 +93,34 @@ const data = {
     {
       title: "Kategori",
       url: "/dashboard/categories",
-      icon: <IconTag className="size-4" />,
+      icon: <IconLayoutGrid className="size-4" />,
     },
     {
-      title: "Stok Global",
-      url: "/dashboard/inventory/global",
-      icon: <IconPackage className="size-4" />,
+      title: "Program Diskon",
+      url: "/dashboard/promotions",
+      icon: <IconTag className="size-4" />,
+    },
+  ],
+  marketing: [
+    {
+      title: "Pelanggan",
+      url: "/dashboard/customers",
+      icon: <IconUserCircle className="size-4" />,
+    },
+    {
+      title: "Voucher Belanja",
+      url: "/dashboard/promotions?tab=vouchers", // Assuming tab support or split view
+      icon: <IconTicket className="size-4" />,
+    },
+    {
+      title: "Broadcast Area",
+      url: "/dashboard/broadcast",
+      icon: <IconSpeakerphone className="size-4" />,
+    },
+    {
+      title: "Notifikasi",
+      url: "/dashboard/notifications",
+      icon: <IconHistory className="size-4" />,
     },
   ],
   reports: [
@@ -139,27 +142,27 @@ const data = {
       icon: <IconUserCircle className="size-4" />,
     },
     {
-      title: "Pengaturan Toko",
+      title: "Informasi Toko",
       url: "/dashboard/settings/store",
       icon: <IconBuildingStore className="size-4" />,
     },
     {
-      title: "Struk & Printer",
+      title: "Cetak & Struk",
       url: "/dashboard/settings/receipt",
       icon: <IconReceipt className="size-4" />,
     },
     {
-      title: "Manajemen Meja",
+      title: "Konfigurasi Meja",
       url: "/dashboard/settings/tables",
       icon: <IconArmchair className="size-4" />,
     },
     {
-      title: "Manajemen Staf",
+      title: "Akses Staf",
       url: "/dashboard/settings/staff",
       icon: <IconShieldCheck className="size-4" />,
     },
     {
-      title: "Billing & Langganan",
+      title: "Langganan",
       url: "/dashboard/settings/billing",
       icon: <IconCrown className="size-4" />,
     },
@@ -190,19 +193,12 @@ export function AppSidebar({
     setMounted(true)
   }, [])
 
-  // Filter settings for Karyawan
-  const filteredSettings = data.settings.filter(item => {
-    if (isOwner) return true
-    // Karyawan only see Profile and Help
-    return ["Profil Saya", "Bantuan"].includes(item.title)
-  })
-
-  // Filter reports for Karyawan
-  const filteredReports = data.reports.filter(item => {
-    if (isOwner) return true
-    // Karyawan only see History
-    return ["Riwayat Transaksi"].includes(item.title)
-  })
+  // Navigation filtering based on Role
+  const filteredOverview = data.overview
+  const filteredPos = data.pos
+  const filteredReports = data.reports.filter(it => isOwner || it.title === "Riwayat Transaksi")
+  const filteredSettings = data.settings.filter(it => isOwner || ["Profil Saya", "Bantuan"].includes(it.title))
+  const filteredMarketing = data.marketing.filter(it => isOwner || it.title === "Notifikasi")
 
   if (!mounted) return (
     <Sidebar collapsible="offcanvas" {...props}>
@@ -217,54 +213,56 @@ export function AppSidebar({
       <SidebarHeader>
         <StoreSwitcher stores={stores} activeStoreId={activeStoreId} />
       </SidebarHeader>
+      
       <SidebarContent>
-        {/* Utama Section */}
+        {/* OVERVIEW SECTION */}
         <div className="px-2 pt-4">
-           <SidebarGroupLabel className="px-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 mb-2">
-             Utama
+           <SidebarGroupLabel className="px-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/50 mb-2">
+             Analytics
            </SidebarGroupLabel>
-           <NavMain items={
-             data.navMain.filter(item => {
-               if (isOwner) return true
-               return ["Dashboard", "Kasir", "Pelanggan", "Monitoring Meja", "Reservasi", "Dapur (KDS)"].includes(item.title)
-             })
-           } />
+           <NavMain items={filteredOverview} />
         </div>
 
-        {/* Komunikasi Section */}
-        <div className="px-2 pt-2">
-           <SidebarGroupLabel className="px-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 mb-2">
-             Komunikasi
+        {/* OPERATIONS SECTION */}
+        <div className="px-2 pt-4">
+           <SidebarGroupLabel className="px-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/50 mb-2">
+             Operasional Kasir
            </SidebarGroupLabel>
-           <NavMain items={
-             data.communication.filter(item => {
-               if (isOwner) return true
-               return item.title === "Notifikasi"
-             })
-           } />
+           <NavMain items={filteredPos} />
         </div>
 
-        {/* Inventory Section - ONLY FOR OWNER */}
+        {/* INVENTORY SECTION (Owner Only) */}
         {isOwner && (
-          <div className="px-2 pt-2">
-             <SidebarGroupLabel className="px-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 mb-2">
-               Inventaris
+          <div className="px-2 pt-4">
+             <SidebarGroupLabel className="px-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/50 mb-2">
+               Katalog & Stok
              </SidebarGroupLabel>
              <NavMain items={data.inventory} />
           </div>
         )}
 
-        {/* Laporan Section */}
-        <div className="px-2 pt-2">
-           <SidebarGroupLabel className="px-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 mb-2">
-             Laporan
+        {/* MARKETING & CRM SECTION */}
+        <div className="px-2 pt-4">
+           <SidebarGroupLabel className="px-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/50 mb-2">
+             Pelanggan & Promo
+           </SidebarGroupLabel>
+           <NavMain items={filteredMarketing} />
+        </div>
+
+        {/* FINANCE SECTION */}
+        <div className="px-2 pt-4">
+           <SidebarGroupLabel className="px-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/50 mb-2">
+             Laporan & Audit
            </SidebarGroupLabel>
            <NavMain items={filteredReports} />
         </div>
 
-        {/* Pengaturan Section */}
-        <NavSecondary items={filteredSettings} className="mt-auto border-t bg-muted/20" />
+        {/* SETTINGS SECTION */}
+        <div className="mt-8 pb-4">
+          <NavSecondary items={filteredSettings} className="border-t bg-muted/20" />
+        </div>
       </SidebarContent>
+
       <SidebarFooter className="border-t bg-background">
         <div className="flex items-center justify-between p-2">
           <NavUser user={user} />

@@ -259,11 +259,20 @@ export async function moveTransactionTable(transactionId: string, fromTableId: s
   if (txError) return { error: txError.message }
 
   // 2. Update table statuses
-  // Set old table to available
-  await supabase
-    .from("tables")
-    .update({ status: 'available' })
-    .eq("id", fromTableId)
+  // Set old table to available ONLY IF NO OTHER PENDING TRANSACTIONS REMAIN
+  const { data: remainingPending } = await supabase
+    .from("transactions")
+    .select("id")
+    .eq("table_id", fromTableId)
+    .eq("status", "Pending")
+    .limit(1)
+
+  if (!remainingPending || remainingPending.length === 0) {
+    await supabase
+      .from("tables")
+      .update({ status: 'available' })
+      .eq("id", fromTableId)
+  }
 
   // Set new table to occupied
   await supabase
@@ -298,12 +307,21 @@ export async function completeFullTransaction(
 
   if (txError) return { error: txError.message }
 
-  // 2. Clear table if exists
+  // 2. Clear table if exists, ONLY IF NO OTHER PENDING TRANSACTIONS
   if (tx.table_id) {
-    await supabase
-      .from("tables")
-      .update({ status: 'available' })
-      .eq("id", tx.table_id)
+    const { data: otherPending } = await supabase
+      .from("transactions")
+      .select("id")
+      .eq("table_id", tx.table_id)
+      .eq("status", "Pending")
+      .limit(1)
+
+    if (!otherPending || otherPending.length === 0) {
+      await supabase
+        .from("tables")
+        .update({ status: 'available' })
+        .eq("id", tx.table_id)
+    }
   }
 
   revalidatePath("/dashboard/tables")
