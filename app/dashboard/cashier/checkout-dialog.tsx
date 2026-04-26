@@ -22,6 +22,14 @@ import {
 } from "@/components/ui/select"
 import { createTransaction } from "@/lib/transaction-actions"
 import { toast } from "sonner"
+import { ReceiptPrint } from "@/components/receipt-print"
+
+type Product = {
+  id: string
+  name: string
+  price: number
+  quantity: number
+}
 
 export function CheckoutDialog({
   isOpen,
@@ -29,6 +37,10 @@ export function CheckoutDialog({
   cartItems,
   total,
   storeId,
+  storeName,
+  address,
+  phone,
+  userName,
   onSuccess
 }: {
   isOpen: boolean
@@ -36,9 +48,15 @@ export function CheckoutDialog({
   cartItems: any[]
   total: number
   storeId: string
+  storeName: string
+  address?: string
+  phone?: string
+  userName: string
   onSuccess: () => void
 }) {
   const [isLoading, setIsLoading] = React.useState(false)
+  const [isSuccess, setIsSuccess] = React.useState(false)
+  const [transactionId, setTransactionId] = React.useState("")
   const [paymentMethod, setPaymentMethod] = React.useState("Tunai")
   const [cashPaid, setCashPaid] = React.useState("")
   
@@ -70,8 +88,8 @@ export function CheckoutDialog({
         toast.error(result.error)
       } else {
         toast.success("Transaksi Berhasil!")
-        onSuccess()
-        onClose()
+        setTransactionId(result.transactionId || "")
+        setIsSuccess(true)
       }
     } catch (error) {
       toast.error("Terjadi kesalahan sistem")
@@ -80,9 +98,71 @@ export function CheckoutDialog({
     }
   }
 
+  if (isSuccess) {
+    return (
+      <Dialog open={isOpen} onOpenChange={(open) => {
+        if (!open) {
+          setIsSuccess(false)
+          setCashPaid("")
+          onSuccess()
+          onClose()
+        }
+      }}>
+        <DialogContent className="sm:max-w-[400px]">
+          <div className="flex flex-col items-center justify-center py-6 space-y-4">
+            <div className="h-20 w-20 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 animate-in zoom-in">
+              <IconCheck size={40} strokeWidth={3} />
+            </div>
+            <div className="text-center space-y-1">
+              <h2 className="text-2xl font-bold">Transaksi Berhasil!</h2>
+              <p className="text-muted-foreground text-sm">Kembalian: Rp {(changeAmount < 0 ? 0 : changeAmount).toLocaleString()}</p>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-3 pb-2">
+            <Button 
+              variant="outline" 
+              className="h-11 rounded-xl"
+              onClick={() => {
+                window.print()
+              }}
+            >
+              Cetak Struk
+            </Button>
+            <Button 
+              className="h-11 rounded-xl"
+              onClick={() => {
+                setIsSuccess(false)
+                setCashPaid("")
+                onSuccess()
+                onClose()
+              }}
+            >
+              Transaksi Baru
+            </Button>
+          </div>
+
+          <ReceiptPrint 
+            storeName={storeName}
+            address={address}
+            phone={phone}
+            cashierName={userName}
+            transactionId={transactionId}
+            items={cartItems}
+            total={total}
+            paymentMethod={paymentMethod}
+            cashPaid={parseFloat(cashPaid || "0")}
+            changeAmount={changeAmount < 0 ? 0 : changeAmount}
+          />
+        </DialogContent>
+      </Dialog>
+    )
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
+// ... existing content (I'll keep it via TargetContent/ReplacementContent)
         <DialogHeader>
           <DialogTitle>Selesaikan Pembayaran</DialogTitle>
           <DialogDescription>

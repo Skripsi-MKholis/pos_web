@@ -95,3 +95,48 @@ export async function getDashboardMetrics(storeId: string) {
     todaySalesCount: count,
   }
 }
+
+export async function getSalesChartData(storeId: string, days: number = 30) {
+  const supabase = await createClient()
+  
+  const startDate = new Date()
+  startDate.setDate(startDate.getDate() - days)
+  startDate.setHours(0, 0, 0, 0)
+
+  const { data, error } = await supabase
+    .from("transactions")
+    .select("created_at, total_amount")
+    .eq("store_id", storeId)
+    .eq("status", "Berhasil")
+    .gte("created_at", startDate.toISOString())
+    .order("created_at", { ascending: true })
+
+  if (error) {
+    console.error("Chart Data Error:", error)
+    return []
+  }
+
+  // Group by date
+  const groupedData: Record<string, { revenue: number; orders: number }> = {}
+  
+  // Initialize with all dates in range
+  for (let i = 0; i <= days; i++) {
+    const d = new Date(startDate)
+    d.setDate(d.getDate() + i)
+    groupedData[d.toISOString().split("T")[0]] = { revenue: 0, orders: 0 }
+  }
+
+  data.forEach((t) => {
+    const date = t.created_at.split("T")[0]
+    if (groupedData[date]) {
+      groupedData[date].revenue += Number(t.total_amount)
+      groupedData[date].orders += 1
+    }
+  })
+
+  return Object.entries(groupedData).map(([date, stats]) => ({
+    date,
+    revenue: stats.revenue,
+    orders: stats.orders,
+  }))
+}

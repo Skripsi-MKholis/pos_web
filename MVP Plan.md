@@ -53,10 +53,10 @@ Menghaluskan UI/UX dan publikasi.
 ## Fase 6: Analytics Lanjut & Customer Engagement
 Meningkatkan wawasan bisnis dan loyalitas pelanggan.
 
-- [ ] **Visualisasi Data**: Menghidupkan grafik Recharts di Dashboard dengan data transaksi real.
-- [ ] **Daftar Pelanggan**: CRUD pelanggan dan integrasi dengan sistem Kasir untuk pencatatan member.
-- [ ] **Cetak Struk (Thermal)**: Fitur cetak struk dengan format printer thermal (58mm/80mm).
-- [ ] **Manajemen Karyawan**: Menambah staf kasir ke dalam toko dengan role terbatas.
+- [x] **Visualisasi Data**: Menghidupkan grafik Recharts di Dashboard dengan data transaksi real.
+- [x] **Daftar Pelanggan**: CRUD pelanggan dan integrasi dengan sistem Kasir untuk pencatatan member.
+- [x] **Cetak Struk (Thermal)**: Fitur cetak struk dengan format printer thermal (58mm/80mm).
+- [x] **Manajemen Karyawan**: Menambah staf kasir ke dalam toko dengan role terbatas.
 
 ## Fase 7: Multi-Outlet & Enterprise Management
 Skalasi bisnis dengan pengelolaan banyak cabang dalam satu akun.

@@ -25,7 +25,8 @@ import {
   IconFlame,
   IconCoffee,
   IconTag,
-  IconUserCircle
+  IconUserCircle,
+  IconShieldCheck
 } from "@tabler/icons-react"
 
 const data = {
@@ -57,6 +58,11 @@ const data = {
       url: "/dashboard/cashier",
       icon: <IconCashRegister className="size-4" />,
     },
+    {
+      title: "Pelanggan",
+      url: "/dashboard/customers",
+      icon: <IconUserCircle className="size-4" />,
+    },
   ],
   inventory: [
     {
@@ -87,6 +93,11 @@ const data = {
       title: "Pengaturan Toko",
       url: "/dashboard/settings/store",
       icon: <IconBuildingStore className="size-4" />,
+    },
+    {
+      title: "Manajemen Staf",
+      url: "/dashboard/settings/staff",
+      icon: <IconShieldCheck className="size-4" />,
     },
     {
       title: "Bantuan",

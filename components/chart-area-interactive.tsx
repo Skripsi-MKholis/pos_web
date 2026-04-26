@@ -127,36 +127,25 @@ const chartData = [
 ]
 
 const chartConfig = {
-  sales: {
-    label: "Sales (Rp)",
-  },
-  orders: {
-    label: "Orders",
+  revenue: {
+    label: "Total Pendapatan",
     color: "var(--primary)",
   },
-  performance: {
-    label: "Performance",
-    color: "hsl(var(--primary) / 0.8)",
+  orders: {
+    label: "Jumlah Transaksi",
+    color: "hsl(var(--primary) / 0.5)",
   },
 } satisfies ChartConfig
 
-export function ChartAreaInteractive() {
+export function ChartAreaInteractive({ data }: { data: any[] }) {
   const isMobile = useIsMobile()
-  const [timeRange, setTimeRange] = React.useState("90d")
+  const [timeRange, setTimeRange] = React.useState("30d")
 
-  React.useEffect(() => {
-    if (isMobile) {
-      setTimeRange("7d")
-    }
-  }, [isMobile])
-
-  const filteredData = chartData.filter((item) => {
+  const filteredData = data.filter((item) => {
     const date = new Date(item.date)
-    const referenceDate = new Date("2024-06-30")
-    let daysToSubtract = 90
-    if (timeRange === "30d") {
-      daysToSubtract = 30
-    } else if (timeRange === "7d") {
+    const referenceDate = new Date()
+    let daysToSubtract = 30
+    if (timeRange === "7d") {
       daysToSubtract = 7
     }
     const startDate = new Date(referenceDate)
@@ -178,11 +167,10 @@ export function ChartAreaInteractive() {
           <ToggleGroup
             type="single"
             value={timeRange}
-            onValueChange={setTimeRange}
+            onValueChange={(val) => val && setTimeRange(val)}
             variant="outline"
             className="hidden *:data-[slot=toggle-group-item]:px-4! @[767px]/card:flex"
           >
-            <ToggleGroupItem value="90d">Last 3 months</ToggleGroupItem>
             <ToggleGroupItem value="30d">Last 30 days</ToggleGroupItem>
             <ToggleGroupItem value="7d">Last 7 days</ToggleGroupItem>
           </ToggleGroup>
@@ -270,20 +258,20 @@ export function ChartAreaInteractive() {
               }
             />
             <Area
-              dataKey="mobile"
+              dataKey="orders"
               type="natural"
               fill="url(#fillMobile)"
-              stroke="var(--color-mobile)"
+              stroke="var(--color-orders)"
               stackId="a"
-              name="Orders"
+              name="Jumlah Transaksi"
             />
             <Area
-              dataKey="desktop"
+              dataKey="revenue"
               type="natural"
               fill="url(#fillDesktop)"
-              stroke="var(--color-desktop)"
+              stroke="var(--color-revenue)"
               stackId="a"
-              name="Sales Performance"
+              name="Total Pendapatan"
             />
           </AreaChart>
         </ChartContainer>

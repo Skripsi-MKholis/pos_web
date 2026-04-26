@@ -1,5 +1,5 @@
 import { getStores } from "@/lib/store-actions"
-import { getDashboardMetrics } from "@/lib/transaction-actions"
+import { getDashboardMetrics, getSalesChartData } from "@/lib/transaction-actions"
 import { SectionCards } from "@/components/section-cards"
 import { ChartAreaInteractive } from "@/components/chart-area-interactive"
 import { redirect } from "next/navigation"
@@ -12,7 +12,10 @@ export default async function DashboardPage() {
   }
 
   const activeStoreId = stores[0].id
-  const metrics = await getDashboardMetrics(activeStoreId)
+  const [metrics, chartData] = await Promise.all([
+    getDashboardMetrics(activeStoreId),
+    getSalesChartData(activeStoreId, 30)
+  ])
 
   return (
     <div className="flex flex-1 flex-col">
@@ -22,7 +25,7 @@ export default async function DashboardPage() {
           
           <div className="px-4 lg:px-6">
             <div className="p-1 rounded-3xl border bg-card/50 overflow-hidden">
-               <ChartAreaInteractive />
+               <ChartAreaInteractive data={chartData} />
             </div>
           </div>
           

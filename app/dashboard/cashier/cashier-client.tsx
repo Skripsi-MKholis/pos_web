@@ -28,11 +28,13 @@ import { CheckoutDialog } from "./checkout-dialog"
 import { cn } from "@/lib/utils"
 
 export function CashierClient({ 
-  storeId, 
+  store,
+  userName,
   initialProducts, 
   categories 
 }: { 
-  storeId: string;
+  store: any;
+  userName: string;
   initialProducts: any[];
   categories: any[];
 }) {
@@ -284,7 +286,11 @@ export function CashierClient({
         onClose={() => setIsCheckoutOpen(false)}
         cartItems={cart}
         total={cartTotal}
-        storeId={storeId}
+        storeId={store.id}
+        storeName={store.name}
+        address={store.address}
+        phone={store.phone}
+        userName={userName}
         onSuccess={() => setCart([])}
       />
     </div>
