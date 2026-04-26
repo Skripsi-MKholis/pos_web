@@ -109,3 +109,64 @@ export async function clearNotifications(storeId: string) {
   revalidatePath("/dashboard", "layout")
   return { success: true }
 }
+
+export async function sendBroadcast(data: {
+  storeId: string;
+  type: string;
+  title: string;
+  message: string;
+  targetType: "all" | "role" | "specific";
+  targetRole?: string;
+  targetUserId?: string;
+}) {
+  const supabase = await createClient()
+
+  if (data.targetType === "all") {
+    // Single notification for all in store
+    return await createNotification({
+      store_id: data.storeId,
+      user_id: null,
+      type: data.type,
+      title: data.title,
+      message: data.message,
+    })
+  }
+
+  if (data.targetType === "role") {
+    // Find users with that role
+    const { data: members, error } = await supabase
+      .from("store_members")
+      .select("user_id")
+      .eq("store_id", data.storeId)
+      .eq("role", data.targetRole)
+
+    if (error) return { error: error.message }
+
+    const inserts = members.map(m => ({
+      store_id: data.storeId,
+      user_id: m.user_id,
+      type: data.type,
+      title: data.title,
+      message: data.message,
+    }))
+
+    const { error: insertError } = await supabase
+      .from("notifications")
+      .insert(inserts)
+
+    if (insertError) return { error: insertError.message }
+  }
+
+  if (data.targetType === "specific") {
+    return await createNotification({
+      store_id: data.storeId,
+      user_id: data.targetUserId,
+      type: data.type,
+      title: data.title,
+      message: data.message,
+    })
+  }
+
+  revalidatePath("/dashboard", "layout")
+  return { success: true }
+}

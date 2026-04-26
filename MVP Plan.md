@@ -99,6 +99,22 @@ Menyatukan fitur Inbox dan Notifikasi ke dalam satu sistem komunikasi yang terin
 - [x] **Custom Visuals**: Penggunaan ikon dan skema warna yang berbeda untuk setiap jenis pesan (Tiket untuk Promo, Speaker untuk Pengumuman, dll).
 - [x] **Rich Contextual Action**: Notifikasi mendukung redirect ke halaman spesifik berdasarkan metadata URL.
 
+## Fase 12: Owner Broadcast Center (Selesai) ✅
+Memberikan kendali penuh bagi Owner untuk berkomunikasi secara efisien dengan seluruh staf toko.
+
+- [x] **Notification Composer**: UI form premium bagi Owner untuk membuat pengumuman dengan Live Preview.
+- [x] **Target Audience**: Dukungan pengiriman ke seluruh staf, peran tertentu (Kasir), atau individu spesifik.
+- [x] **Broadcast Templates**: Penyediaan template siap pakai untuk Rapat, Info Stok, Promo, dan Maintenance.
+- [x] **Sidebar Integration**: Menu khusus "Komunikasi" untuk akses cepat ke fitur Broadcast dan Notifikasi.
+
+## Fase 13: Promotions, Discounts & Vouchers (Next Phase) 🔵
+Meningkatkan daya tarik penjualan melalui sistem promosi yang fleksibel.
+
+- [ ] **Discount Schema**: Implementasi diskon produk (persentase/nominal) dengan periode waktu tertentu.
+- [ ] **Voucher System**: Pembuatan kode voucher/kupon (misal: "PROMO10") dengan batasan penggunaan dan masa berlaku.
+- [ ] **Applied Promotions at POS**: Integrasi antarmuka Kasir untuk memilih diskon aktif atau memasukkan kode voucher saat checkout.
+- [ ] **Financial Adjustment**: Penyesuaian kalkulasi laba rugi dan laporan finansial untuk menghitung efektivitas promosi.
+
 ## Prioritas MVP (MoSCoW)
 - **Must Have**: Login, CRUD Produk, Kasir, Riwayat Transaksi, Multi-Store Selection.
 - **Should Have**: Dashboard Analytics, Cetak Struk, Manajemen Stok, Laporan Laba Kotor.

@@ -29,7 +29,8 @@ import {
   IconShieldCheck,
   IconCrown,
   IconHistory,
-  IconTrendingUp
+  IconTrendingUp,
+  IconSpeakerphone
 } from "@tabler/icons-react"
 
 const data = {
@@ -65,6 +66,18 @@ const data = {
       title: "Pelanggan",
       url: "/dashboard/customers",
       icon: <IconUserCircle className="size-4" />,
+    },
+  ],
+  communication: [
+    {
+      title: "Broadcast",
+      url: "/dashboard/broadcast",
+      icon: <IconSpeakerphone className="size-4" />,
+    },
+    {
+      title: "Notifikasi",
+      url: "/dashboard/notifications",
+      icon: <IconHistory className="size-4" />,
     },
   ],
   inventory: [
@@ -165,6 +178,19 @@ export function AppSidebar({
              Utama
            </SidebarGroupLabel>
            <NavMain items={data.navMain} />
+        </div>
+
+        {/* Komunikasi Section */}
+        <div className="px-2 pt-2">
+           <SidebarGroupLabel className="px-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 mb-2">
+             Komunikasi
+           </SidebarGroupLabel>
+           <NavMain items={
+             data.communication.filter(item => {
+               if (isOwner) return true
+               return item.title === "Notifikasi"
+             })
+           } />
         </div>
 
         {/* Inventory Section - ONLY FOR OWNER */}
