@@ -37,7 +37,7 @@ import {
   PopoverTrigger 
 } from "@/components/ui/popover"
 import { ProductCard } from "./product-card"
-import { CheckoutDialog } from "./checkout-dialog"
+import { GeneralPaymentModal } from "@/components/payment-modal"
 import { cn, formatCurrency } from "@/lib/utils"
 import { validateVoucher } from "@/lib/promotion-actions"
 import { useSearchParams, useRouter } from "next/navigation"
@@ -629,9 +629,10 @@ export function CashierClient({
         </div>
       )}
 
-      <CheckoutDialog 
+      <GeneralPaymentModal 
         isOpen={isCheckoutOpen}
         onClose={() => setIsCheckoutOpen(false)}
+        mode="create"
         cartItems={cart}
         total={finalTotal}
         discountTotal={discountAmount}
@@ -643,6 +644,7 @@ export function CashierClient({
           setCart([])
           setAppliedVoucher(null)
           setSelectedTable(null)
+          router.refresh()
         }}
       />
 

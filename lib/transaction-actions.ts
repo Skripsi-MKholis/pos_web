@@ -20,6 +20,8 @@ export type TransactionPayload = {
   voucherInfo?: any
   tableId?: string
   status?: "Berhasil" | "Pending" | "Dibatalkan"
+  cashPaid?: number
+  changeAmount?: number
 }
 
 export async function createTransaction(payload: TransactionPayload) {
@@ -37,7 +39,9 @@ export async function createTransaction(payload: TransactionPayload) {
     p_discount_total: payload.discountTotal || 0,
     p_voucher_info: payload.voucherInfo || {},
     p_table_id: payload.tableId || null,
-    p_status: payload.status || "Berhasil"
+    p_status: payload.status || "Berhasil",
+    p_cash_paid: payload.cashPaid || 0,
+    p_change_amount: payload.changeAmount || 0
   })
 
   if (error) {
@@ -62,6 +66,8 @@ export async function splitTransaction(payload: {
   paidItems: any[]
   paymentMethod: string
   storeId: string
+  cashPaid?: number
+  changeAmount?: number
 }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -73,7 +79,9 @@ export async function splitTransaction(payload: {
     p_paid_items: payload.paidItems,
     p_payment_method: payload.paymentMethod,
     p_store_id: payload.storeId,
-    p_cashier_id: user.id
+    p_cashier_id: user.id,
+    p_cash_paid: payload.cashPaid || 0,
+    p_change_amount: payload.changeAmount || 0
   })
 
   if (error) {
@@ -94,6 +102,9 @@ export async function getTransactions(storeId: string) {
     .from("transactions")
     .select(`
       *,
+      cashier:users (full_name),
+      customers (name),
+      tables (*),
       transaction_items (
         *,
         products (image_url)
@@ -259,6 +270,64 @@ export async function moveTransactionTable(transactionId: string, fromTableId: s
     .from("tables")
     .update({ status: 'occupied' })
     .eq("id", toTableId)
+
+  revalidatePath("/dashboard/tables")
+  return { success: true }
+}
+
+export async function completeFullTransaction(
+  transactionId: string, 
+  paymentMethod: string,
+  cashPaid?: number,
+  changeAmount?: number
+) {
+  const supabase = await createClient()
+
+  // 1. Update transaction status
+  const { data: tx, error: txError } = await supabase
+    .from("transactions")
+    .update({ 
+      status: 'Berhasil',
+      payment_method: paymentMethod,
+      cash_paid: cashPaid,
+      change_amount: changeAmount
+    })
+    .eq("id", transactionId)
+    .select()
+    .single()
+
+  if (txError) return { error: txError.message }
+
+  // 2. Clear table if exists
+  if (tx.table_id) {
+    await supabase
+      .from("tables")
+      .update({ status: 'available' })
+      .eq("id", tx.table_id)
+  }
+
+  revalidatePath("/dashboard/tables")
+  revalidatePath("/dashboard/transactions")
+  return { success: true, transactionId }
+}
+
+export async function clearTableOrders(tableId: string) {
+  const supabase = await createClient()
+
+  // 1. Delete all pending transactions for this table
+  const { error: txError } = await supabase
+    .from("transactions")
+    .delete()
+    .eq("table_id", tableId)
+    .eq("status", "Pending")
+
+  if (txError) return { error: txError.message }
+
+  // 2. Set table status to available
+  await supabase
+    .from("tables")
+    .update({ status: 'available' })
+    .eq("id", tableId)
 
   revalidatePath("/dashboard/tables")
   return { success: true }

@@ -12,7 +12,8 @@ import {
   IconCurrencyDollar,
   IconPrinter,
   IconArrowsExchange,
-  IconArrowRight
+  IconArrowRight,
+  IconTrash
 } from "@tabler/icons-react"
 import { ReceiptPrint } from "@/components/receipt-print"
 import { Card, CardContent } from "@/components/ui/card"
@@ -35,9 +36,13 @@ import { toast } from "sonner"
 import { 
   TransactionPayload, 
   splitTransaction, 
-  moveTransactionTable 
+  moveTransactionTable,
+  clearTableOrders,
+  completeFullTransaction
 } from "@/lib/transaction-actions"
 import { Checkbox } from "@/components/ui/checkbox"
+import { GeneralPaymentModal } from "@/components/payment-modal"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 export function TablesMonitoringClient({ 
   initialTables, 
@@ -49,12 +54,11 @@ export function TablesMonitoringClient({
   const [selectedTable, setSelectedTable] = React.useState<any>(null)
   const [isDetailOpen, setIsDetailOpen] = React.useState(false)
   const [isSplitOpen, setIsSplitOpen] = React.useState(false)
-  const [splitItems, setSplitItems] = React.useState<Record<string, number>>({})
-  const [paymentMethod, setPaymentMethod] = React.useState("Tunai")
   const [isProcessing, setIsProcessing] = React.useState(false)
   const [printData, setPrintData] = React.useState<any>(null)
   const [isKitchenPrint, setIsKitchenPrint] = React.useState(false)
   const [isMoveOpen, setIsMoveOpen] = React.useState(false)
+  const [isSelectAllMode, setIsSelectAllMode] = React.useState(false)
   const [targetTableId, setTargetTableId] = React.useState<string>("")
   const router = useRouter()
 
@@ -63,67 +67,36 @@ export function TablesMonitoringClient({
     setIsDetailOpen(true)
   }
 
-  // Get active transaction (status Pending)
-  const activeTx = selectedTable?.transactions?.[0]
+  // Get active transaction summary (Aggregating multiple pending transactions if they exist)
+  const transactions = selectedTable?.transactions || []
+  
+  // Aggregate all items from all pending transactions
+  const aggregatedItems = transactions.reduce((acc: any[], tx: any) => {
+    return [...acc, ...tx.transaction_items]
+  }, [])
 
-  const handleSplitBill = async () => {
-    if (!activeTx) return
-    
-    // Prepare items to pay
-    const paidItems = activeTx.transaction_items
-      .filter((item: any) => (splitItems[item.id] || 0) > 0)
-      .map((item: any) => ({
-        product_id: item.product_id,
-        quantity: splitItems[item.id],
-        unit_price: item.unit_price
-      }))
+  const totalAmount = transactions.reduce((acc: number, tx: any) => acc + Number(tx.total_amount), 0)
+  const earliestCreatedAt = transactions.length > 0 
+    ? transactions.reduce((min: string, tx: any) => tx.created_at < min ? tx.created_at : min, transactions[0].created_at)
+    : null
 
-    if (paidItems.length === 0) {
-      toast.error("Pilih menu yang ingin dibayar!")
-      return
-    }
-
-    setIsProcessing(true)
-    try {
-      const res = await splitTransaction({
-        originalTransactionId: activeTx.id,
-        paidItems,
-        paymentMethod,
-        storeId: store.id
-      })
-
-      if (res.error) {
-        toast.error(res.error)
-      } else {
-        toast.success("Pembayaran terpisah berhasil!")
-        setIsSplitOpen(false)
-        setIsDetailOpen(false)
-        setSplitItems({})
-      }
-    } catch (err) {
-      toast.error("Terjadi kesalahan sistem")
-    } finally {
-      setIsProcessing(false)
-    }
-  }
-
-  const toggleSplitItem = (itemId: string, maxQty: number) => {
-    setSplitItems(prev => ({
-      ...prev,
-      [itemId]: (prev[itemId] || 0) >= maxQty ? 0 : maxQty
-    }))
-  }
-
-  const splitTotal = activeTx?.transaction_items.reduce((acc: number, item: any) => {
-    return acc + (item.unit_price * (splitItems[item.id] || 0))
-  }, 0) || 0
+  const activeTx = transactions[0] ? {
+    ...transactions[0],
+    total_amount: totalAmount,
+    transaction_items: aggregatedItems,
+    created_at: earliestCreatedAt
+  } : null
 
   const handleMoveOrder = async () => {
     if (!activeTx || !targetTableId) return
     setIsProcessing(true)
     try {
-      const res = await moveTransactionTable(activeTx.id, selectedTable.id, targetTableId)
-      if (res.error) toast.error(res.error)
+      const results = await Promise.all(transactions.map((tx: any) => 
+        moveTransactionTable(tx.id, selectedTable.id, targetTableId)
+      ))
+      
+      const hasError = results.find(r => r.error)
+      if (hasError) toast.error(hasError.error)
       else {
         toast.success(`Berhasil pindah ke meja ${initialTables.find(t => t.id === targetTableId)?.name}`)
         setIsMoveOpen(false)
@@ -132,6 +105,24 @@ export function TablesMonitoringClient({
       }
     } catch (err) {
       toast.error("Gagal pindah meja")
+    } finally {
+      setIsProcessing(false)
+    }
+  }
+
+  const handleClearOrders = async () => {
+    if (!selectedTable || !confirm("PERINGATAN: Ini akan menghapus paksa seluruh pesanan yang belum dibayar di meja ini. Lanjutkan?")) return
+    setIsProcessing(true)
+    try {
+      const res = await clearTableOrders(selectedTable.id)
+      if (res.error) toast.error(res.error)
+      else {
+        toast.success("Meja berhasil dikosongkan secara paksa")
+        setIsDetailOpen(false)
+        router.refresh()
+      }
+    } catch (err) {
+      toast.error("Gagal mengosongkan meja")
     } finally {
       setIsProcessing(false)
     }
@@ -155,7 +146,9 @@ export function TablesMonitoringClient({
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
         {initialTables.map((table) => {
           const isOccupied = table.status === 'occupied'
-          const tx = table.transactions?.[0]
+          const txs = table.transactions || []
+          const billTotal = txs.reduce((sum: number, t: any) => sum + Number(t.total_amount), 0)
+          const oldestTx = txs.length > 0 ? txs.reduce((oldest: any, cur: any) => cur.created_at < oldest.created_at ? cur : oldest, txs[0]) : null
           
           return (
             <button
@@ -169,15 +162,16 @@ export function TablesMonitoringClient({
               )}
             >
               <IconArmchair size={isOccupied ? 48 : 32} className={cn("transition-transform group-hover:scale-110", isOccupied && "animate-pulse")} />
-              <div className="text-center">
+              <div className="text-center px-2">
                 <p className="font-black text-lg uppercase leading-none">{table.name}</p>
                 <p className="text-[10px] font-bold opacity-60 mt-1 uppercase tracking-tighter">Cap: {table.capacity}</p>
               </div>
 
-              {isOccupied && tx && (
+              {isOccupied && oldestTx && (
                 <div className="absolute inset-x-0 bottom-0 bg-black/10 py-2 px-3 text-[10px] font-bold flex flex-col items-center">
-                   <p>Rp {formatCurrency(tx.total_amount)}</p>
-                   <p className="opacity-70 mt-0.5">{formatDistanceToNow(new Date(tx.created_at), { addSuffix: true, locale: id })}</p>
+                   <p>Rp {formatCurrency(billTotal)}</p>
+                   {txs.length > 1 && <p className="text-[8px] opacity-70 mb-0.5">{txs.length} Transaksi</p>}
+                   <p className="opacity-70 mt-0.5 truncate w-full text-center">{formatDistanceToNow(new Date(oldestTx.created_at), { addSuffix: true, locale: id })}</p>
                 </div>
               )}
 
@@ -199,300 +193,236 @@ export function TablesMonitoringClient({
 
       {/* Detail Dialog */}
       <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
-        <DialogContent className="sm:max-w-md rounded-[2.5rem] border-none shadow-2xl overflow-hidden p-0">
+        <DialogContent className="sm:max-w-md rounded-[2.5rem] border-none shadow-2xl overflow-hidden p-0 flex flex-col h-[90vh] max-h-[90vh]">
           <div className={cn(
-            "p-8 text-white",
+            "p-8 text-white shrink-0",
             selectedTable?.status === 'occupied' ? "bg-primary" : "bg-muted text-muted-foreground"
           )}>
             <div className="flex justify-between items-start">
-               <div className="space-y-1">
+               <div className="space-y-2">
                   <DialogTitle className="text-4xl font-black uppercase leading-none">{selectedTable?.name}</DialogTitle>
                   <p className="flex items-center gap-2 text-xs font-bold opacity-80 uppercase tracking-widest">
                      <IconUsers size={14} /> Kapasitas {selectedTable?.capacity} Orang
                   </p>
                </div>
                {selectedTable?.status === 'occupied' && (
-                  <Badge variant="outline" className="bg-white/20 text-white border-white/20 uppercase font-black tracking-tighter px-3 py-1">Active Order</Badge>
+                  <Badge variant="outline" className="bg-white/20 text-white border-white/20 uppercase font-black tracking-tighter px-3 py-1 text-[10px]">Active Order</Badge>
                )}
             </div>
           </div>
 
-          <div className="p-8 space-y-6 bg-background">
-            {activeTx ? (
-              <>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between text-xs font-black uppercase tracking-widest text-muted-foreground">
-                    <span>Daftar Pesanan</span>
-                    <span>{activeTx.transaction_items.length} Menu</span>
-                  </div>
-                  <div className="max-h-[300px] overflow-y-auto space-y-3 pr-2 scrollbar-hide">
-                    {activeTx.transaction_items.map((item: any) => (
-                      <div key={item.id} className="flex justify-between items-center group">
-                        <div className="space-y-0.5">
-                          <p className="font-bold text-sm uppercase">{item.product_name}</p>
-                          <p className="text-[10px] text-muted-foreground font-medium">
-                            {item.quantity} x Rp {formatCurrency(item.unit_price)}
-                          </p>
-                        </div>
-                        <p className="font-black text-sm">Rp {formatCurrency(item.subtotal)}</p>
+          <div className="flex-1 min-h-0 overflow-hidden flex flex-col bg-background">
+            <ScrollArea className="h-full w-full">
+              <div className="p-8 space-y-8">
+                {activeTx ? (
+                  <>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between text-xs font-black uppercase tracking-widest text-muted-foreground">
+                        <span>Daftar Pesanan</span>
+                        <span>{activeTx.transaction_items.length} Menu</span>
                       </div>
-                    ))}
-                  </div>
-                </div>
+                      <div className="space-y-4 pr-1">
+                         {activeTx.transaction_items.map((item: any) => (
+                          <div key={item.id} className="flex justify-between items-center group">
+                            <div className="space-y-1">
+                              <p className="font-bold text-sm uppercase">{item.product_name}</p>
+                              <p className="text-xs text-muted-foreground font-black">
+                                {item.quantity} x Rp {formatCurrency(item.unit_price)}
+                              </p>
+                            </div>
+                            <p className="font-black text-sm">Rp {formatCurrency(item.subtotal)}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
 
-                <Separator />
+                    <Separator className="bg-muted/50" />
 
-                <div className="flex justify-between items-end">
-                   <div className="space-y-1">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Total Tagihan</p>
-                      <p className="text-3xl font-black text-primary leading-none">Rp {formatCurrency(activeTx.total_amount)}</p>
-                   </div>
-                   <div className="flex flex-col items-end gap-1">
-                      <p className="text-[10px] font-bold text-muted-foreground flex items-center gap-1 uppercase">
-                         <IconClock size={12} /> {formatDistanceToNow(new Date(activeTx.created_at), { addSuffix: true, locale: id })}
-                      </p>
-                   </div>
-                </div>
+                    <div className="flex justify-between items-center bg-muted/30 p-6 rounded-[2rem] border-2 border-muted/50">
+                       <div className="space-y-1">
+                          <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Total Tagihan</p>
+                          <p className="text-3xl font-black text-primary leading-none tracking-tighter">Rp {formatCurrency(activeTx.total_amount)}</p>
+                       </div>
+                       <div className="flex flex-col items-end gap-1.5 pt-1">
+                          <p className="text-[10px] font-black text-muted-foreground flex items-center gap-1.5 uppercase">
+                             <IconClock size={12} className="text-primary" /> {formatDistanceToNow(new Date(activeTx.created_at), { addSuffix: true, locale: id })}
+                          </p>
+                       </div>
+                    </div>
 
-                <div className="grid grid-cols-2 gap-3 pt-2">
-                   <Button 
-                     variant="outline" 
-                     className="rounded-2xl h-14 font-black uppercase text-xs gap-2 border-2 hover:bg-muted"
-                     onClick={() => {
-                        // Redirect to cashier with special flag or session?
-                        // For now, simple redirect
+                    {/* PRIMARY ACTIONS */}
+                     <div className="grid grid-cols-2 gap-4 pb-2">
+                        <Button 
+                          variant="outline" 
+                          className="rounded-2xl h-14 font-black uppercase text-xs gap-2 border-2 hover:bg-muted transition-all active:scale-95"
+                          onClick={() => {
+                             router.push(`/dashboard/cashier?table=${selectedTable.id}`)
+                          }}
+                        >
+                          <IconPlus size={20} /> Tambah Menu
+                        </Button>
+                        <Button 
+                          className="rounded-2xl h-14 font-black uppercase text-xs gap-2 shadow-xl shadow-primary/20 transition-all active:scale-95"
+                          disabled={isProcessing}
+                          onClick={() => {
+                            setIsSelectAllMode(true)
+                            setIsSplitOpen(true)
+                          }}
+                        >
+                          <IconReceipt size={20} /> Bayar Semua
+                        </Button>
+                     </div>
+
+                     {/* MANAGEMENT & PRINT GRID */}
+                     <div className="grid grid-cols-2 gap-3">
+                        <Button 
+                          variant="outline" 
+                          className="rounded-xl h-11 text-[10px] font-black uppercase text-muted-foreground border-2 hover:bg-primary/5 hover:text-primary hover:border-primary/50 transition-all"
+                          onClick={() => {
+                             setIsSelectAllMode(false)
+                             setIsSplitOpen(true)
+                          }}
+                        >
+                          <IconCurrencyDollar size={14} className="mr-2" /> Split Bill
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          className="rounded-xl h-11 text-[10px] font-black uppercase text-muted-foreground border-2 hover:bg-sky-50 hover:text-sky-600 hover:border-sky-200 transition-all"
+                          onClick={() => setIsMoveOpen(true)}
+                        >
+                          <IconArrowsExchange size={14} className="mr-2" /> Pindah Meja
+                        </Button>
+                        <Button 
+                          variant="ghost"
+                          className="rounded-xl h-11 font-black uppercase text-[10px] gap-2 text-slate-500 bg-slate-100 hover:bg-slate-200 border border-slate-200"
+                          onClick={() => {
+                            setIsKitchenPrint(true)
+                            setPrintData({
+                              id: activeTx.id,
+                              items: activeTx.transaction_items.map((it: any) => ({
+                                name: it.product_name,
+                                quantity: it.quantity,
+                                price: it.unit_price,
+                                notes: it.notes
+                              }))
+                            })
+                            setTimeout(() => window.print(), 100)
+                          }}
+                        >
+                          <IconPrinter size={16} /> Print Dapur
+                        </Button>
+                        <Button 
+                          variant="ghost"
+                          className="rounded-xl h-11 font-black uppercase text-[10px] gap-2 text-slate-500 bg-slate-100 hover:bg-slate-200 border border-slate-200"
+                          onClick={() => {
+                            setIsKitchenPrint(false)
+                            setPrintData({
+                              id: activeTx.id,
+                              total: activeTx.total_amount,
+                              items: activeTx.transaction_items.map((it: any) => ({
+                                name: it.product_name,
+                                quantity: it.quantity,
+                                price: it.unit_price
+                              }))
+                            })
+                            setTimeout(() => window.print(), 100)
+                          }}
+                        >
+                          <IconReceipt size={16} /> Print Tagihan
+                        </Button>
+                     </div>
+
+                     <div className="pt-4">
+                       <Button 
+                          variant="ghost" 
+                          className="w-full rounded-xl text-xs font-black uppercase text-destructive/50 hover:text-destructive hover:bg-destructive/5 h-12 transition-all border border-dashed border-destructive/20"
+                          onClick={handleClearOrders}
+                          disabled={isProcessing}
+                        >
+                          <IconTrash size={16} className="mr-2" /> Paksa Kosongkan Meja
+                        </Button>
+                     </div>
+                  </>
+                ) : (
+                  <div className="py-14 text-center space-y-6">
+                    <div className="mx-auto w-24 h-24 bg-muted/40 rounded-full flex items-center justify-center text-muted-foreground/30 shadow-inner">
+                       <IconArmchair size={48} />
+                    </div>
+                    <div className="space-y-2">
+                      <p className="font-black text-muted-foreground uppercase tracking-widest text-xs">Meja Ini Sedang Kosong</p>
+                      <p className="text-xs text-muted-foreground px-8 font-medium">Buka menu Kasir untuk membuat pesanan baru pada meja ini.</p>
+                    </div>
+                    <Button 
+                      className="w-full rounded-2xl h-16 font-black uppercase text-sm shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"
+                      onClick={() => {
                         router.push(`/dashboard/cashier?table=${selectedTable.id}`)
-                     }}
-                   >
-                     <IconPlus size={18} /> Tambah
-                   </Button>
-                   <Button 
-                     className="rounded-2xl h-14 font-black uppercase text-xs gap-2 shadow-xl shadow-primary/20"
-                     disabled={isProcessing}
-                     onClick={async () => {
-                        if (!activeTx) return
-                        setIsProcessing(true)
-                        try {
-                          const res = await splitTransaction({
-                            originalTransactionId: activeTx.id,
-                            paidItems: activeTx.transaction_items.map((item: any) => ({
-                              product_id: item.product_id,
-                              quantity: item.quantity,
-                              unit_price: item.unit_price
-                            })),
-                            paymentMethod: "Tunai",
-                            storeId: store.id
-                          })
-                          if (res.error) toast.error(res.error)
-                          else {
-                            toast.success("Pembayaran meja berhasil diselesaikan!")
-                            setIsDetailOpen(false)
-                          }
-                        } catch (err) {
-                          toast.error("Gagal memproses pembayaran")
-                        } finally {
-                          setIsProcessing(false)
-                        }
-                     }}
-                   >
-                     {isProcessing ? "..." : <><IconReceipt size={18} /> Bayar Semua</>}
-                   </Button>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3 pb-2 pt-1">
-                   <Button 
-                     variant="outline"
-                     className="rounded-[1.25rem] h-11 font-black uppercase text-[10px] gap-2 border-2 text-blue-600 border-blue-100 hover:bg-blue-50 hover:border-blue-200"
-                     onClick={() => {
-                       setIsKitchenPrint(true)
-                       setPrintData({
-                         id: activeTx.id,
-                         items: activeTx.transaction_items.map((it: any) => ({
-                           name: it.product_name,
-                           quantity: it.quantity,
-                           price: it.unit_price,
-                           notes: it.notes
-                         }))
-                       })
-                       setTimeout(() => window.print(), 100)
-                     }}
-                   >
-                     <IconPrinter size={16} /> Cetak Dapur
-                   </Button>
-                   <Button 
-                     variant="outline"
-                     className="rounded-[1.25rem] h-11 font-black uppercase text-[10px] gap-2 border-2 text-emerald-600 border-emerald-100 hover:bg-emerald-50 hover:border-emerald-200"
-                     onClick={() => {
-                       setIsKitchenPrint(false)
-                       setPrintData({
-                         id: activeTx.id,
-                         total: activeTx.total_amount,
-                         items: activeTx.transaction_items.map((it: any) => ({
-                           name: it.product_name,
-                           quantity: it.quantity,
-                           price: it.unit_price
-                         }))
-                       })
-                       setTimeout(() => window.print(), 100)
-                     }}
-                   >
-                     <IconReceipt size={16} /> Struk Tagihan
-                   </Button>
-                </div>
-                
-                <div className="flex gap-2">
-                   <Button 
-                     variant="ghost" 
-                     className="flex-1 rounded-xl text-[10px] font-bold text-muted-foreground border border-dashed hover:bg-primary/5 hover:text-primary hover:border-primary/50 h-10"
-                     onClick={() => setIsSplitOpen(true)}
-                   >
-                     <IconCurrencyDollar size={14} className="mr-1" /> Split Bill
-                   </Button>
-                   <Button 
-                     variant="ghost" 
-                     className="flex-1 rounded-xl text-[10px] font-bold text-muted-foreground border border-dashed hover:bg-primary/5 hover:text-primary hover:border-primary/50 h-10"
-                     onClick={() => setIsMoveOpen(true)}
-                   >
-                     <IconArrowsExchange size={14} className="mr-1" /> Pindah Meja
-                   </Button>
-                </div>
-              </>
-            ) : (
-              <div className="py-12 text-center space-y-6">
-                <div className="mx-auto w-20 h-20 bg-muted/30 rounded-full flex items-center justify-center text-muted-foreground/20">
-                   <IconArmchair size={40} />
-                </div>
-                <div className="space-y-1">
-                  <p className="font-bold text-muted-foreground uppercase tracking-widest text-xs">Meja Ini Sedang Kosong</p>
-                  <p className="text-[10px] text-muted-foreground">Silakan pilih meja ini di menu Kasir untuk membuat pesanan baru.</p>
-                </div>
-                <Button 
-                  className="w-full rounded-2xl h-14 font-black uppercase text-xs shadow-lg"
-                  onClick={() => {
-                    router.push(`/dashboard/cashier?table=${selectedTable.id}`)
-                  }}
-                >
-                  Buat Pesanan Baru <IconChevronRight size={18} className="ml-2" />
-                </Button>
+                      }}
+                    >
+                      Buka Pesanan Baru <IconChevronRight size={20} className="ml-2" />
+                    </Button>
+                  </div>
+                )}
               </div>
-            )}
+            </ScrollArea>
           </div>
         </DialogContent>
       </Dialog>
-      {/* Split Bill Dialog */}
-      <Dialog open={isSplitOpen} onOpenChange={setIsSplitOpen}>
-        <DialogContent className="sm:max-w-lg rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
-           <div className="bg-primary p-8 text-white">
-              <DialogTitle className="text-2xl font-black uppercase tracking-tight">Bayar Terpisah</DialogTitle>
-              <DialogDescription className="text-white/70 font-bold uppercase text-[10px] tracking-widest mt-1">
-                Pilih menu dari {selectedTable?.name} yang ingin dibayar sekarang
-              </DialogDescription>
-           </div>
 
-           <div className="p-8 space-y-6 bg-background">
-              <div className="space-y-4 max-h-[40vh] overflow-y-auto pr-2 scrollbar-hide">
-                {activeTx?.transaction_items.map((item: any) => {
-                  const isSelected = (splitItems[item.id] || 0) > 0
-                  return (
-                    <div 
-                      key={item.id} 
-                      className={cn(
-                        "flex items-center gap-4 p-4 rounded-2xl border-2 transition-all cursor-pointer",
-                        isSelected ? "border-primary bg-primary/5" : "border-muted hover:border-primary/20"
-                      )}
-                      onClick={() => toggleSplitItem(item.id, item.quantity)}
-                    >
-                      <div className={cn(
-                        "h-6 w-6 rounded-lg border-2 flex items-center justify-center transition-colors",
-                        isSelected ? "bg-primary border-primary text-white" : "border-muted-foreground/20"
-                      )}>
-                        {isSelected && <IconCheck size={14} strokeWidth={4} />}
-                      </div>
-                      <div className="flex-1">
-                         <p className="font-bold uppercase text-sm">{item.product_name}</p>
-                         <p className="text-[10px] text-muted-foreground font-black">
-                            {item.quantity} x Rp {formatCurrency(item.unit_price)}
-                         </p>
-                      </div>
-                      <div className="text-right">
-                         <p className="font-black text-sm text-primary">Rp {formatCurrency(item.subtotal)}</p>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-
-              <div className="space-y-4 p-6 bg-muted/30 rounded-[2rem]">
-                 <div className="flex justify-between items-center">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Metode Bayar</span>
-                    <select 
-                      className="bg-transparent text-sm font-black uppercase tracking-tighter focus:outline-none"
-                      value={paymentMethod}
-                      onChange={(e) => setPaymentMethod(e.target.value)}
-                    >
-                      <option>Tunai</option>
-                      <option>QRIS</option>
-                      <option>Transfer</option>
-                    </select>
-                 </div>
-                 <Separator className="bg-background" />
-                 <div className="flex justify-between items-end">
-                    <span className="text-xs font-black uppercase tracking-widest text-muted-foreground">Total Bayar</span>
-                    <span className="text-3xl font-black text-primary leading-none">Rp {formatCurrency(splitTotal)}</span>
-                 </div>
-              </div>
-
-              <DialogFooter className="gap-3 sm:gap-0">
-                 <Button variant="ghost" className="rounded-xl font-bold uppercase text-xs" onClick={() => setIsSplitOpen(false)}>Batal</Button>
-                 <Button 
-                  className="flex-1 rounded-2xl h-14 font-black uppercase text-xs shadow-xl shadow-primary/20"
-                  disabled={splitTotal === 0 || isProcessing}
-                  onClick={handleSplitBill}
-                 >
-                   {isProcessing ? "Memproses..." : "Konfirmasi Pembayaran"}
-                 </Button>
-              </DialogFooter>
-           </div>
-        </DialogContent>
-      </Dialog>
-
+      {/* General Payment Modal */}
+      <GeneralPaymentModal 
+        isOpen={isSplitOpen}
+        onClose={() => setIsSplitOpen(false)}
+        activeTx={activeTx}
+        store={store}
+        userName="Kasir"
+        onSuccess={() => {
+          setIsDetailOpen(false)
+          router.refresh()
+        }}
+        defaultSelectAll={isSelectAllMode}
+      />
 
       {/* Move Table Dialog */}
       <Dialog open={isMoveOpen} onOpenChange={setIsMoveOpen}>
-        <DialogContent className="sm:max-w-md rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl no-scrollbar overflow-y-auto max-h-[90vh]">
-           <div className="bg-slate-950 p-8 text-white">
+        <DialogContent className="sm:max-w-md rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl flex flex-col h-[90vh] max-h-[90vh]">
+           <div className="bg-slate-950 p-8 text-white shrink-0">
               <DialogTitle className="text-2xl font-black uppercase tracking-tight">Pindah Meja</DialogTitle>
               <DialogDescription className="text-white/70 font-bold uppercase text-[10px] tracking-widest mt-1">
                 Pindahkan pesanan {selectedTable?.name} ke meja baru
               </DialogDescription>
            </div>
-           <div className="p-8 space-y-6 bg-background">
-              <div className="grid grid-cols-2 gap-4 max-h-[300px] overflow-y-auto pr-2 no-scrollbar">
-                 {initialTables.filter(t => t.status === 'available').map(table => (
-                   <button
-                     key={table.id}
-                     onClick={() => setTargetTableId(table.id)}
-                     className={cn(
-                       "p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-1",
-                       targetTableId === table.id 
-                        ? "border-primary bg-primary/5 text-primary scale-105 shadow-lg" 
-                        : "border-muted hover:border-primary/20 text-muted-foreground"
-                     )}
-                   >
-                     <IconArmchair size={24} />
-                     <span className="font-black text-sm uppercase">{table.name}</span>
-                     <span className="text-[10px] font-bold opacity-60">Cap: {table.capacity}</span>
-                   </button>
-                 ))}
-              </div>
+           <div className="flex-1 min-h-0 overflow-hidden flex flex-col bg-background">
+             <ScrollArea className="h-full w-full">
+                <div className="p-8 space-y-6">
+                  <div className="grid grid-cols-2 gap-4">
+                     {initialTables.filter(t => t.status === 'available').map(table => (
+                       <button
+                         key={table.id}
+                         onClick={() => setTargetTableId(table.id)}
+                         className={cn(
+                           "p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-1",
+                           targetTableId === table.id 
+                            ? "border-primary bg-primary/5 text-primary scale-105 shadow-lg" 
+                            : "border-muted hover:border-primary/20 text-muted-foreground"
+                         )}
+                       >
+                         <IconArmchair size={24} />
+                         <span className="font-black text-sm uppercase">{table.name}</span>
+                         <span className="text-[10px] font-bold opacity-60">Cap: {table.capacity}</span>
+                       </button>
+                     ))}
+                  </div>
 
-              {initialTables.filter(t => t.status === 'available').length === 0 && (
-                <div className="py-8 text-center bg-muted/20 rounded-2xl border-2 border-dashed">
-                  <p className="text-xs font-bold text-muted-foreground uppercase">Tidak ada meja tersedia</p>
+                  {initialTables.filter(t => t.status === 'available').length === 0 && (
+                    <div className="py-8 text-center bg-muted/20 rounded-2xl border-2 border-dashed">
+                      <p className="text-xs font-bold text-muted-foreground uppercase">Tidak ada meja tersedia</p>
+                    </div>
+                  )}
                 </div>
-              )}
-
-              <DialogFooter className="gap-3 sm:gap-0 pt-4">
+             </ScrollArea>
+           </div>
+           <div className="p-8 bg-background border-t shrink-0">
+              <DialogFooter className="gap-3 sm:gap-0">
                  <Button variant="ghost" className="rounded-xl font-bold uppercase text-xs w-full sm:w-auto" onClick={() => setIsMoveOpen(false)}>Batal</Button>
                  <Button 
                   className="flex-1 rounded-2xl h-14 font-black uppercase text-xs shadow-xl shadow-primary/20 gap-2 w-full sm:w-auto"

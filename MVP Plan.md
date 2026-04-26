@@ -133,7 +133,7 @@ Transformasi POS untuk F&B dengan sistem pesanan per meja dan pembayaran tunda.
 - [x] **Open Bill / Pay Later**: Kemampuan menyimpan pesanan ke meja (Status `Pending`) dan menambah item di kemudian waktu.
 - [x] **Table Monitoring Dashboard**: Monitoring terpusat untuk melihat meja mana yang sedang aktif memesan.
 - [x] **Split Bill / Partial Payment**: Fitur untuk membayar sebagian pesanan atau membagi tagihan per item dalam satu meja.
-- [x] **Kitchen Ticket (KOT)**: Format struk khusus pesanan dapur (tanpa harga).
+- [x] **Kitchen Order Tickets (KOT)**: Sistem cetak atau tampilan digital pesanan khusus untuk bagian dapur/bar.
 
 ## Fase 16: Reservasi & Booking Meja (Selesai pada 2026-04-27 00:55) ✅
 Sistem pengelolaan antrean dan pemesanan tempat di masa mendatang.
@@ -145,8 +145,6 @@ Sistem pengelolaan antrean dan pemesanan tempat di masa mendatang.
 ## Fase 17: Table Order & Kitchen Display (KDS) (Selesai pada 2026-04-27 01:12) ✅
 Manajemen pesanan yang aktif per meja dan integrasi bagian dapur.
 
-- [x] **Open Bills**: Kemampuan menyimpan pesanan per meja (Pay Later) dan menambah item baru ke meja yang sama.
-- [x] **Kitchen Order Tickets (KOT)**: Sistem cetak atau tampilan digital pesanan khusus untuk bagian dapur/bar.
 - [x] **Order Tracking**: Tracker status pesanan di KDS (Pending, Cooking, Ready).
 - [x] **Move Order**: Fitur untuk memindahkan pesanan dari satu meja ke meja lain tanpa membatalkan transaksi.
 

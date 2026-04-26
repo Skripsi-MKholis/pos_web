@@ -12,6 +12,7 @@ export default async function TransactionsPage() {
 
   const activeId = await getActiveStoreId()
   const activeStoreId = activeId || stores[0].id
+  const activeStore = stores.find(s => s.id === activeStoreId) || stores[0]
   const transactions = await getTransactions(activeStoreId)
 
   return (
@@ -20,7 +21,7 @@ export default async function TransactionsPage() {
         <h2 className="text-3xl font-bold tracking-tight">Riwayat Transaksi</h2>
       </div>
       
-      <TransactionTableClient initialData={transactions} />
+      <TransactionTableClient initialData={transactions} store={activeStore} />
     </div>
   )
 }
