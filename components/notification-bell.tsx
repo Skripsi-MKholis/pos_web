@@ -53,11 +53,16 @@ const getNotificationColor = (type: string) => {
 }
 
 export function NotificationBell({ storeId }: { storeId: string }) {
+  const [mounted, setMounted] = React.useState(false)
   const [notifications, setNotifications] = React.useState<any[]>([])
   const [unreadCount, setUnreadCount] = React.useState(0)
   const [isLoading, setIsLoading] = React.useState(true)
   const supabase = createClient()
   const router = useRouter()
+
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const fetchNotifications = React.useCallback(async () => {
     setIsLoading(true)
@@ -144,6 +149,14 @@ export function NotificationBell({ storeId }: { storeId: string }) {
     } else if (n.metadata?.url) {
       router.push(n.metadata.url)
     }
+  }
+
+  if (!mounted) {
+    return (
+      <Button variant="ghost" size="icon" className="relative h-9 w-9 rounded-full">
+        <IconBell className="h-5 w-5" />
+      </Button>
+    )
   }
 
   return (

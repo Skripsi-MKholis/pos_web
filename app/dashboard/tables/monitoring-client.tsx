@@ -10,7 +10,9 @@ import {
   IconChevronRight,
   IconCheck,
   IconCurrencyDollar,
-  IconPrinter
+  IconPrinter,
+  IconArrowsExchange,
+  IconArrowRight
 } from "@tabler/icons-react"
 import { ReceiptPrint } from "@/components/receipt-print"
 import { Card, CardContent } from "@/components/ui/card"
@@ -30,7 +32,11 @@ import { formatDistanceToNow } from "date-fns"
 import { id } from "date-fns/locale"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { TransactionPayload, splitTransaction } from "@/lib/transaction-actions"
+import { 
+  TransactionPayload, 
+  splitTransaction, 
+  moveTransactionTable 
+} from "@/lib/transaction-actions"
 import { Checkbox } from "@/components/ui/checkbox"
 
 export function TablesMonitoringClient({ 
@@ -48,6 +54,8 @@ export function TablesMonitoringClient({
   const [isProcessing, setIsProcessing] = React.useState(false)
   const [printData, setPrintData] = React.useState<any>(null)
   const [isKitchenPrint, setIsKitchenPrint] = React.useState(false)
+  const [isMoveOpen, setIsMoveOpen] = React.useState(false)
+  const [targetTableId, setTargetTableId] = React.useState<string>("")
   const router = useRouter()
 
   const handleTableClick = (table: any) => {
@@ -109,6 +117,25 @@ export function TablesMonitoringClient({
   const splitTotal = activeTx?.transaction_items.reduce((acc: number, item: any) => {
     return acc + (item.unit_price * (splitItems[item.id] || 0))
   }, 0) || 0
+
+  const handleMoveOrder = async () => {
+    if (!activeTx || !targetTableId) return
+    setIsProcessing(true)
+    try {
+      const res = await moveTransactionTable(activeTx.id, selectedTable.id, targetTableId)
+      if (res.error) toast.error(res.error)
+      else {
+        toast.success(`Berhasil pindah ke meja ${initialTables.find(t => t.id === targetTableId)?.name}`)
+        setIsMoveOpen(false)
+        setIsDetailOpen(false)
+        setTargetTableId("")
+      }
+    } catch (err) {
+      toast.error("Gagal pindah meja")
+    } finally {
+      setIsProcessing(false)
+    }
+  }
 
   return (
     <div className="space-y-8">
@@ -313,13 +340,22 @@ export function TablesMonitoringClient({
                    </Button>
                 </div>
                 
-                <Button 
-                  variant="ghost" 
-                  className="w-full rounded-xl text-xs font-bold text-muted-foreground border border-dashed hover:bg-primary/5 hover:text-primary hover:border-primary/50"
-                  onClick={() => setIsSplitOpen(true)}
-                >
-                  <IconCurrencyDollar size={16} className="mr-2" /> Bayar Terpisah (Split Bill)
-                </Button>
+                <div className="flex gap-2">
+                   <Button 
+                     variant="ghost" 
+                     className="flex-1 rounded-xl text-[10px] font-bold text-muted-foreground border border-dashed hover:bg-primary/5 hover:text-primary hover:border-primary/50 h-10"
+                     onClick={() => setIsSplitOpen(true)}
+                   >
+                     <IconCurrencyDollar size={14} className="mr-1" /> Split Bill
+                   </Button>
+                   <Button 
+                     variant="ghost" 
+                     className="flex-1 rounded-xl text-[10px] font-bold text-muted-foreground border border-dashed hover:bg-primary/5 hover:text-primary hover:border-primary/50 h-10"
+                     onClick={() => setIsMoveOpen(true)}
+                   >
+                     <IconArrowsExchange size={14} className="mr-1" /> Pindah Meja
+                   </Button>
+                </div>
               </>
             ) : (
               <div className="py-12 text-center space-y-6">
@@ -414,6 +450,56 @@ export function TablesMonitoringClient({
                   onClick={handleSplitBill}
                  >
                    {isProcessing ? "Memproses..." : "Konfirmasi Pembayaran"}
+                 </Button>
+              </DialogFooter>
+           </div>
+        </DialogContent>
+      </Dialog>
+
+
+      {/* Move Table Dialog */}
+      <Dialog open={isMoveOpen} onOpenChange={setIsMoveOpen}>
+        <DialogContent className="sm:max-w-md rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl no-scrollbar overflow-y-auto max-h-[90vh]">
+           <div className="bg-slate-950 p-8 text-white">
+              <DialogTitle className="text-2xl font-black uppercase tracking-tight">Pindah Meja</DialogTitle>
+              <DialogDescription className="text-white/70 font-bold uppercase text-[10px] tracking-widest mt-1">
+                Pindahkan pesanan {selectedTable?.name} ke meja baru
+              </DialogDescription>
+           </div>
+           <div className="p-8 space-y-6 bg-background">
+              <div className="grid grid-cols-2 gap-4 max-h-[300px] overflow-y-auto pr-2 no-scrollbar">
+                 {initialTables.filter(t => t.status === 'available').map(table => (
+                   <button
+                     key={table.id}
+                     onClick={() => setTargetTableId(table.id)}
+                     className={cn(
+                       "p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-1",
+                       targetTableId === table.id 
+                        ? "border-primary bg-primary/5 text-primary scale-105 shadow-lg" 
+                        : "border-muted hover:border-primary/20 text-muted-foreground"
+                     )}
+                   >
+                     <IconArmchair size={24} />
+                     <span className="font-black text-sm uppercase">{table.name}</span>
+                     <span className="text-[10px] font-bold opacity-60">Cap: {table.capacity}</span>
+                   </button>
+                 ))}
+              </div>
+
+              {initialTables.filter(t => t.status === 'available').length === 0 && (
+                <div className="py-8 text-center bg-muted/20 rounded-2xl border-2 border-dashed">
+                  <p className="text-xs font-bold text-muted-foreground uppercase">Tidak ada meja tersedia</p>
+                </div>
+              )}
+
+              <DialogFooter className="gap-3 sm:gap-0 pt-4">
+                 <Button variant="ghost" className="rounded-xl font-bold uppercase text-xs w-full sm:w-auto" onClick={() => setIsMoveOpen(false)}>Batal</Button>
+                 <Button 
+                  className="flex-1 rounded-2xl h-14 font-black uppercase text-xs shadow-xl shadow-primary/20 gap-2 w-full sm:w-auto"
+                  disabled={!targetTableId || isProcessing}
+                  onClick={handleMoveOrder}
+                 >
+                   {isProcessing ? "Memproses..." : <><IconArrowRight size={18} /> Pindahkan Sekarang</>}
                  </Button>
               </DialogFooter>
            </div>

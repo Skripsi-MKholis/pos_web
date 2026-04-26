@@ -142,13 +142,13 @@ Sistem pengelolaan antrean dan pemesanan tempat di masa mendatang.
 - [x] **Availability Calendar**: Indikator ringkasan ketersediaan dan statistik reservasi harian.
 - [x] **Automatic Reminders**: Integrasi status "Pending" untuk membantu staf memantau booking yang mendekati waktu.
 
-## Fase 17: Table Order & Kitchen Display (KDS) ⏳
+## Fase 17: Table Order & Kitchen Display (KDS) (Selesai pada 2026-04-27 01:12) ✅
 Manajemen pesanan yang aktif per meja dan integrasi bagian dapur.
 
-- [ ] **Open Bills**: Kemampuan menyimpan pesanan per meja (Pay Later) dan menambah item baru ke meja yang sama.
-- [ ] **Kitchen Order Tickets (KOT)**: Sistem cetak atau tampilan digital pesanan khusus untuk bagian dapur/bar.
-- [ ] **Order Tracking**: Tracker status pesanan (Sedang Dimasak, Siap Disajikan, Selesai).
-- [ ] **Move Order**: Fitur untuk memindahkan pesanan dari satu meja ke meja lain tanpa membatalkan transaksi.
+- [x] **Open Bills**: Kemampuan menyimpan pesanan per meja (Pay Later) dan menambah item baru ke meja yang sama.
+- [x] **Kitchen Order Tickets (KOT)**: Sistem cetak atau tampilan digital pesanan khusus untuk bagian dapur/bar.
+- [x] **Order Tracking**: Tracker status pesanan di KDS (Pending, Cooking, Ready).
+- [x] **Move Order**: Fitur untuk memindahkan pesanan dari satu meja ke meja lain tanpa membatalkan transaksi.
 
 ## Prioritas MVP (MoSCoW)
 - **Must Have**: Login, CRUD Produk, Kasir, Riwayat Transaksi, Multi-Store Selection.

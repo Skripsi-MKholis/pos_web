@@ -32,7 +32,8 @@ import {
   IconHistory,
   IconTrendingUp,
   IconSpeakerphone,
-  IconArmchair
+  IconArmchair,
+  IconToolsKitchen2
 } from "@tabler/icons-react"
 
 const data = {
@@ -83,6 +84,11 @@ const data = {
       title: "Reservasi",
       url: "/dashboard/reservations",
       icon: <IconCalendar className="size-4" />,
+    },
+    {
+      title: "Dapur (KDS)",
+      url: "/dashboard/kds",
+      icon: <IconToolsKitchen2 className="size-4" />,
     },
   ],
   communication: [
@@ -220,7 +226,7 @@ export function AppSidebar({
            <NavMain items={
              data.navMain.filter(item => {
                if (isOwner) return true
-               return ["Dashboard", "Kasir", "Pelanggan", "Monitoring Meja", "Reservasi"].includes(item.title)
+               return ["Dashboard", "Kasir", "Pelanggan", "Monitoring Meja", "Reservasi", "Dapur (KDS)"].includes(item.title)
              })
            } />
         </div>

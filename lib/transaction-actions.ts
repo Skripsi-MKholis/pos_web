@@ -235,3 +235,31 @@ export async function getSalesAndProfitData(storeId: string, days: number = 30) 
     margin: stats.revenue > 0 ? (stats.profit / stats.revenue) * 100 : 0
   }))
 }
+
+export async function moveTransactionTable(transactionId: string, fromTableId: string, toTableId: string) {
+  const supabase = await createClient()
+
+  // 1. Update the transaction to point to the new table
+  const { error: txError } = await supabase
+    .from("transactions")
+    .update({ table_id: toTableId })
+    .eq("id", transactionId)
+
+  if (txError) return { error: txError.message }
+
+  // 2. Update table statuses
+  // Set old table to available
+  await supabase
+    .from("tables")
+    .update({ status: 'available' })
+    .eq("id", fromTableId)
+
+  // Set new table to occupied
+  await supabase
+    .from("tables")
+    .update({ status: 'occupied' })
+    .eq("id", toTableId)
+
+  revalidatePath("/dashboard/tables")
+  return { success: true }
+}
