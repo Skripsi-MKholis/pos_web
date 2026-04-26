@@ -1,6 +1,17 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
+import { cookies } from "next/headers"
+
+export async function getActiveStoreId() {
+  const cookieStore = await cookies()
+  return cookieStore.get("active_store_id")?.value
+}
+
+export async function setActiveStoreId(storeId: string) {
+  const cookieStore = await cookies()
+  cookieStore.set("active_store_id", storeId, { path: "/" })
+}
 
 export async function getStores() {
   const supabase = await createClient()

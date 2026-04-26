@@ -26,7 +26,8 @@ import {
   IconCoffee,
   IconTag,
   IconUserCircle,
-  IconShieldCheck
+  IconShieldCheck,
+  IconCrown
 } from "@tabler/icons-react"
 
 const data = {
@@ -75,6 +76,11 @@ const data = {
       url: "/dashboard/categories",
       icon: <IconTag className="size-4" />,
     },
+    {
+      title: "Stok Global",
+      url: "/dashboard/inventory/global",
+      icon: <IconPackage className="size-4" />,
+    },
   ],
   reports: [
     {
@@ -100,6 +106,11 @@ const data = {
       icon: <IconShieldCheck className="size-4" />,
     },
     {
+      title: "Billing & Langganan",
+      url: "/dashboard/settings/billing",
+      icon: <IconCrown className="size-4" />,
+    },
+    {
       title: "Bantuan",
       url: "#",
       icon: <IconHelp className="size-4" />,
@@ -109,14 +120,18 @@ const data = {
 
 export function AppSidebar({ 
   user,
+  stores,
+  activeStoreId,
   ...props 
 }: { 
   user: { name: string; email: string; avatar: string } 
+  stores: any[]
+  activeStoreId?: string
 } & React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
-        <StoreSwitcher stores={data.stores} />
+        <StoreSwitcher stores={stores} activeStoreId={activeStoreId} />
       </SidebarHeader>
       <SidebarContent>
         {/* Utama Section */}

@@ -1,4 +1,4 @@
-import { getStores } from "@/lib/store-actions"
+import { getStores, getActiveStoreId } from "@/lib/store-actions"
 import { getCustomers } from "@/lib/customer-actions"
 import { CustomerTableClient } from "./customer-table-client"
 import { redirect } from "next/navigation"
@@ -10,7 +10,8 @@ export default async function CustomersPage() {
     redirect("/dashboard")
   }
 
-  const activeStoreId = stores[0].id
+  const activeId = await getActiveStoreId()
+  const activeStoreId = activeId || stores[0].id
   const customers = await getCustomers(activeStoreId)
 
   return (

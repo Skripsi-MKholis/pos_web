@@ -1,4 +1,4 @@
-import { getStores } from "@/lib/store-actions"
+import { getStores, getActiveStoreId } from "@/lib/store-actions"
 import { getDashboardMetrics, getSalesChartData } from "@/lib/transaction-actions"
 import { SectionCards } from "@/components/section-cards"
 import { ChartAreaInteractive } from "@/components/chart-area-interactive"
@@ -11,7 +11,8 @@ export default async function DashboardPage() {
     redirect("/dashboard")
   }
 
-  const activeStoreId = stores[0].id
+  const activeStoreIdFromCookie = await getActiveStoreId()
+  const activeStoreId = activeStoreIdFromCookie || stores[0].id
   const [metrics, chartData] = await Promise.all([
     getDashboardMetrics(activeStoreId),
     getSalesChartData(activeStoreId, 30)

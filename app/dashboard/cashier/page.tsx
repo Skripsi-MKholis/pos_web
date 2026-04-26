@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation"
-import { getStores } from "@/lib/store-actions"
+import { getStores, getActiveStoreId } from "@/lib/store-actions"
 import { getProducts, getCategories } from "@/lib/product-actions"
 import { CashierClient } from "./cashier-client"
 import { createClient } from "@/lib/supabase/server"
@@ -11,7 +11,8 @@ export default async function CashierPage() {
     redirect("/dashboard")
   }
 
-  const activeStore = stores[0]
+  const activeStoreIdFromCookie = await getActiveStoreId()
+  const activeStore = stores.find(s => s.id === activeStoreIdFromCookie) || stores[0]
   const [products, categories] = await Promise.all([
     getProducts(activeStore.id),
     getCategories(activeStore.id)

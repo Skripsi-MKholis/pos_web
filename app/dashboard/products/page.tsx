@@ -1,5 +1,5 @@
 import { getProducts, getCategories } from "@/lib/product-actions"
-import { getStores } from "@/lib/store-actions"
+import { getStores, getActiveStoreId } from "@/lib/store-actions"
 import { AddProductDialog } from "./add-product-dialog"
 import { ProductTableClient } from "./product-table-client"
 
@@ -17,7 +17,8 @@ export default async function ProductsPage() {
     )
   }
 
-  const activeStoreId = stores[0].id
+  const activeId = await getActiveStoreId()
+  const activeStoreId = activeId || stores[0].id
   const products = await getProducts(activeStoreId)
   const categories = await getCategories(activeStoreId)
 

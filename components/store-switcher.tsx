@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { IconCheck, IconChevronDown, IconPlus, IconBuildingStore } from "@tabler/icons-react"
+import Link from "next/link"
 
 import { cn } from "@/lib/utils"
 import {
@@ -19,18 +20,27 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
+import { setActiveStoreId } from "@/lib/store-actions"
 
 export function StoreSwitcher({
   stores,
+  activeStoreId,
 }: {
-  stores: {
-    name: string
-    logo: React.ElementType
-    plan: string
-  }[]
+  stores: any[]
+  activeStoreId?: string
 }) {
   const { isMobile } = useSidebar()
-  const [activeStore, setActiveStore] = React.useState(stores[0])
+  
+  const currentStore = stores.find(s => s.id === activeStoreId) || stores[0] || {
+    name: "Pilih Toko",
+    plan: "Free",
+    logo: IconBuildingStore
+  }
+
+  const handleSwitchStore = async (storeId: string) => {
+    await setActiveStoreId(storeId)
+    window.location.reload()
+  }
 
   return (
     <SidebarMenu>
@@ -42,13 +52,13 @@ export function StoreSwitcher({
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                <activeStore.logo className="size-4" />
+                <IconBuildingStore className="size-4" />
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold text-primary">
-                  {activeStore.name}
+                  {currentStore.name}
                 </span>
-                <span className="truncate text-xs">{activeStore.plan}</span>
+                <span className="truncate text-xs opacity-50">Outlet Active</span>
               </div>
               <IconChevronDown className="ml-auto" />
             </SidebarMenuButton>
@@ -64,27 +74,29 @@ export function StoreSwitcher({
             </DropdownMenuLabel>
             {stores.map((store, index) => (
               <DropdownMenuItem
-                key={store.name}
-                onClick={() => setActiveStore(store)}
-                className="gap-2 p-2"
+                key={store.id}
+                onClick={() => handleSwitchStore(store.id)}
+                className="gap-2 p-2 cursor-pointer"
               >
                 <div className="flex size-6 items-center justify-center rounded-sm border">
-                  <store.logo className="size-4 shrink-0" />
+                  <IconBuildingStore className="size-4 shrink-0" />
                 </div>
                 {store.name}
-                {activeStore.name === store.name && (
+                {currentStore.id === store.id && (
                   <IconCheck className="ml-auto size-4" />
                 )}
                 <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
               </DropdownMenuItem>
             ))}
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="gap-2 p-2">
-              <div className="flex size-6 items-center justify-center rounded-md border bg-background">
-                <IconPlus className="size-4" />
-              </div>
-              <div className="font-medium text-muted-foreground">Add store</div>
-            </DropdownMenuItem>
+            <Link href="/dashboard/settings/store/new" className="cursor-pointer">
+              <DropdownMenuItem className="gap-2 p-2">
+                <div className="flex size-6 items-center justify-center rounded-md border bg-background">
+                  <IconPlus className="size-4" />
+                </div>
+                <div className="font-medium text-muted-foreground">Tambah Toko / Outlet</div>
+              </DropdownMenuItem>
+            </Link>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>

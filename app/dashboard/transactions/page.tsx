@@ -1,4 +1,4 @@
-import { getStores } from "@/lib/store-actions"
+import { getStores, getActiveStoreId } from "@/lib/store-actions"
 import { getTransactions } from "@/lib/transaction-actions"
 import { redirect } from "next/navigation"
 import { TransactionTableClient } from "@/app/dashboard/transactions/transaction-table-client"
@@ -10,7 +10,8 @@ export default async function TransactionsPage() {
     redirect("/dashboard")
   }
 
-  const activeStoreId = stores[0].id
+  const activeId = await getActiveStoreId()
+  const activeStoreId = activeId || stores[0].id
   const transactions = await getTransactions(activeStoreId)
 
   return (

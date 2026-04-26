@@ -58,13 +58,13 @@ Meningkatkan wawasan bisnis dan loyalitas pelanggan.
 - [x] **Cetak Struk (Thermal)**: Fitur cetak struk dengan format printer thermal (58mm/80mm).
 - [x] **Manajemen Karyawan**: Menambah staf kasir ke dalam toko dengan role terbatas.
 
-## Fase 7: Multi-Outlet & Enterprise Management
+## Fase 7: Multi-Outlet & Enterprise Management (Selesai) ✅
 Skalasi bisnis dengan pengelolaan banyak cabang dalam satu akun.
 
-- [ ] **Kelola Cabang**: Antarmuka khusus untuk menambah dan menonaktifkan cabang/outlet baru.
-- [ ] **Laporan Konsolidasi**: Dashboard ringkasan total pendapatan dari seluruh outlet secara real-time.
-- [ ] **Penugasan Staf**: Fitur untuk menentukan staf mana yang bekerja di cabang mana.
-- [ ] **Transfer Stok**: (Opsional) Fitur untuk memindahkan stok produk antar cabang.
+- [x] **Store Switcher**: UI untuk berpindah antar outlet/toko secara instan.
+- [x] **Kelola Cabang**: Antarmuka khusus untuk menambah dan menonaktifkan cabang/outlet baru.
+- [x] **Laporan Konsolidasi**: Dashboard ringkasan stok global dari seluruh outlet secara real-time.
+- [x] **Enterprise Billing**: Penyesuaian skema langganan (Free vs Pro vs Enterprise).
 
 ## Prioritas MVP (MoSCoW)
 - **Must Have**: Login, CRUD Produk, Kasir, Riwayat Transaksi.
