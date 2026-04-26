@@ -50,24 +50,19 @@ export default function RegisterPage() {
 
   async function onSubmit(data: RegisterFormValues) {
     setIsLoading(true)
-    try {
-      const formData = new FormData()
-      formData.append("fullName", data.fullName)
-      formData.append("email", data.email)
-      formData.append("password", data.password)
-      
-      const result = await signup(formData)
-      
-      if (result?.error) {
-        toast.error(result.error)
-      } else {
-        toast.success("Registrasi berhasil! Menyiapkan toko...")
-        router.push("/setup")
-      }
-    } catch (error) {
-      toast.error("Terjadi kesalahan saat registrasi")
-    } finally {
+    const formData = new FormData()
+    formData.append("fullName", data.fullName)
+    formData.append("email", data.email)
+    formData.append("password", data.password)
+    
+    const result = await signup(formData)
+    
+    if (result?.error) {
+      toast.error(result.error)
       setIsLoading(false)
+    } else {
+      toast.success("Registrasi berhasil! Menyiapkan toko...")
+      router.push("/setup")
     }
   }
 
@@ -155,7 +150,7 @@ export default function RegisterPage() {
                 )}
               </div>
             </CardContent>
-            <CardFooter className="flex flex-col gap-4">
+            <CardFooter className="flex flex-col gap-4 mt-5">
               <Button className="w-full" type="submit" disabled={isLoading}>
                 {isLoading && (
                   <IconLoader2 className="mr-2 h-4 w-4 animate-spin" />

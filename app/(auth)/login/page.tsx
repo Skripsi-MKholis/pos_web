@@ -41,19 +41,14 @@ export default function LoginPage() {
 
   async function onSubmit(data: LoginFormValues) {
     setIsLoading(true)
-    try {
-      const formData = new FormData()
-      formData.append("email", data.email)
-      formData.append("password", data.password)
-      
-      const result = await login(formData)
-      
-      if (result?.error) {
-        toast.error(result.error)
-      }
-    } catch (error) {
-      toast.error("Terjadi kesalahan saat login")
-    } finally {
+    const formData = new FormData()
+    formData.append("email", data.email)
+    formData.append("password", data.password)
+    
+    const result = await login(formData)
+    
+    if (result?.error) {
+      toast.error(result.error)
       setIsLoading(false)
     }
   }
@@ -122,7 +117,7 @@ export default function LoginPage() {
                 )}
               </div>
             </CardContent>
-            <CardFooter className="flex flex-col gap-4">
+            <CardFooter className="flex flex-col gap-4 mt-5">
               <Button className="w-full" type="submit" disabled={isLoading}>
                 {isLoading && (
                   <IconLoader2 className="mr-2 h-4 w-4 animate-spin" />
