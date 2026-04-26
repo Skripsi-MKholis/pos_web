@@ -62,6 +62,10 @@ export async function updateStore(
     phone?: string; 
     email?: string;
     logo_url?: string | null;
+    receipt_header?: string | null;
+    receipt_footer?: string | null;
+    receipt_show_logo?: boolean;
+    preferred_paper_size?: string;
   }
 ) {
   const supabase = await createClient()

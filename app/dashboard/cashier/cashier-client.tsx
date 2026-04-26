@@ -429,10 +429,7 @@ export function CashierClient({
         total={finalTotal}
         discountTotal={discountAmount}
         voucherInfo={appliedVoucher ? { code: appliedVoucher.code, amount: discountAmount } : null}
-        storeId={store.id}
-        storeName={store.name}
-        address={store.address}
-        phone={store.phone}
+        store={store}
         userName={userName}
         onSuccess={() => {
           setCart([])

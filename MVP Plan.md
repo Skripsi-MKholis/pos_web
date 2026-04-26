@@ -116,6 +116,15 @@ Meningkatkan daya tarik penjualan melalui sistem promosi yang fleksibel dan teri
 - [x] **Transaction Tracking**: Pencatatan nilai diskon dalam setiap transaksi untuk laporan laba rugi yang akurat.
 - [x] **Promotion Hub**: Dashboard khusus bagi Owner untuk memantau performa voucher dan mengelola promo aktif.
 
+## Fase 14: Receipt Customization & Printer Management (In Progress) ⏳
+Memberikan fleksibilitas penuh pada branding struk dan konfigurasi perangkat keras printer.
+
+- [ ] **Receipt Template Builder**: UI khusus untuk mengatur konten struk (Header, Footer, Logo, dan Info Kontak).
+- [ ] **Printer Device Manager**: Konfigurasi koneksi perangkat printer (USB, Bluetooth, atau Network/IP).
+- [ ] **Paper Size Settings**: Pengaturan format cetak berdasarkan ukuran kertas (58mm, 80mm, atau A4/Letter).
+- [ ] **Print Preview & Test**: Fitur pratinjau struk secara live dan tombol uji coba cetak ke perangkat terhubung.
+- [ ] **Branding Integration**: Integrasi Logo Toko yang diunggah di pengaturan ke dalam layout struk.
+
 ## Prioritas MVP (MoSCoW)
 - **Must Have**: Login, CRUD Produk, Kasir, Riwayat Transaksi, Multi-Store Selection.
 - **Should Have**: Dashboard Analytics, Cetak Struk, Manajemen Stok, Laporan Laba Kotor.

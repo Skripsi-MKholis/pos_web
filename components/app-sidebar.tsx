@@ -126,6 +126,11 @@ const data = {
       icon: <IconBuildingStore className="size-4" />,
     },
     {
+      title: "Struk & Printer",
+      url: "/dashboard/settings/receipt",
+      icon: <IconReceipt className="size-4" />,
+    },
+    {
       title: "Manajemen Staf",
       url: "/dashboard/settings/staff",
       icon: <IconShieldCheck className="size-4" />,

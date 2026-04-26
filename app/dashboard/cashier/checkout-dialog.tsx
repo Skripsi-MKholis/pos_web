@@ -39,10 +39,7 @@ export function CheckoutDialog({
   total,
   discountTotal = 0,
   voucherInfo = null,
-  storeId,
-  storeName,
-  address,
-  phone,
+  store,
   userName,
   onSuccess
 }: {
@@ -52,10 +49,7 @@ export function CheckoutDialog({
   total: number
   discountTotal?: number
   voucherInfo?: any
-  storeId: string
-  storeName: string
-  address?: string
-  phone?: string
+  store: any
   userName: string
   onSuccess: () => void
 }) {
@@ -76,7 +70,7 @@ export function CheckoutDialog({
     setIsLoading(true)
     try {
       const payload = {
-        storeId,
+        storeId: store.id,
         totalAmount: total,
         paymentMethod,
         discountTotal,
@@ -150,9 +144,14 @@ export function CheckoutDialog({
           </div>
 
           <ReceiptPrint 
-            storeName={storeName}
-            address={address}
-            phone={phone}
+            storeName={store.name}
+            address={store.address}
+            phone={store.phone}
+            logoUrl={store.logo_url}
+            header={store.receipt_header}
+            footer={store.receipt_footer}
+            showLogo={store.receipt_show_logo}
+            paperSize={store.preferred_paper_size}
             cashierName={userName}
             transactionId={transactionId}
             items={cartItems}
