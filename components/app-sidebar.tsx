@@ -25,6 +25,7 @@ import {
   IconFlame,
   IconCoffee,
   IconTag,
+  IconCalendar,
   IconUserCircle,
   IconShieldCheck,
   IconCrown,
@@ -77,6 +78,11 @@ const data = {
       title: "Monitoring Meja",
       url: "/dashboard/tables",
       icon: <IconArmchair className="size-4" />,
+    },
+    {
+      title: "Reservasi",
+      url: "/dashboard/reservations",
+      icon: <IconCalendar className="size-4" />,
     },
   ],
   communication: [
@@ -214,7 +220,7 @@ export function AppSidebar({
            <NavMain items={
              data.navMain.filter(item => {
                if (isOwner) return true
-               return ["Dashboard", "Kasir", "Pelanggan"].includes(item.title)
+               return ["Dashboard", "Kasir", "Pelanggan", "Monitoring Meja", "Reservasi"].includes(item.title)
              })
            } />
         </div>
