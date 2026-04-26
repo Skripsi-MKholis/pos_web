@@ -25,8 +25,10 @@ import {
 } from "@/components/ui/select"
 import { updateStore } from "@/lib/store-actions"
 import { ReceiptPrint } from "@/components/receipt-print"
+import { formatCurrency, cn } from "@/lib/utils"
 
 export function ReceiptForm({ initialData }: { initialData: any }) {
+  const [mounted, setMounted] = React.useState(false)
   const [isLoading, setIsLoading] = React.useState(false)
   const [showLogo, setShowLogo] = React.useState(initialData?.receipt_show_logo ?? true)
   const [paperSize, setPaperSize] = React.useState(initialData?.preferred_paper_size || "58mm")
@@ -34,6 +36,10 @@ export function ReceiptForm({ initialData }: { initialData: any }) {
   const [footer, setFooter] = React.useState(initialData?.receipt_footer || "")
   
   const router = useRouter()
+
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const handleTestPrint = () => {
     window.print()
@@ -63,6 +69,8 @@ export function ReceiptForm({ initialData }: { initialData: any }) {
       setIsLoading(false)
     }
   }
+
+  if (!mounted) return null
 
   return (
     <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
@@ -214,9 +222,13 @@ export function ReceiptForm({ initialData }: { initialData: any }) {
                   </div>
                   <div className="border-b border-dashed border-black/20 my-2"></div>
                   <div className="space-y-1.5 py-1">
-                    <div className="flex justify-between font-bold"><span>Contoh Item</span><span>50.000</span></div>
-                    <div className="flex justify-between font-black text-xs border-t border-black/10 pt-1 mt-1">
-                        <span>TOTAL</span><span>50.000</span>
+                    <div className="flex justify-between font-bold text-[8px]">
+                      <span>Contoh Item</span>
+                      <span>{formatCurrency(50000)}</span>
+                    </div>
+                    <div className="flex justify-between font-black text-[9px] border-t border-black/10 pt-1 mt-1 uppercase">
+                        <span>TOTAL</span>
+                        <span>{formatCurrency(50000)}</span>
                     </div>
                   </div>
                   <div className="border-b border-dashed border-black/20 my-4"></div>

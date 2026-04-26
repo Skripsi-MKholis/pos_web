@@ -30,7 +30,8 @@ import {
   IconCrown,
   IconHistory,
   IconTrendingUp,
-  IconSpeakerphone
+  IconSpeakerphone,
+  IconArmchair
 } from "@tabler/icons-react"
 
 const data = {
@@ -71,6 +72,11 @@ const data = {
       title: "Promosi",
       url: "/dashboard/promotions",
       icon: <IconTag className="size-4" />,
+    },
+    {
+      title: "Monitoring Meja",
+      url: "/dashboard/tables",
+      icon: <IconArmchair className="size-4" />,
     },
   ],
   communication: [
@@ -131,6 +137,11 @@ const data = {
       icon: <IconReceipt className="size-4" />,
     },
     {
+      title: "Manajemen Meja",
+      url: "/dashboard/settings/tables",
+      icon: <IconArmchair className="size-4" />,
+    },
+    {
       title: "Manajemen Staf",
       url: "/dashboard/settings/staff",
       icon: <IconShieldCheck className="size-4" />,
@@ -160,7 +171,12 @@ export function AppSidebar({
   activeStoreId?: string
   userRole?: string
 } & React.ComponentProps<typeof Sidebar>) {
+  const [mounted, setMounted] = React.useState(false)
   const isOwner = userRole === "Owner"
+
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
 
   // Filter settings for Karyawan
   const filteredSettings = data.settings.filter(item => {
@@ -175,6 +191,14 @@ export function AppSidebar({
     // Karyawan only see History
     return ["Riwayat Transaksi"].includes(item.title)
   })
+
+  if (!mounted) return (
+    <Sidebar collapsible="offcanvas" {...props}>
+      <div className="flex-1 flex items-center justify-center">
+        <div className="h-8 w-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+      </div>
+    </Sidebar>
+  )
 
   return (
     <Sidebar collapsible="offcanvas" {...props}>

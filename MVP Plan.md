@@ -116,14 +116,40 @@ Meningkatkan daya tarik penjualan melalui sistem promosi yang fleksibel dan teri
 - [x] **Transaction Tracking**: Pencatatan nilai diskon dalam setiap transaksi untuk laporan laba rugi yang akurat.
 - [x] **Promotion Hub**: Dashboard khusus bagi Owner untuk memantau performa voucher dan mengelola promo aktif.
 
-## Fase 14: Receipt Customization & Printer Management (In Progress) ⏳
-Memberikan fleksibilitas penuh pada branding struk dan konfigurasi perangkat keras printer.
+## Fase 14: Receipt Customization & Printer Management (Selesai) ✅
+Konfigurasi branding struk dan fleksibilitas perangkat keras.
 
-- [ ] **Receipt Template Builder**: UI khusus untuk mengatur konten struk (Header, Footer, Logo, dan Info Kontak).
-- [ ] **Printer Device Manager**: Konfigurasi koneksi perangkat printer (USB, Bluetooth, atau Network/IP).
-- [ ] **Paper Size Settings**: Pengaturan format cetak berdasarkan ukuran kertas (58mm, 80mm, atau A4/Letter).
-- [ ] **Print Preview & Test**: Fitur pratinjau struk secara live dan tombol uji coba cetak ke perangkat terhubung.
-- [ ] **Branding Integration**: Integrasi Logo Toko yang diunggah di pengaturan ke dalam layout struk.
+- [x] **Receipt Template Builder**: UI khusus untuk mengatur konten struk (Header, Footer, Logo).
+- [x] **Paper Size Settings**: Pengaturan format cetak (58mm, 80mm, atau A4).
+- [x] **Print Preview & Test**: Fitur pratinjau struk secara live dan simulasi cetak.
+- [x] **Branding Integration**: Penggunaan Logo Toko secara dinamis pada struk.
+
+## Fase 15: Manajemen Meja & Open Bill (Sedang Berjalan) ⏳
+Transformasi POS untuk F&B dengan sistem pesanan per meja dan pembayaran tunda.
+
+- [x] **Table Management**: CRUD daftar meja dan kapasitas.
+- [x] **Visual Floor Plan**: Tampilan grid meja dengan indikator status real-time.
+- [x] **Table Selection**: Alur kasir terintegrasi dengan pemilihan meja.
+- [ ] **Open Bill / Pay Later**: Kemampuan menyimpan pesanan ke meja (Status `Pending`) dan menambah item di kemudian waktu.
+- [ ] **Table Monitoring Dashboard**: Monitoring terpusat untuk melihat meja mana yang sedang aktif memesan.
+- [ ] **Split Bill / Partial Payment**: Fitur untuk membayar sebagian pesanan atau membagi tagihan per item dalam satu meja.
+- [ ] **Kitchen Ticket (KOT)**: Format struk khusus pesanan dapur (tanpa harga).
+
+## Fase 16: Reservasi & Booking Meja ⏳
+Sistem pengelolaan antrean dan pemesanan tempat di masa mendatang.
+Sistem pengelolaan antrean dan pemesanan tempat di masa mendatang.
+
+- [ ] **Reservation Management**: Dashboard untuk mencatat pesan tempat (Nama, Jam, Jumlah Orang).
+- [ ] **Availability Calendar**: Kalender atau timeline untuk memantau ketersediaan meja pada jam tertentu.
+- [ ] **Automatic Reminders**: Integrasi notifikasi sistem untuk mengingatkan staf tentang reservasi yang mendekati waktu.
+
+## Fase 17: Table Order & Kitchen Display (KDS) ⏳
+Manajemen pesanan yang aktif per meja dan integrasi bagian dapur.
+
+- [ ] **Open Bills**: Kemampuan menyimpan pesanan per meja (Pay Later) dan menambah item baru ke meja yang sama.
+- [ ] **Kitchen Order Tickets (KOT)**: Sistem cetak atau tampilan digital pesanan khusus untuk bagian dapur/bar.
+- [ ] **Order Tracking**: Tracker status pesanan (Sedang Dimasak, Siap Disajikan, Selesai).
+- [ ] **Move Order**: Fitur untuk memindahkan pesanan dari satu meja ke meja lain tanpa membatalkan transaksi.
 
 ## Prioritas MVP (MoSCoW)
 - **Must Have**: Login, CRUD Produk, Kasir, Riwayat Transaksi, Multi-Store Selection.

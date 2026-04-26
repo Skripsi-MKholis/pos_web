@@ -41,6 +41,7 @@ export function CheckoutDialog({
   voucherInfo = null,
   store,
   userName,
+  tableId,
   onSuccess
 }: {
   isOpen: boolean
@@ -51,6 +52,7 @@ export function CheckoutDialog({
   voucherInfo?: any
   store: any
   userName: string
+  tableId?: string
   onSuccess: () => void
 }) {
   const [isLoading, setIsLoading] = React.useState(false)
@@ -75,6 +77,7 @@ export function CheckoutDialog({
         paymentMethod,
         discountTotal,
         voucherInfo,
+        tableId,
         items: cartItems.map(item => ({
           product_id: item.id,
           product_name: item.name,

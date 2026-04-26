@@ -3,6 +3,7 @@
 import * as React from "react"
 import { format } from "date-fns"
 import { id } from "date-fns/locale"
+import { formatCurrency } from "@/lib/utils"
 
 type ReceiptPrintProps = {
   storeName: string
@@ -81,8 +82,8 @@ export function ReceiptPrint({
               <span className="font-black uppercase tracking-tight">{item.name}</span>
             </div>
             <div className="flex justify-between text-[9px] opacity-80">
-              <span className="italic">{item.quantity} x {item.price.toLocaleString()}</span>
-              <span className="font-bold">{(item.quantity * item.price).toLocaleString()}</span>
+              <span className="italic">{item.quantity} x {formatCurrency(item.price)}</span>
+              <span className="font-bold">{formatCurrency(item.quantity * item.price)}</span>
             </div>
           </div>
         ))}
@@ -93,15 +94,15 @@ export function ReceiptPrint({
       <div className="space-y-1.5 py-1">
         <div className="flex justify-between font-black text-xs border-b border-black pb-1 mb-1">
           <span>TOTAL TAGIHAN</span>
-          <span>Rp {total.toLocaleString()}</span>
+          <span>Rp {formatCurrency(total)}</span>
         </div>
         <div className="flex justify-between opacity-80">
           <span>Bayar ({paymentMethod})</span>
-          <span>{cashPaid ? cashPaid.toLocaleString() : "-"}</span>
+          <span>{cashPaid ? formatCurrency(cashPaid) : "-"}</span>
         </div>
         <div className="flex justify-between font-bold">
           <span>Kembalian</span>
-          <span>{changeAmount ? changeAmount.toLocaleString() : "0"}</span>
+          <span>{changeAmount ? formatCurrency(changeAmount) : "0"}</span>
         </div>
       </div>
 

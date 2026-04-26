@@ -18,6 +18,8 @@ export type TransactionPayload = {
   items: TransactionItem[]
   discountTotal?: number
   voucherInfo?: any
+  tableId?: string
+  status?: "Berhasil" | "Pending" | "Dibatalkan"
 }
 
 export async function createTransaction(payload: TransactionPayload) {
@@ -26,14 +28,16 @@ export async function createTransaction(payload: TransactionPayload) {
   
   if (!user) return { error: "Unauthorized" }
 
-  const { data, error } = await supabase.rpc("create_transaction_v2", {
+  const { data, error } = await supabase.rpc("create_transaction_v3", {
     p_store_id: payload.storeId,
     p_cashier_id: user.id,
     p_total_amount: payload.totalAmount,
     p_payment_method: payload.paymentMethod,
     p_items: payload.items,
     p_discount_total: payload.discountTotal || 0,
-    p_voucher_info: payload.voucherInfo || {}
+    p_voucher_info: payload.voucherInfo || {},
+    p_table_id: payload.tableId || null,
+    p_status: payload.status || "Berhasil"
   })
 
   if (error) {
@@ -51,6 +55,36 @@ export async function createTransaction(payload: TransactionPayload) {
   revalidatePath("/dashboard")
   
   return { success: true, transactionId: data?.transaction_id }
+}
+
+export async function splitTransaction(payload: {
+  originalTransactionId: string
+  paidItems: any[]
+  paymentMethod: string
+  storeId: string
+}) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: "Unauthorized" }
+  
+  // 1. Create a new PAID transaction for the selected items
+  const { data, error } = await supabase.rpc("split_transaction_v1", {
+    p_original_tx_id: payload.originalTransactionId,
+    p_paid_items: payload.paidItems,
+    p_payment_method: payload.paymentMethod,
+    p_store_id: payload.storeId,
+    p_cashier_id: user.id
+  })
+
+  if (error) {
+    console.error("Split Error:", error)
+    return { error: error.message }
+  }
+
+  revalidatePath("/dashboard/tables")
+  revalidatePath("/dashboard/transactions")
+  
+  return { success: true, transactionId: data?.new_transaction_id }
 }
 
 export async function getTransactions(storeId: string) {

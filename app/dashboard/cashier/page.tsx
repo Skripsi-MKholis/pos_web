@@ -3,6 +3,7 @@ import { getStores, getActiveStoreId } from "@/lib/store-actions"
 import { getProducts, getCategories } from "@/lib/product-actions"
 import { CashierClient } from "./cashier-client"
 import { createClient } from "@/lib/supabase/server"
+import { getTables } from "@/lib/table-actions"
 
 export default async function CashierPage() {
   const stores = await getStores()
@@ -13,9 +14,10 @@ export default async function CashierPage() {
 
   const activeStoreIdFromCookie = await getActiveStoreId()
   const activeStore = stores.find(s => s.id === activeStoreIdFromCookie) || stores[0]
-  const [products, categories] = await Promise.all([
+  const [products, categories, tablesRes] = await Promise.all([
     getProducts(activeStore.id),
-    getCategories(activeStore.id)
+    getCategories(activeStore.id),
+    getTables(activeStore.id)
   ])
 
   const supabase = await createClient()
@@ -29,6 +31,7 @@ export default async function CashierPage() {
         userName={userName}
         initialProducts={products}
         categories={categories}
+        initialTables={tablesRes.tables || []}
       />
     </div>
   )
