@@ -170,6 +170,15 @@ Memberikan fleksibilitas bagi Owner untuk menyesuaikan fungsionalitas sistem ses
     - Pengaturan ambang batas (threshold) stok rendah kustom per toko.
 - [x] **Dynamic Pricing Rules**: Opsi untuk mengaktifkan "Order Type Pricing" (Misal: Harga berbeda antara Dine-in, Takeaway, dan Delivery).
 
+## Fase 19: Interactive Onboarding & User Engagement (Next)
+Meningkatkan interaktivitas dan panduan pengguna agar aplikasi terlihat lebih hidup dan komunikatif bagi pengguna baru.
+
+- [ ] **First-time Walkthrough**: Panduan interaktif bertahap (Guided Tour) untuk memperkenalkan fitur Dashboard, Kasir, dan Inventaris bagi pengguna baru.
+- [ ] **Welcome Experience**: Pop-up sambutan personal yang muncul saat pertama kali membuat toko atau masuk ke toko pertama kali (Menampilkan nama Owner dan nama Toko).
+- [ ] **Contextual Hints**: Tooltip atau pesan hint proaktif di halaman tertentu untuk membantu pengguna memahami fungsi modul modular.
+- [ ] **Session Feedback**: Animasi transisi yang lebih kaya saat berganti toko atau masuk ke dashboard untuk memberikan kesan aplikasi yang responsif.
+
+
 ## Prioritas MVP (MoSCoW)
 - **Must Have**: Login, CRUD Produk, Kasir, Riwayat Transaksi, Multi-Store Selection, Audit Cash/Change.
 - **Should Have**: Dashboard Analytics, Cetak Struk, Manajemen Stok, Laporan Laba Kotor, **Feature Modules Control (Fase 18)**.
