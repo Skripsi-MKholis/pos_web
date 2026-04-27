@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
-import { IconBrandGoogle, IconBuildingStore, IconLoader2 } from "@tabler/icons-react"
+import { IconBrandGoogle, IconBuildingStore, IconLoader2, IconArrowLeft } from "@tabler/icons-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -55,6 +55,16 @@ export default function LoginPage() {
 
   return (
     <div className="container relative flex min-h-screen flex-col items-center justify-center lg:px-0">
+      <Link
+        href="/"
+        className="absolute left-4 top-4 md:left-8 md:top-8"
+      >
+        <Button variant="ghost" className="rounded-full gap-2 text-muted-foreground hover:text-primary">
+          <IconArrowLeft size={18} />
+          Beranda
+        </Button>
+      </Link>
+      
       <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
         <div className="flex flex-col space-y-2 text-center">
           <div className="flex justify-center">

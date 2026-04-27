@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client" // Since it's a client component now
 import { useRouter } from "next/navigation"
+import { CookieConsent } from "@/components/cookie-consent"
 
 export default function LandingPage() {
   const router = useRouter()
@@ -38,6 +39,7 @@ export default function LandingPage() {
   
   return (
     <div className="flex flex-col min-h-screen bg-background selection:bg-primary/30 selection:text-primary">
+      <CookieConsent />
       {/* Dynamic Background */}
       <div className="fixed inset-0 -z-20">
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 opacity-20" />
@@ -65,6 +67,7 @@ export default function LandingPage() {
             <Link href="#features" className="hover:text-primary transition-all hover:tracking-[0.15em]">Sistem</Link>
             <Link href="#solutions" className="hover:text-primary transition-all hover:tracking-[0.15em]">Solusi</Link>
             <Link href="#pricing" className="hover:text-primary transition-all hover:tracking-[0.15em]">Harga</Link>
+            <Link href="/privacy" className="hover:text-primary transition-all hover:tracking-[0.15em]">Privasi</Link>
           </nav>
 
           <div className="flex items-center gap-4">
@@ -342,8 +345,8 @@ export default function LandingPage() {
         <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-8 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground border-t border-white/5 pt-8 opacity-40">
            <p>&copy; {new Date().getFullYear()} PARZELLO SYSTEMS INC. ALL RIGHTS RESERVED.</p>
            <div className="flex gap-10">
-              <Link href="#" className="hover:text-primary transition-colors">Privacy</Link>
-              <Link href="#" className="hover:text-primary transition-colors">Terms</Link>
+              <Link href="/privacy" className="hover:text-primary transition-colors">Privacy</Link>
+              <Link href="/terms" className="hover:text-primary transition-colors">Terms</Link>
            </div>
         </div>
       </footer>
