@@ -59,6 +59,12 @@ const data = {
       feature: "tables"
     },
     {
+      title: "Konfigurasi Meja",
+      url: "/dashboard/settings/tables",
+      icon: <IconSettings className="size-4" />,
+      feature: "tables"
+    },
+    {
       title: "Reservasi",
       url: "/dashboard/reservations",
       icon: <IconCalendar className="size-4" />,
@@ -146,12 +152,6 @@ const data = {
       title: "Cetak & Struk",
       url: "/dashboard/settings/receipt",
       icon: <IconReceipt className="size-4" />,
-    },
-    {
-      title: "Konfigurasi Meja",
-      url: "/dashboard/settings/tables",
-      icon: <IconArmchair className="size-4" />,
-      feature: "tables"
     },
     {
       title: "Akses Staf",
