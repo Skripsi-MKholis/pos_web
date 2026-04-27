@@ -51,7 +51,10 @@ export async function updateSession(request: NextRequest) {
   // If user is logged in but doesn't have an email identity (password set), 
   // redirect them to setup-password, except when already there or on auth paths
   if (user) {
-    const hasPassword = user.identities?.some(id => id.provider === 'email')
+    const hasEmailProvider = user.identities?.some(id => id.provider === 'email')
+    const hasPasswordSet = user.user_metadata?.password_set === true
+    const hasPassword = hasEmailProvider || hasPasswordSet
+    
     const isSetupPasswordPage = request.nextUrl.pathname.startsWith('/setup-password')
     const isAuthPath = request.nextUrl.pathname.startsWith('/auth')
     const isExcludedPath = 

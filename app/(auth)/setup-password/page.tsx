@@ -48,7 +48,8 @@ export default function SetupPasswordPage() {
     setIsLoading(true)
     
     const { error } = await supabase.auth.updateUser({
-      password: data.password
+      password: data.password,
+      data: { password_set: true } // Mark that password has been set
     })
     
     if (error) {
@@ -56,7 +57,11 @@ export default function SetupPasswordPage() {
       setIsLoading(false)
     } else {
       toast.success("Password berhasil diperbarui!")
+      // We don't set loading to false here because we're redirecting, 
+      // but if the middleware forces us back, we'd be stuck. 
+      // So we refresh first or just redirect.
       router.push("/select-store")
+      router.refresh()
     }
   }
 
@@ -125,7 +130,7 @@ export default function SetupPasswordPage() {
               </div>
             </CardContent>
             <CardFooter className="flex flex-col gap-3 pb-8">
-              <Button className="w-full h-12 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-primary/20" type="submit" disabled={isLoading}>
+              <Button className="mt-5 w-full h-12 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-primary/20" type="submit" disabled={isLoading}>
                 {isLoading ? (
                   <IconLoader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : (

@@ -7,6 +7,7 @@ import { SelectStoreButton } from "./select-store-button"
 import { getPendingInvitations } from "@/lib/staff-actions"
 import { InvitationsList } from "./invitations-list"
 import { JoinStoreDialog } from "./join-store-dialog"
+import { LogoutButton } from "./logout-button"
 import Link from "next/link"
 
 export default async function SelectStorePage() {
@@ -46,7 +47,10 @@ export default async function SelectStorePage() {
   const invitations = await getPendingInvitations()
 
   return (
-    <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center p-4 relative">
+      <div className="absolute top-4 right-4 md:top-8 md:right-8">
+        <LogoutButton />
+      </div>
       <div className="w-full max-w-md space-y-8">
         <div className="text-center space-y-2">
           <div className="h-16 w-16 bg-primary/10 text-primary rounded-2xl flex items-center justify-center mx-auto mb-4 border shadow-sm overflow-hidden">

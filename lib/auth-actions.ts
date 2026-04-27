@@ -24,10 +24,13 @@ export async function login(formData: FormData) {
 }
 
 function getURL() {
-  let url =
-    process.env.NEXT_PUBLIC_SITE_URL ??
-    process.env.NEXT_PUBLIC_VERCEL_URL ?? // Ready for Vercel
-    'http://localhost:3000'
+  const isDevelopment = process.env.NODE_ENV === 'development'
+  
+  let url = isDevelopment
+    ? 'http://localhost:3000'
+    : (process.env.NEXT_PUBLIC_SITE_URL ??
+       process.env.NEXT_PUBLIC_VERCEL_URL ??
+       'http://localhost:3000')
   
   // Make sure to include `https://` if values from Vercel don't have it
   url = url.includes('http') ? url : `https://${url}`
