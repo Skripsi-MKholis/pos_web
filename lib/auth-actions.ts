@@ -23,12 +23,27 @@ export async function login(formData: FormData) {
   redirect("/select-store")
 }
 
+function getURL() {
+  let url =
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    process.env.NEXT_PUBLIC_VERCEL_URL ?? // Ready for Vercel
+    'http://localhost:3000'
+  
+  // Make sure to include `https://` if values from Vercel don't have it
+  url = url.includes('http') ? url : `https://${url}`
+  // Remove trailing slashes
+  url = url.charAt(url.length - 1) === '/' ? url.slice(0, -1) : url
+  return url
+}
+
 export async function signInWithGoogle() {
   const supabase = await createClient()
+  const siteUrl = getURL()
+  
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/callback`,
+      redirectTo: `${siteUrl}/auth/callback`,
     },
   })
 
@@ -43,6 +58,7 @@ export async function signInWithGoogle() {
 
 export async function signup(formData: FormData) {
   const supabase = await createClient()
+  const siteUrl = getURL()
 
   const email = formData.get("email") as string
   const password = formData.get("password") as string
@@ -55,7 +71,7 @@ export async function signup(formData: FormData) {
       data: {
         full_name: fullName,
       },
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/callback`,
+      emailRedirectTo: `${siteUrl}/auth/callback`,
     },
   })
 
