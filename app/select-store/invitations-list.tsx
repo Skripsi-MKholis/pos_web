@@ -17,7 +17,7 @@ export function InvitationsList({ invitations }: { invitations: any[] }) {
     const res = await acceptInvitation(id)
     if (res.success) {
       toast.success("Berhasil bergabung dengan toko!")
-      router.refresh()
+      router.push(`/dashboard?storeId=${res.storeId}`)
     } else {
       toast.error(res.error || "Gagal menerima undangan")
     }
@@ -40,34 +40,38 @@ export function InvitationsList({ invitations }: { invitations: any[] }) {
   return (
     <div className="grid gap-3">
       {invitations.map((invite) => (
-        <Card key={invite.id} className="border-none bg-primary/5 rounded-3xl overflow-hidden shadow-sm">
-          <CardContent className="p-5 flex items-center gap-4">
-            <div className="h-12 w-12 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center shrink-0">
-               <IconBuildingStore size={26} />
+        <Card key={invite.id} className="border-none bg-primary/5 rounded-2xl overflow-hidden shadow-sm">
+          <CardContent className="p-3.5 flex items-center gap-3.5">
+            <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0 overflow-hidden border border-primary/10 shadow-inner">
+               {invite.stores.logo_url ? (
+                 <img src={invite.stores.logo_url} alt={invite.stores.name} className="h-full w-full object-cover" />
+               ) : (
+                 <IconBuildingStore size={20} />
+               )}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-black truncate">{invite.stores.name}</p>
-              <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest italic leading-tight">
-                Undangan sebagai <span className="text-primary">{invite.role}</span>
+              <p className="text-sm font-black truncate leading-tight">{invite.stores.name}</p>
+              <p className="text-[10px] text-muted-foreground uppercase font-black tracking-tighter truncate opacity-80">
+                <span className="text-primary">{invite.role}</span>
               </p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-1.5 shrink-0">
               <Button 
                 size="icon" 
                 variant="ghost" 
-                className="h-10 w-10 rounded-xl text-destructive hover:bg-destructive/10"
+                className="h-8 w-8 rounded-lg text-destructive hover:bg-destructive/10"
                 onClick={() => onDecline(invite.id)}
                 disabled={!!loadingId}
               >
-                <IconX size={20} />
+                <IconX size={16} />
               </Button>
               <Button 
                 size="icon" 
-                className="h-10 w-10 rounded-xl shadow-lg shadow-primary/20"
+                className="h-8 w-8 rounded-lg shadow-md shadow-primary/20"
                 onClick={() => onAccept(invite.id)}
                 disabled={!!loadingId}
               >
-                {loadingId === invite.id ? <IconLoader2 size={18} className="animate-spin" /> : <IconCheck size={20} />}
+                {loadingId === invite.id ? <IconLoader2 size={14} className="animate-spin" /> : <IconCheck size={16} />}
               </Button>
             </div>
           </CardContent>

@@ -26,7 +26,8 @@ export default async function SelectStorePage() {
         id,
         name,
         business_type,
-        address
+        address,
+        logo_url
       )
     `)
     .eq("user_id", user.id)
@@ -52,7 +53,7 @@ export default async function SelectStorePage() {
     <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center space-y-2">
-          <div className="h-16 w-16 bg-primary/10 text-primary rounded-2xl flex items-center justify-center mx-auto mb-4 border shadow-sm">
+          <div className="h-16 w-16 bg-primary/10 text-primary rounded-2xl flex items-center justify-center mx-auto mb-4 border shadow-sm overflow-hidden">
             <IconBuildingStore size={36} />
           </div>
           <h1 className="text-3xl font-black tracking-tight tracking-tighter">Pilih Toko</h1>
@@ -81,21 +82,25 @@ export default async function SelectStorePage() {
               <IconBuildingStore size={16} className="text-primary" />
               <h2 className="text-xs font-black uppercase tracking-widest text-muted-foreground/60">Outlet Anda</h2>
             </div>
-            <div className="grid gap-3">
+            <div className="grid gap-2">
               {stores.map((store) => (
-                <Card key={store.id} className="group hover:border-primary transition-all cursor-pointer overflow-hidden relative border-none bg-background shadow-md shadow-black/5 rounded-3xl">
+                <Card key={store.id} className=" p-1 group hover:border-primary transition-all cursor-pointer overflow-hidden relative border border-black/5 bg-background shadow-sm rounded-xl">
                   <SelectStoreButton storeId={store.id}>
-                    <CardHeader className="p-5 flex flex-row items-center gap-4 space-y-0">
-                      <div className="h-12 w-12 rounded-2xl bg-muted flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
-                        <IconBuildingStore size={26} />
+                    <CardHeader className="p-2.5 flex flex-row items-center gap-4 space-y-0">
+                      <div className="h-12 w-12 rounded-xl bg-muted flex items-center justify-center group-hover:bg-primary/5 transition-all duration-300 overflow-hidden shrink-0 border border-black/5 shadow-inner">
+                        {store.logo_url ? (
+                          <img src={store.logo_url} alt={store.name} className="h-full w-full object-cover" />
+                        ) : (
+                          <IconBuildingStore size={26} className="group-hover:text-primary transition-colors" />
+                        )}
                       </div>
-                      <div className="flex-1 text-left">
-                        <CardTitle className="text-lg font-black tracking-tight">{store.name}</CardTitle>
-                        <CardDescription className="text-xs font-medium">
-                          <span className="text-primary uppercase tracking-tighter">{store.role}</span> • {store.business_type || "Toko"}
+                      <div className="flex-1 text-left min-w-0">
+                        <CardTitle className="text-lg font-black tracking-tight truncate">{store.name}</CardTitle>
+                        <CardDescription className="text-xs font-medium truncate">
+                          <span className="text-primary uppercase tracking-tighter font-black">{store.role}</span> • {store.business_type || "Toko"}
                         </CardDescription>
                       </div>
-                      <IconChevronRight size={24} className="text-muted-foreground/30 group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                      <IconChevronRight size={22} className="text-muted-foreground/30 group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" />
                     </CardHeader>
                   </SelectStoreButton>
                 </Card>

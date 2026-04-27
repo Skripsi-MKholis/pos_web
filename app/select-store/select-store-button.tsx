@@ -29,7 +29,7 @@ export function SelectStoreButton({
   return (
     <button 
       onClick={handleSelect} 
-      className="w-full h-full block relative"
+      className="w-full text-left bg-transparent border-none p-0 m-0 cursor-pointer relative block disabled:cursor-not-allowed"
       disabled={isPending}
     >
       {isPending && (

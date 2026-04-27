@@ -36,10 +36,10 @@ export function JoinStoreDialog() {
     setIsLoading(false)
 
     if (res.success) {
-      toast.success(`Berhasil mengirim permintaan bergabung ke ${res.storeName}!`)
+      toast.success(`Berhasil bergabung ke ${res.storeName}!`)
       setIsOpen(false)
       setCode("")
-      router.refresh()
+      router.push(`/dashboard?storeId=${res.storeId}`)
     } else {
       toast.error(res.error || "Gagal bergabung")
     }
@@ -81,7 +81,8 @@ export function JoinStoreDialog() {
 
           <DialogFooter className="pt-2">
             <Button type="submit" className="w-full h-14 rounded-2xl font-black text-lg shadow-xl shadow-primary/20" disabled={isLoading || code.length < 4}>
-              {isLoading ? <IconLoader2 className="animate-spin" /> : "Minta Bergabung"}
+              {isLoading ? <IconLoader2 className="animate-spin mr-2" /> : null}
+              {isLoading ? "Memproses..." : "Gabung Sekarang"}
             </Button>
           </DialogFooter>
         </form>
