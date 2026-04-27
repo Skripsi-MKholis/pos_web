@@ -62,6 +62,7 @@ export default async function DashboardLayout({
         stores={stores} 
         activeStoreId={activeStoreId} 
         userRole={userRole}
+        storeSettings={activeStore?.settings}
         variant="inset" 
       />
       <SidebarInset>

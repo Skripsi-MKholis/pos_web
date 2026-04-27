@@ -148,12 +148,35 @@ Manajemen pesanan yang aktif per meja dan integrasi bagian dapur.
 - [x] **Order Tracking**: Tracker status pesanan di KDS (Pending, Cooking, Ready).
 - [x] **Move Order**: Fitur untuk memindahkan pesanan dari satu meja ke meja lain tanpa membatalkan transaksi.
 
+## Fase 18: Advanced Store Personalization & Module Control (Selesai pada 2026-04-27 22:00) ✅
+Memberikan fleksibilitas bagi Owner untuk menyesuaikan fungsionalitas sistem sesuai dengan model bisnis (Retail vs F&B).
+
+- [x] **Module Feature Toggles**: Antarmuka di Pengaturan Toko untuk Mengaktifkan/Nonaktifkan modul besar:
+    - Manajemen Meja (Dine-in Mode)
+    - Sistem Reservasi & Antrean
+    - Kitchen Display System (KDS)
+    - Sistem Voucher & Promosi
+    - Database Pelanggan & Loyalitas
+- [x] **Business Model Presets (Quick Setup)**: Fitur "Satu Klik" untuk mengonfigurasi modul berdasarkan industri:
+    - **F&B Restoran**: Meja (ON), KDS (ON), Reservasi (ON), Pajak (ON).
+    - **Retail & Toko**: Meja (OFF), KDS (OFF), Reservasi (OFF), Barcode (ON).
+    - **Coffee Shop (Quick Service)**: Meja (OFF), KDS (ON), Antrean (ON).
+    - **Barbershop/Jasa**: Reservasi (ON), Pelanggan (ON), Meja (OFF).
+- [x] **Financial & Tax Engine**:
+    - Kontrol Pajak (Toggle ON/OFF Pajak pada struk/transaksi).
+    - Konfigurasi Biaya Layanan (Service Charge).
+- [x] **Operational Tuning**:
+    - Toggle "Cetak Struk Otomatis" setelah transaksi berhasil.
+    - Pengaturan ambang batas (threshold) stok rendah kustom per toko.
+- [x] **Dynamic Pricing Rules**: Opsi untuk mengaktifkan "Order Type Pricing" (Misal: Harga berbeda antara Dine-in, Takeaway, dan Delivery).
+
 ## Prioritas MVP (MoSCoW)
-- **Must Have**: Login, CRUD Produk, Kasir, Riwayat Transaksi, Multi-Store Selection.
-- **Should Have**: Dashboard Analytics, Cetak Struk, Manajemen Stok, Laporan Laba Kotor.
-- **Could Have**: Manajemen Meja (F&B), Voucher/Diskon, Manajemen Karyawan (RBAC).
-- **Won't Have (Next Version)**: Manajemen Inventaris Global (Sync Antar Cabang), Customer Loyalty Points.
+- **Must Have**: Login, CRUD Produk, Kasir, Riwayat Transaksi, Multi-Store Selection, Audit Cash/Change.
+- **Should Have**: Dashboard Analytics, Cetak Struk, Manajemen Stok, Laporan Laba Kotor, **Feature Modules Control (Fase 18)**.
+- **Could Have**: Manajemen Meja (F&B), Voucher/Diskon, Manajemen Karyawan (RBAC), Reservasi, KDS.
+- **Won't Have (Next Version)**: Manajemen Inventaris Global (Sync Antar Cabang), Customer Loyalty Points (Redeem), Integrasi Payment Gateway Otomatis (Xendit/Midtrans).
 
 ## Rencana Verifikasi
 - **UAT (User Acceptance Testing)**: Melakukan simulasi transaksi dari awal (dari input produk hingga checkout).
 - **Performance Test**: Memastikan interface kasir tetap responsif dengan >100 item produk.
+- **Module Toggle Test**: Memastikan navigasi sidebar dan akses menu menghilang/muncul secara instan saat modul dinonaktifkan di pengaturan.

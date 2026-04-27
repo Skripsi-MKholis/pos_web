@@ -140,6 +140,11 @@ const chartConfig = {
 export function ChartAreaInteractive({ data }: { data: any[] }) {
   const isMobile = useIsMobile()
   const [timeRange, setTimeRange] = React.useState("30d")
+  const [mounted, setMounted] = React.useState(false)
+
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const filteredData = data.filter((item) => {
     const date = new Date(item.date)
@@ -152,6 +157,16 @@ export function ChartAreaInteractive({ data }: { data: any[] }) {
     startDate.setDate(startDate.getDate() - daysToSubtract)
     return date >= startDate
   })
+
+  if (!mounted) {
+    return (
+      <Card className="@container/card">
+        <div className="h-[400px] w-full flex items-center justify-center">
+           <div className="h-8 w-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+        </div>
+      </Card>
+    )
+  }
 
   return (
     <Card className="@container/card">

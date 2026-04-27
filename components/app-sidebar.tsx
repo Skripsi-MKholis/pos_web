@@ -34,27 +34,11 @@ import {
   IconArmchair,
   IconToolsKitchen2,
   IconTicket,
-  IconLayoutGrid
+  IconLayoutGrid,
+  IconSettings
 } from "@tabler/icons-react"
 
 const data = {
-  stores: [
-    {
-      name: "Toko Utama POS",
-      logo: IconBuildingStore,
-      plan: "Enterprise",
-    },
-    {
-      name: "Cabang Bandung",
-      logo: IconFlame,
-      plan: "Professional",
-    },
-    {
-      name: "Cabang Jakarta",
-      logo: IconCoffee,
-      plan: "Free",
-    },
-  ],
   overview: [
     {
       title: "Dashboard",
@@ -72,16 +56,19 @@ const data = {
       title: "Manajemen Meja",
       url: "/dashboard/tables",
       icon: <IconArmchair className="size-4" />,
+      feature: "tables"
     },
     {
       title: "Reservasi",
       url: "/dashboard/reservations",
       icon: <IconCalendar className="size-4" />,
+      feature: "reservations"
     },
     {
       title: "Dapur (KDS)",
       url: "/dashboard/kds",
       icon: <IconToolsKitchen2 className="size-4" />,
+      feature: "kds"
     },
   ],
   inventory: [
@@ -99,6 +86,7 @@ const data = {
       title: "Program Diskon",
       url: "/dashboard/promotions",
       icon: <IconTag className="size-4" />,
+      feature: "promotions"
     },
   ],
   marketing: [
@@ -106,11 +94,13 @@ const data = {
       title: "Pelanggan",
       url: "/dashboard/customers",
       icon: <IconUserCircle className="size-4" />,
+      feature: "customers"
     },
     {
       title: "Voucher Belanja",
-      url: "/dashboard/promotions?tab=vouchers", // Assuming tab support or split view
+      url: "/dashboard/promotions?tab=vouchers",
       icon: <IconTicket className="size-4" />,
+      feature: "promotions"
     },
     {
       title: "Broadcast Area",
@@ -147,6 +137,12 @@ const data = {
       icon: <IconBuildingStore className="size-4" />,
     },
     {
+      title: "Modul & Fitur",
+      url: "/dashboard/settings/modules",
+      icon: <IconSettings className="size-4" />,
+      ownerOnly: true
+    },
+    {
       title: "Cetak & Struk",
       url: "/dashboard/settings/receipt",
       icon: <IconReceipt className="size-4" />,
@@ -155,6 +151,7 @@ const data = {
       title: "Konfigurasi Meja",
       url: "/dashboard/settings/tables",
       icon: <IconArmchair className="size-4" />,
+      feature: "tables"
     },
     {
       title: "Akses Staf",
@@ -174,31 +171,59 @@ const data = {
   ],
 }
 
+const defaultSettings = {
+  features: {
+    tables: true,
+    reservations: true,
+    kds: true,
+    promotions: true,
+    customers: true
+  }
+}
+
 export function AppSidebar({ 
   user,
   stores,
   activeStoreId,
   userRole = "Owner",
+  storeSettings,
   ...props 
 }: { 
   user: { name: string; email: string; avatar: string } 
   stores: any[]
   activeStoreId?: string
   userRole?: string
+  storeSettings?: any
 } & React.ComponentProps<typeof Sidebar>) {
   const [mounted, setMounted] = React.useState(false)
   const isOwner = userRole === "Owner"
+  const settings = storeSettings || defaultSettings
 
   React.useEffect(() => {
     setMounted(true)
   }, [])
 
-  // Navigation filtering based on Role
-  const filteredOverview = data.overview
-  const filteredPos = data.pos
-  const filteredReports = data.reports.filter(it => isOwner || it.title === "Riwayat Transaksi")
-  const filteredSettings = data.settings.filter(it => isOwner || ["Profil Saya", "Bantuan"].includes(it.title))
-  const filteredMarketing = data.marketing.filter(it => isOwner || it.title === "Notifikasi")
+  // Navigation filtering logic
+  const filterByFeature = (items: any[]) => {
+    return items.filter(item => {
+      // Role gate
+      if (item.ownerOnly && !isOwner) return false
+      
+      // Feature toggle gate
+      if (item.feature) {
+        const featureStatus = settings.features?.[item.feature]
+        return featureStatus !== false // If undefined or true, show it
+      }
+      return true
+    })
+  }
+
+  const filteredOverview = filterByFeature(data.overview)
+  const filteredPos = filterByFeature(data.pos)
+  const filteredInventory = filterByFeature(data.inventory)
+  const filteredMarketing = filterByFeature(data.marketing)
+  const filteredReports = filterByFeature(data.reports).filter(it => isOwner || it.title === "Riwayat Transaksi")
+  const filteredSettings = filterByFeature(data.settings).filter(it => isOwner || ["Profil Saya", "Bantuan"].includes(it.title))
 
   if (!mounted) return (
     <Sidebar collapsible="offcanvas" {...props}>
@@ -232,30 +257,34 @@ export function AppSidebar({
         </div>
 
         {/* INVENTORY SECTION (Owner Only) */}
-        {isOwner && (
+        {isOwner && filteredInventory.length > 0 && (
           <div className="px-2 pt-4">
              <SidebarGroupLabel className="px-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/50 mb-2">
                Katalog & Stok
              </SidebarGroupLabel>
-             <NavMain items={data.inventory} />
+             <NavMain items={filteredInventory} />
           </div>
         )}
 
         {/* MARKETING & CRM SECTION */}
-        <div className="px-2 pt-4">
-           <SidebarGroupLabel className="px-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/50 mb-2">
-             Pelanggan & Promo
-           </SidebarGroupLabel>
-           <NavMain items={filteredMarketing} />
-        </div>
+        {filteredMarketing.length > 0 && (
+          <div className="px-2 pt-4">
+             <SidebarGroupLabel className="px-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/50 mb-2">
+               Pelanggan & Promo
+             </SidebarGroupLabel>
+             <NavMain items={filteredMarketing} />
+          </div>
+        )}
 
         {/* FINANCE SECTION */}
-        <div className="px-2 pt-4">
-           <SidebarGroupLabel className="px-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/50 mb-2">
-             Laporan & Audit
-           </SidebarGroupLabel>
-           <NavMain items={filteredReports} />
-        </div>
+        {filteredReports.length > 0 && (
+          <div className="px-2 pt-4">
+             <SidebarGroupLabel className="px-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/50 mb-2">
+               Laporan & Audit
+             </SidebarGroupLabel>
+             <NavMain items={filteredReports} />
+          </div>
+        )}
 
         {/* SETTINGS SECTION */}
         <div className="mt-8 pb-4">

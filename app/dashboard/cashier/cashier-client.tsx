@@ -146,6 +146,12 @@ export function CashierClient({
   const router = useRouter()
   const notifiedTableRef = React.useRef<string | null>(null)
 
+  const hasFeature = (feature: string) => {
+    return store.settings?.features?.[feature] !== false
+  }
+
+  const showTables = hasFeature("tables")
+
   // Handle auto-selected table from URL
   React.useEffect(() => {
     const tableId = searchParams.get("table")
@@ -431,25 +437,29 @@ export function CashierClient({
         </div>
 
         <div className="flex gap-3">
-          <Button 
-            variant="outline"
-            className="flex-1 h-12 font-bold gap-2 text-xs"
-            disabled={cart.length === 0 || isValidatingVoucher}
-            onClick={() => handleSaveOrder(false)}
-          >
-            <IconDeviceFloppy size={18} />
-            Simpan
-          </Button>
+          {showTables && (
+            <>
+              <Button 
+                variant="outline"
+                className="flex-1 h-12 font-bold gap-2 text-xs"
+                disabled={cart.length === 0 || isValidatingVoucher}
+                onClick={() => handleSaveOrder(false)}
+              >
+                <IconDeviceFloppy size={18} />
+                Simpan
+              </Button>
 
-          <Button 
-            variant="outline"
-            className="flex-1 h-12 font-bold gap-2 text-xs border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300"
-            disabled={cart.length === 0 || isValidatingVoucher || !selectedTable}
-            onClick={() => handleSaveOrder(true)}
-          >
-            <IconPrinter size={18} />
-            KOT
-          </Button>
+              <Button 
+                variant="outline"
+                className="flex-1 h-12 font-bold gap-2 text-xs border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300"
+                disabled={cart.length === 0 || isValidatingVoucher || !selectedTable}
+                onClick={() => handleSaveOrder(true)}
+              >
+                <IconPrinter size={18} />
+                KOT
+              </Button>
+            </>
+          )}
 
           <Button 
             className="flex-[2] h-12 text-lg font-bold shadow-lg shadow-primary/20" 
@@ -482,63 +492,65 @@ export function CashierClient({
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-            <Popover open={isTableSelectOpen} onOpenChange={setIsTableSelectOpen}>
-              <PopoverTrigger asChild disabled={selectedTable?.status === 'occupied'}>
-                <Button variant="outline" className={cn(
-                  "h-11 rounded-xl gap-2 font-bold transition-all",
-                  selectedTable ? "bg-primary text-primary-foreground border-primary" : "bg-muted/30",
-                  selectedTable?.status === 'occupied' && "opacity-100 cursor-not-allowed border-dashed"
-                )}>
-                  <IconArmchair size={18} />
-                  <span className="max-w-[80px] truncate">
-                    {selectedTable ? selectedTable.name : "Meja"}
-                  </span>
-                  {selectedTable?.status !== 'occupied' && (
-                    <IconChevronDown size={14} className={cn("transition-transform", isTableSelectOpen && "rotate-180")} />
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-64 p-0 rounded-2xl overflow-hidden shadow-2xl border-none" align="start">
-                <div className="p-3 bg-muted/50 border-b">
-                   <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Pilih Meja</p>
-                </div>
-                <div className="p-2 max-h-80 overflow-y-auto grid grid-cols-2 gap-2">
-                   <Button 
-                     variant={!selectedTable ? "default" : "outline"} 
-                     className="h-10 rounded-lg text-xs" 
-                     onClick={() => {
-                       setSelectedTable(null)
-                       setIsTableSelectOpen(false)
-                     }}
-                   >
-                     Take Away
-                   </Button>
-                   {initialTables.map(table => (
+            {showTables && (
+              <Popover open={isTableSelectOpen} onOpenChange={setIsTableSelectOpen}>
+                <PopoverTrigger asChild disabled={selectedTable?.status === 'occupied'}>
+                  <Button variant="outline" className={cn(
+                    "h-11 rounded-xl gap-2 font-bold transition-all",
+                    selectedTable ? "bg-primary text-primary-foreground border-primary" : "bg-muted/30",
+                    selectedTable?.status === 'occupied' && "opacity-100 cursor-not-allowed border-dashed"
+                  )}>
+                    <IconArmchair size={18} />
+                    <span className="max-w-[80px] truncate">
+                      {selectedTable ? selectedTable.name : "Meja"}
+                    </span>
+                    {selectedTable?.status !== 'occupied' && (
+                      <IconChevronDown size={14} className={cn("transition-transform", isTableSelectOpen && "rotate-180")} />
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-64 p-0 rounded-2xl overflow-hidden shadow-2xl border-none" align="start">
+                  <div className="p-3 bg-muted/50 border-b">
+                     <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Pilih Meja</p>
+                  </div>
+                  <div className="p-2 max-h-80 overflow-y-auto grid grid-cols-2 gap-2">
                      <Button 
-                       key={table.id}
-                       variant={selectedTable?.id === table.id ? "default" : "outline"}
-                       className={cn(
-                         "h-10 rounded-lg text-xs justify-start px-3 gap-2 overflow-hidden",
-                         table.status === 'occupied' && "opacity-50 border-dashed"
-                       )}
+                       variant={!selectedTable ? "default" : "outline"} 
+                       className="h-10 rounded-lg text-xs" 
                        onClick={() => {
-                         setSelectedTable(table)
+                         setSelectedTable(null)
                          setIsTableSelectOpen(false)
                        }}
-                       disabled={table.status === 'occupied'}
                      >
-                       <IconArmchair size={14} />
-                       <span className="truncate">{table.name}</span>
+                       Take Away
                      </Button>
-                   ))}
-                </div>
-                {initialTables.length === 0 && (
-                  <div className="p-4 text-center text-xs text-muted-foreground italic">
-                    Belum ada meja terdaftar
+                     {initialTables.map(table => (
+                       <Button 
+                         key={table.id}
+                         variant={selectedTable?.id === table.id ? "default" : "outline"}
+                         className={cn(
+                           "h-10 rounded-lg text-xs justify-start px-3 gap-2 overflow-hidden",
+                           table.status === 'occupied' && "opacity-50 border-dashed"
+                         )}
+                         onClick={() => {
+                           setSelectedTable(table)
+                           setIsTableSelectOpen(false)
+                         }}
+                         disabled={table.status === 'occupied'}
+                       >
+                         <IconArmchair size={14} />
+                         <span className="truncate">{table.name}</span>
+                       </Button>
+                     ))}
                   </div>
-                )}
-              </PopoverContent>
-            </Popover>
+                  {initialTables.length === 0 && (
+                    <div className="p-4 text-center text-xs text-muted-foreground italic">
+                      Belum ada meja terdaftar
+                    </div>
+                  )}
+                </PopoverContent>
+              </Popover>
+            )}
 
             <Button variant="outline" size="icon" className="h-11 w-11 rounded-xl shrink-0 lg:hidden" onClick={() => setIsCartOpen(true)}>
               <div className="relative">

@@ -80,6 +80,19 @@ export async function updateStore(
   return { success: true }
 }
 
+export async function updateStoreSettings(storeId: string, settings: any) {
+  const supabase = await createClient()
+  
+  const { error } = await supabase
+    .from("stores")
+    .update({ settings })
+    .eq("id", storeId)
+
+  if (error) return { error: error.message }
+
+  return { success: true }
+}
+
 export async function getUserRole(storeId: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
