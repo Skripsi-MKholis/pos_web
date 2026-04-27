@@ -12,7 +12,8 @@ Sistem menggunakan Role-Based Access Control (RBAC) untuk membatasi akses fitur:
 - **Akses Penuh**: Memiliki kontrol total atas satu atau lebih toko.
 - **Manajemen Inventaris**: Tambah/edit/hapus produk, kategori, dan stok.
 - **Konfigurasi Modular**: Mengaktifkan/nonaktifkan fitur (Meja, KDS, Reservasi) sesuai model bisnis.
-- **Manajemen Staf**: Menambah karyawan ke toko melalui email.
+- **Manajemen Staf**: Mengelola tim melalui undangan email atau **Unique Invite Code**.
+- **Persetujuan Bergabung**: Meninjau permintaan bergabung dari staf (Accept/Decline).
 - **Pusat Komunikasi**: Mengirim broadcast/pengumuman ke seluruh staf.
 - **Promosi**: Membuat dan mengelola voucher belanja serta diskon toko.
 - **Laporan Finansial**: Melihat laporan laba rugi, analytics penjualan, dan audit kasir secara mendalam.
@@ -28,20 +29,21 @@ Sistem menggunakan Role-Based Access Control (RBAC) untuk membatasi akses fitur:
 
 ## 🚀 Fitur Utama
 
-### 1. Modular Store Personalization (NEW)
-- **Feature Toggles**: Kemampuan untuk menyesuaikan antarmuka berdasarkan kebutuhan bisnis:
-    - Aktifkan/Matikan Sistem Meja (Dine-in).
-    - Aktifkan/Matikan Kitchen Display (KDS).
-    - Aktifkan/Matikan Sistem Reservasi.
-- **Business Model Presets**: Konfigurasi otomatis dalam satu klik untuk model bisnis:
-    - **F&B Restoran**: Menampilkan Meja, KDS, dan Pajak.
-    - **Retail & Toko**: Antarmuka ringkas tanpa Meja/KDS, fokus pada kecepatan scan.
-    - **Kedai Kopi**: Fokus pada antrean dan KDS.
+### 1. Modular Store Setup & Onboarding (NEW)
+- **Guided Setup Flow**: Alur pendaftaran toko baru yang terpisah (`/setup`) untuk pengalaman yang lebih fokus dan modular.
+- **Business Model Presets**: Konfigurasi otomatis dalam satu klik saat pembuatan toko:
+    - **F&B Restoran**: Otomatis mengaktifkan Meja, KDS, Reservasi, dan Pajak.
+    - **Retail & Toko**: Antarmuka ringkas tanpa Meja/KDS, fokus pada kecepatan stok.
+    - **Kedai Kopi**: Fokus pada antrean dan display dapur (KDS).
+- **Feature Toggles**: Kontrol penuh pasca-pembuatan melalui halaman Modul untuk mengaktifkan/matikan fitur spesifik (Dine-in, KDS, Reservasi, Promosi, dll).
 
-### 2. Multi-Store Management
-- Satu akun dapat memiliki atau bergabung ke banyak toko.
-- Switcher toko yang seamless di sidebar dengan dukungan logo kustom.
-- **Identitas Toko**: Setiap toko memiliki branding profesional melalui logo dan informasi alamat unik.
+### 2. Multi-Store & Invitation Ecosystem (UPDATED)
+- **Select Store Page**: Antarmuka pusat untuk memilih outlet aktif atau melihat **Undangan Masuk**.
+- **Invitation System**: 
+    - **Email Invitations**: Undang staf langsung ke alamat email mereka.
+    - **Invite Code Fast-track**: Setiap toko memiliki **Unique 8-digit Code** untuk pendaftaran staf yang lebih cepat tanpa input email manual.
+    - **Membership Status**: Mendukung status `Pending` dan `Active` untuk keamanan akses data toko.
+- **Store Switcher**: Navigasi antar-toko yang cepat dari sidebar dengan tautan langsung ke manajemen semua toko.
 
 ### 3. Pintasan Akses Cepat (Dashboard)
 - **Konfigurasi & Akses Cepat**: Tombol pintasan di baris teratas Dashboard untuk alur kerja prioritas:
@@ -65,9 +67,11 @@ Sistem menggunakan Role-Based Access Control (RBAC) untuk membatasi akses fitur:
     - **Pindah Meja**: Transfer seluruh pesanan dari satu meja ke meja lain.
 - **Audit Finansial**: Pencatatan jumlah uang tunai diterima dan kembalian secara presisi.
 
-### 6. Financial & Tax Engine
+### 6. Financial, Tax, & Billing Engine
 - **Otomatisasi Pajak**: Konfigurasi pajak (PPN/VAT) yang dapat diaktifkan per toko.
 - **Service Charge**: Penambahan biaya layanan otomatis untuk operasional hospitality.
+- **Affordable Subscription Plans**: Struktur harga yang kompetitif bagi UMKM (Lite, UMKM Hebat 49rb/bln, Bisnis Skalabel).
+- **Development Phase Transparency**: Informasi status pengembangan fitur untuk mengelola ekspektasi pengguna.
 
 ### 7. Sistem Cetak Struk & Dokumen
 - **Receipt Bermerek**: Struk belanja dengan logo toko, rincian item, dan detail pembayaran.
@@ -99,8 +103,8 @@ Sistem mengadopsi estetika **Modern Premium & Ergonomic**:
 ## 📊 Model Data (Schema Supabase)
 
 ### Inti Bisnis & Inventaris
-- **`stores`**: Metadata toko dan kolom `settings` (JSONB) untuk kontrol fitur modular.
-- **`store_members`**: Relasi user-toko beserta hak akses (Owner/Staff).
+- **`store_members`**: Relasi user-toko dengan kolom `status` (pending/active) dan `role` (Owner/Staff).
+- **`stores`**: Metadata toko termasuk `invite_code` unik dan kolom `settings` (JSONB) untuk kontrol fitur modular.
 - **`products`**: Katalog barang (Harga Jual, HPP, Stok, SKU).
 - **`categories`**: Klasifikasi produk.
 

@@ -32,14 +32,19 @@ export async function getStores() {
   return data
 }
 
-export async function createStore(name: string, address?: string) {
+export async function createStore(name: string, address?: string, settings?: any) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: "Unauthorized" }
 
+  const insertData: any = { name, address, owner_id: user.id }
+  if (settings) {
+    insertData.settings = settings
+  }
+
   const { data: store, error: storeError } = await supabase
     .from("stores")
-    .insert([{ name, address, owner_id: user.id }])
+    .insert([insertData])
     .select()
     .single()
 

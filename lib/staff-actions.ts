@@ -11,6 +11,7 @@ export async function getStoreStaff(storeId: string) {
     .select(`
       id,
       role,
+      status,
       created_at,
       users:user_id (
         id,
@@ -54,10 +55,10 @@ export async function addStaffByEmail(storeId: string, email: string, role: "Own
     return { error: "Pengguna sudah menjadi anggota toko ini." }
   }
 
-  // 3. Add to store_members
+  // 3. Add to store_members as 'pending'
   const { error: insertError } = await supabase
     .from("store_members")
-    .insert([{ store_id: storeId, user_id: user.id, role }])
+    .insert([{ store_id: storeId, user_id: user.id, role, status: 'pending' }])
 
   if (insertError) return { error: insertError.message }
 
@@ -77,4 +78,133 @@ export async function removeStaff(memberId: string) {
 
   revalidatePath("/dashboard/settings/staff")
   return { success: true }
+}
+
+export async function acceptInvitation(memberId: string) {
+  const supabase = await createClient()
+
+  const { error } = await supabase
+    .from("store_members")
+    .update({ status: 'active' })
+    .eq("id", memberId)
+
+  if (error) return { error: error.message }
+
+  revalidatePath("/select-store")
+  return { success: true }
+}
+
+export async function declineInvitation(memberId: string) {
+  const supabase = await createClient()
+
+  const { error } = await supabase
+    .from("store_members")
+    .delete()
+    .eq("id", memberId)
+
+  if (error) return { error: error.message }
+
+  revalidatePath("/select-store")
+  return { success: true }
+}
+
+export async function getPendingInvitations() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return []
+
+  const { data, error } = await supabase
+    .from("store_members")
+    .select(`
+      id,
+      role,
+      stores (
+        id,
+        name,
+        address,
+        logo_url
+      )
+    `)
+    .eq("user_id", user.id)
+    .eq("status", "pending")
+
+  if (error) {
+    console.error("Error fetching invitations:", error)
+    return []
+  }
+
+  return data
+}
+
+export async function joinStoreByCode(code: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: "Unauthorized" }
+
+  // 1. Find store by code
+  const { data: store, error: storeError } = await supabase
+    .from("stores")
+    .select("id, name")
+    .eq("invite_code", code)
+    .single()
+
+  if (storeError || !store) {
+    return { error: "Kode undangan tidak valid atau sudah kedaluwarsa." }
+  }
+
+  // 2. Check if already a member
+  const { data: existingMember } = await supabase
+    .from("store_members")
+    .select("id")
+    .eq("store_id", store.id)
+    .eq("user_id", user.id)
+    .single()
+
+  if (existingMember) {
+    return { error: "Anda sudah menjadi anggota toko ini." }
+  }
+
+  // 3. Join as pending
+  const { error: insertError } = await supabase
+    .from("store_members")
+    .insert([{ 
+      store_id: store.id, 
+      user_id: user.id, 
+      role: "Karyawan",
+      status: "pending" 
+    }])
+
+  if (insertError) return { error: insertError.message }
+
+  revalidatePath("/select-store")
+  return { success: true, storeName: store.name }
+}
+
+export async function refreshStoreInviteCode(storeId: string) {
+  const supabase = await createClient()
+  
+  // Generate a random 8 char code
+  const newCode = Math.random().toString(36).substring(2, 10).toUpperCase()
+
+  const { error } = await supabase
+    .from("stores")
+    .update({ invite_code: newCode })
+    .eq("id", storeId)
+
+  if (error) return { error: error.message }
+
+  revalidatePath("/dashboard/settings/staff")
+  return { success: true, code: newCode }
+}
+
+export async function getStoreInviteCode(storeId: string) {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from("stores")
+    .select("invite_code")
+    .eq("id", storeId)
+    .single()
+
+  if (error) return null
+  return data?.invite_code
 }

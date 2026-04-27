@@ -7,12 +7,19 @@ import {
   IconShieldCheck, 
   IconUser,
   IconSearch,
-  IconShieldLock
+  IconShieldLock,
+  IconCopy,
+  IconRefresh,
+  IconTicket
 } from "@tabler/icons-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { 
+  refreshStoreInviteCode 
+} from "@/lib/staff-actions"
+import { Card, CardContent } from "@/components/ui/card"
 import {
   Table,
   TableBody,
@@ -41,9 +48,18 @@ import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { addStaffByEmail, removeStaff } from "@/lib/staff-actions"
 
-export function StaffListClient({ initialData, storeId }: { initialData: any[], storeId: string }) {
+export function StaffListClient({ 
+  initialData, 
+  storeId, 
+  inviteCode: initialInviteCode 
+}: { 
+  initialData: any[], 
+  storeId: string,
+  inviteCode?: string
+}) {
   const [isAddDialogOpen, setIsAddDialogOpen] = React.useState(false)
   const [isLoading, setIsLoading] = React.useState(false)
+  const [inviteCode, setInviteCode] = React.useState(initialInviteCode)
   const [searchQuery, setSearchQuery] = React.useState("")
 
   const filteredStaff = initialData.filter(m => 
@@ -83,8 +99,55 @@ export function StaffListClient({ initialData, storeId }: { initialData: any[], 
     }
   }
 
+  async function handleRefreshCode() {
+    if (!confirm("Buat ulang kode undangan? Kode lama tidak akan bisa digunakan lagi.")) return
+    setIsLoading(true)
+    const result = await refreshStoreInviteCode(storeId)
+    setIsLoading(false)
+    if (result.success) {
+      setInviteCode(result.code)
+      toast.success("Kode undangan diperbarui")
+    } else {
+      toast.error(result.error || "Gagal memperbarui kode")
+    }
+  }
+
+  function copyCode() {
+    if (!inviteCode) return
+    navigator.clipboard.writeText(inviteCode)
+    toast.success("Kode berhasil disalin!")
+  }
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      {/* Invite Code Card */}
+      <Card className="rounded-[2rem] border-none bg-primary/5 overflow-hidden">
+        <CardContent className="p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-5">
+            <div className="h-14 w-14 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center shadow-lg shadow-primary/20">
+              <IconTicket size={30} />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-xl font-black tracking-tight">Cepat & Mudah</h3>
+              <p className="text-xs text-muted-foreground">Berikan kode ini kepada staf agar mereka bisa bergabung sendiri.</p>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+            <div className="bg-background border rounded-2xl px-6 h-14 flex items-center justify-center font-black text-2xl tracking-[0.2em] min-w-[160px] shadow-inner font-mono text-primary">
+              {inviteCode || "---- ----"}
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" size="icon" className="h-14 w-14 rounded-2xl border-primary/20 hover:bg-primary/5" onClick={copyCode}>
+                <IconCopy size={22} />
+              </Button>
+              <Button variant="outline" size="icon" className="h-14 w-14 rounded-2xl border-primary/20 hover:bg-primary/5" onClick={handleRefreshCode} disabled={isLoading}>
+                <IconRefresh size={22} className={isLoading ? "animate-spin" : ""} />
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
       <div className="flex items-center justify-between gap-4">
         <div className="relative flex-1 max-w-sm">
           <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />

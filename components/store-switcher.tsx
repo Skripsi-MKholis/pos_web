@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { IconCheck, IconChevronDown, IconPlus, IconBuildingStore } from "@tabler/icons-react"
+import { IconCheck, IconChevronDown, IconPlus, IconBuildingStore, IconLayoutGrid } from "@tabler/icons-react"
 import Link from "next/link"
 
 import { cn } from "@/lib/utils"
@@ -97,7 +97,15 @@ export function StoreSwitcher({
               </DropdownMenuItem>
             ))}
             <DropdownMenuSeparator />
-            <Link href="/dashboard/settings/store/new" className="cursor-pointer">
+            <Link href="/select-store" className="cursor-pointer">
+              <DropdownMenuItem className="gap-2 p-2">
+                <div className="flex size-6 items-center justify-center rounded-md border bg-background">
+                  <IconLayoutGrid className="size-4" />
+                </div>
+                <div className="font-medium text-muted-foreground">Lihat Semua Toko</div>
+              </DropdownMenuItem>
+            </Link>
+            <Link href="/setup" className="cursor-pointer">
               <DropdownMenuItem className="gap-2 p-2">
                 <div className="flex size-6 items-center justify-center rounded-md border bg-background">
                   <IconPlus className="size-4" />

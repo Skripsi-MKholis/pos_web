@@ -25,7 +25,7 @@ export default async function StaffSettingsPage() {
         </p>
       </div>
       
-      <StaffListClient initialData={staff} storeId={store.id} />
+      <StaffListClient initialData={staff} storeId={store.id} inviteCode={store.invite_code} />
     </div>
   )
 }
