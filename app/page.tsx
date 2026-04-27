@@ -71,12 +71,9 @@ export default function LandingPage() {
           </nav>
 
           <div className="flex items-center gap-4">
-            <Link href="/login" className="hidden sm:block">
-              <Button variant="ghost" className="font-black uppercase text-xs tracking-widest hover:bg-white/5">Masuk</Button>
-            </Link>
-            <Link href="/register">
+            <Link href="/login">
               <Button className="h-11 px-8 font-black uppercase text-xs tracking-widest shadow-2xl shadow-primary/50 rounded-xl relative overflow-hidden group">
-                <span className="relative z-10">Mulai Sekarang</span>
+                <span className="relative z-10 text-primary-foreground">Masuk</span>
                 <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-primary opacity-0 group-hover:opacity-100 transition-opacity" />
               </Button>
             </Link>
@@ -130,9 +127,9 @@ export default function LandingPage() {
               transition={{ delay: 0.6, duration: 0.8 }}
               className="flex flex-col sm:flex-row items-center justify-center gap-6"
             >
-              <Link href="/register">
+              <Link href="/login">
                 <Button size="lg" className="h-16 px-12 text-sm font-black uppercase tracking-widest rounded-2xl shadow-[0_20px_50px_rgba(var(--primary-rgb),0.3)] hover:shadow-primary/40 hover:-translate-y-1 transition-all group">
-                  Bangun Toko Anda
+                  Masuk ke Sistem
                   <IconArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-all" />
                 </Button>
               </Link>
@@ -290,9 +287,9 @@ export default function LandingPage() {
                     Gabung dengan ribuan bisnis modern yang telah beralih ke Parzello POS. Gratis 14 hari Trial Pro.
                   </p>
                   <div className="flex flex-col sm:flex-row justify-center gap-4">
-                    <Link href="/register">
+                    <Link href="/login">
                       <Button size="lg" className="h-16 px-12 text-sm font-black uppercase tracking-widest rounded-2xl bg-white text-primary hover:bg-white/90 hover:scale-105 transition-all shadow-2xl">
-                        Mulai Sekarang Gratis
+                        Masuk Sekarang
                       </Button>
                     </Link>
                     <Link href="/pricing">

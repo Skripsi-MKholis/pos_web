@@ -42,12 +42,8 @@ export default async function SelectStorePage() {
     role: m.role
   })) || []
 
+  // Removed automatic redirect to setup to allow users to see join options first
   const invitations = await getPendingInvitations()
-
-  // If no stores AND no invitations, redirect to setup
-  if (stores.length === 0 && invitations.length === 0) {
-    redirect("/setup")
-  }
 
   return (
     <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center p-4">

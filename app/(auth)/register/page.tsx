@@ -61,8 +61,8 @@ export default function RegisterPage() {
       toast.error(result.error)
       setIsLoading(false)
     } else {
-      toast.success("Registrasi berhasil! Menyiapkan toko...")
-      router.push("/setup")
+      toast.success("Registrasi berhasil! Mengamankan akun...")
+      router.push("/setup-password")
     }
   }
 

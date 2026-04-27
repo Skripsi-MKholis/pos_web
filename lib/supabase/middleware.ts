@@ -48,5 +48,23 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
+  // If user is logged in but doesn't have an email identity (password set), 
+  // redirect them to setup-password, except when already there or on auth paths
+  if (user) {
+    const hasPassword = user.identities?.some(id => id.provider === 'email')
+    const isSetupPasswordPage = request.nextUrl.pathname.startsWith('/setup-password')
+    const isAuthPath = request.nextUrl.pathname.startsWith('/auth')
+    const isExcludedPath = 
+      request.nextUrl.pathname.startsWith('/privacy') || 
+      request.nextUrl.pathname.startsWith('/terms') || 
+      request.nextUrl.pathname === '/'
+
+    if (!hasPassword && !isSetupPasswordPage && !isAuthPath && !isExcludedPath) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/setup-password'
+      return NextResponse.redirect(url)
+    }
+  }
+
   return supabaseResponse
 }
