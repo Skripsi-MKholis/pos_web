@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Allow: /google1029434772a62563.html
+
+Sitemap: https://parzello-pos.vercel.app/sitemap.xml

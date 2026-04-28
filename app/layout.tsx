@@ -56,6 +56,9 @@ export const metadata: Metadata = {
     shortcut: "/pos_web.ico",
     apple: "/pos_web.ico",
   },
+  verification: {
+    google: "google1029434772a62563",
+  },
 }
 
 export default function RootLayout({
