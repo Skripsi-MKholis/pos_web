@@ -10,14 +10,18 @@ import {
   IconShieldLock,
   IconCopy,
   IconRefresh,
-  IconTicket
+  IconTicket,
+  IconEdit
 } from "@tabler/icons-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { 
-  refreshStoreInviteCode 
+  addStaffByEmail, 
+  removeStaff, 
+  refreshStoreInviteCode,
+  updateStaffRole
 } from "@/lib/staff-actions"
 import { Card, CardContent } from "@/components/ui/card"
 import {
@@ -46,26 +50,33 @@ import {
 } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
-import { addStaffByEmail, removeStaff } from "@/lib/staff-actions"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+// Imports consolidated above
 
 export function StaffListClient({ 
   initialData, 
   storeId, 
-  inviteCode: initialInviteCode 
+  inviteCode: initialInviteCode,
+  currentUserId
 }: { 
   initialData: any[], 
   storeId: string,
-  inviteCode?: string
+  inviteCode?: string,
+  currentUserId?: string
 }) {
   const [isAddDialogOpen, setIsAddDialogOpen] = React.useState(false)
   const [isLoading, setIsLoading] = React.useState(false)
   const [inviteCode, setInviteCode] = React.useState(initialInviteCode)
   const [searchQuery, setSearchQuery] = React.useState("")
+  const [editingMember, setEditingMember] = React.useState<{id: string, name: string, role: "Owner" | "Karyawan"} | null>(null)
+  const [deletingMember, setDeletingMember] = React.useState<{id: string, name: string} | null>(null)
+  const [isRefreshCodeDialogOpen, setIsRefreshCodeDialogOpen] = React.useState(false)
 
-  const filteredStaff = initialData.filter(m => 
-    m.users.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    m.users.email?.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  const filteredStaff = initialData.filter(m => {
+    if (!searchQuery) return true
+    return m.users?.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+           m.users?.email?.toLowerCase().includes(searchQuery.toLowerCase())
+  })
 
   async function handleAddStaff(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -85,22 +96,40 @@ export function StaffListClient({
     }
   }
 
-  async function handleRemove(id: string, name: string) {
-    if (!confirm(`Hapus ${name} dari toko?`)) return
+  async function confirmRemove() {
+    if (!deletingMember) return
     
     setIsLoading(true)
-    const result = await removeStaff(id)
+    const result = await removeStaff(deletingMember.id)
     setIsLoading(false)
     
     if (result.error) {
       toast.error(result.error)
     } else {
       toast.success("Staf telah dihapus")
+      setDeletingMember(null)
     }
   }
 
-  async function handleRefreshCode() {
-    if (!confirm("Buat ulang kode undangan? Kode lama tidak akan bisa digunakan lagi.")) return
+  async function handleUpdateRole(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    if (!editingMember) return
+    setIsLoading(true)
+    const formData = new FormData(e.currentTarget)
+    const role = formData.get("role") as "Owner" | "Karyawan"
+
+    const result = await updateStaffRole(editingMember.id, role)
+    setIsLoading(false)
+    
+    if (result.error) {
+      toast.error(result.error)
+    } else {
+      toast.success("Peran staf berhasil diperbarui")
+      setEditingMember(null)
+    }
+  }
+
+  async function confirmRefreshCode() {
     setIsLoading(true)
     const result = await refreshStoreInviteCode(storeId)
     setIsLoading(false)
@@ -110,6 +139,7 @@ export function StaffListClient({
     } else {
       toast.error(result.error || "Gagal memperbarui kode")
     }
+    setIsRefreshCodeDialogOpen(false)
   }
 
   function copyCode() {
@@ -141,7 +171,7 @@ export function StaffListClient({
               <Button variant="outline" size="icon" className="h-14 w-14 rounded-2xl border-primary/20 hover:bg-primary/5" onClick={copyCode}>
                 <IconCopy size={22} />
               </Button>
-              <Button variant="outline" size="icon" className="h-14 w-14 rounded-2xl border-primary/20 hover:bg-primary/5" onClick={handleRefreshCode} disabled={isLoading}>
+              <Button variant="outline" size="icon" className="h-14 w-14 rounded-2xl border-primary/20 hover:bg-primary/5" onClick={() => setIsRefreshCodeDialogOpen(true)} disabled={isLoading}>
                 <IconRefresh size={22} className={isLoading ? "animate-spin" : ""} />
               </Button>
             </div>
@@ -201,6 +231,59 @@ export function StaffListClient({
             </form>
           </DialogContent>
         </Dialog>
+
+        <Dialog open={!!editingMember} onOpenChange={(open) => !open && setEditingMember(null)}>
+          <DialogContent className="rounded-2xl">
+            <form onSubmit={handleUpdateRole}>
+              <DialogHeader>
+                <DialogTitle>Edit Peran Staf</DialogTitle>
+                <DialogDescription>
+                  Ubah hak akses untuk {editingMember?.name}.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="edit-role">Role / Peran</Label>
+                  {/* use a key on defaultValue so it re-renders correctly when editing a new member */}
+                  {editingMember && (
+                    <Select name="role" defaultValue={editingMember.role}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-xl">
+                        <SelectItem value="Karyawan" className="rounded-lg">Karyawan (Kasir)</SelectItem>
+                        <SelectItem value="Owner" className="rounded-lg">Owner (Akses Penuh)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                </div>
+              </div>
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={() => setEditingMember(null)} disabled={isLoading}>Batal</Button>
+                <Button type="submit" disabled={isLoading} className="rounded-xl">
+                  {isLoading ? "Menyimpan..." : "Simpan Perubahan"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+
+        <ConfirmDialog
+          open={!!deletingMember}
+          onOpenChange={(open) => !open && setDeletingMember(null)}
+          title="Hapus Staf"
+          description={<>Apakah Anda yakin ingin menghapus <strong>{deletingMember?.name}</strong> dari toko ini? Mereka akan segera kehilangan akses ke kasir, pesanan, dan laporan operasional.</>}
+          onConfirm={confirmRemove}
+          isLoading={isLoading}
+        />
+        <ConfirmDialog
+          open={isRefreshCodeDialogOpen}
+          onOpenChange={setIsRefreshCodeDialogOpen}
+          title="Perbarui Kode Undangan"
+          description="Buat ulang kode undangan? Kode lama tidak akan bisa digunakan lagi oleh calon staf."
+          onConfirm={confirmRefreshCode}
+          isLoading={isLoading}
+        />
       </div>
 
       <div className="rounded-2xl border bg-card overflow-hidden">
@@ -229,8 +312,8 @@ export function StaffListClient({
                         <IconUser size={20} />
                       </div>
                       <div>
-                        <div className="font-bold">{member.users.full_name || "Tanpa Nama"}</div>
-                        <div className="text-xs text-muted-foreground">{member.users.email}</div>
+                        <div className="font-bold">{member.users?.full_name || member.users?.email?.split('@')[0] || "Staf"}</div>
+                        <div className="text-xs text-muted-foreground">{member.users?.email || "-"}</div>
                       </div>
                     </div>
                   </TableCell>
@@ -254,15 +337,35 @@ export function StaffListClient({
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="text-destructive hover:bg-destructive/10 rounded-full h-8 w-8"
-                      onClick={() => handleRemove(member.id, member.users.full_name)}
-                      disabled={member.role === "Owner" || isLoading}
-                    >
-                      <IconTrash size={16} />
-                    </Button>
+                    <div className="flex justify-end gap-2">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="text-primary hover:bg-primary/10 rounded-full h-8 w-8"
+                        onClick={() => setEditingMember({
+                          id: member.id,
+                          name: member.users?.full_name || member.users?.email?.split('@')[0] || "Staf",
+                          role: member.role as "Owner" | "Karyawan"
+                        })}
+                        disabled={isLoading || member.users?.id === currentUserId}
+                        title={member.users?.id === currentUserId ? "Tidak dapat mengedit peran sendiri" : "Edit peran staf"}
+                      >
+                        <IconEdit size={16} />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="text-destructive hover:bg-destructive/10 rounded-full h-8 w-8"
+                        onClick={() => setDeletingMember({
+                          id: member.id,
+                          name: member.users?.full_name || member.users?.email?.split('@')[0] || "Staf"
+                        })}
+                        disabled={member.role === "Owner" || isLoading || member.users?.id === currentUserId}
+                        title={member.users?.id === currentUserId ? "Tidak dapat menghapus diri sendiri" : "Hapus staf"}
+                      >
+                        <IconTrash size={16} />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))

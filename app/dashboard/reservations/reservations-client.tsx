@@ -42,6 +42,7 @@ import {
   SelectValue 
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import { 
@@ -78,6 +79,7 @@ export function ReservationsClient({
   const [statusFilter, setStatusFilter] = React.useState<string>("all")
   const [isAddOpen, setIsAddOpen] = React.useState(false)
   const [isSubmitting, setIsSubmitting] = React.useState(false)
+  const [deletingId, setDeletingId] = React.useState<string | null>(null)
 
   // Form State
   const [formData, setFormData] = React.useState({
@@ -161,18 +163,22 @@ export function ReservationsClient({
     }
   }
 
-  async function handleDelete(id: string) {
-    if (!confirm("Hapus reservasi ini?")) return
+  async function confirmDelete() {
+    if (!deletingId) return
+    setIsSubmitting(true)
     try {
-      const res = await deleteReservation(id)
+      const res = await deleteReservation(deletingId)
       if (res.error) {
         toast.error(res.error)
       } else {
         toast.success("Reservasi dihapus")
-        setReservations(reservations.filter(r => r.id !== id))
+        setReservations(reservations.filter(r => r.id !== deletingId))
       }
     } catch (error) {
       toast.error("Gagal menghapus reservasi")
+    } finally {
+      setIsSubmitting(false)
+      setDeletingId(null)
     }
   }
 
@@ -388,7 +394,7 @@ export function ReservationsClient({
                         <DropdownMenuContent align="end" className="rounded-2xl border-none shadow-2xl p-2 min-w-[140px]">
                           <DropdownMenuItem 
                             className="rounded-xl font-bold text-rose-600 focus:text-rose-600 cursor-pointer"
-                            onClick={() => handleDelete(res.id)}
+                            onClick={() => setDeletingId(res.id)}
                           >
                             <IconX size={16} className="mr-2" /> Hapus
                           </DropdownMenuItem>
@@ -522,6 +528,15 @@ export function ReservationsClient({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <ConfirmDialog
+        open={!!deletingId}
+        onOpenChange={(open) => !open && setDeletingId(null)}
+        title="Hapus Reservasi"
+        description="Apakah Anda yakin ingin menghapus reservasi ini? Aksi ini tidak dapat dibatalkan."
+        onConfirm={confirmDelete}
+        isLoading={isSubmitting}
+      />
     </div>
   )
 }

@@ -81,6 +81,20 @@ export async function removeStaff(memberId: string) {
   return { success: true }
 }
 
+export async function updateStaffRole(memberId: string, role: "Owner" | "Karyawan") {
+  const supabase = await createClient()
+
+  const { error } = await supabase
+    .from("store_members")
+    .update({ role })
+    .eq("id", memberId)
+
+  if (error) return { error: error.message }
+
+  revalidatePath("/dashboard/settings/staff")
+  return { success: true }
+}
+
 export async function acceptInvitation(memberId: string) {
   const supabase = await createClient()
 

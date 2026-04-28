@@ -34,6 +34,7 @@ import {
 import { badgeVariants } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { createTable, updateTable, deleteTable, toggleTableStatus } from "@/lib/table-actions"
 import { useRouter } from "next/navigation"
 
@@ -44,6 +45,7 @@ export function TablesClient({ storeId, initialTables }: { storeId: string; init
   const [isEditOpen, setIsEditOpen] = React.useState(false)
   const [isLoading, setIsLoading] = React.useState(false)
   const [editingTable, setEditingTable] = React.useState<any>(null)
+  const [deletingTable, setDeletingTable] = React.useState<{id: string, name: string} | null>(null)
   
   const router = useRouter()
 
@@ -92,16 +94,18 @@ export function TablesClient({ storeId, initialTables }: { storeId: string; init
     setIsLoading(false)
   }
 
-  const handleDeleteTable = async (id: string) => {
-    if (!confirm("Hapus meja ini?")) return
-    
-    const res = await deleteTable(id)
+  const confirmDeleteTable = async () => {
+    if (!deletingTable) return
+    setIsLoading(true)
+    const res = await deleteTable(deletingTable.id)
+    setIsLoading(false)
     if (res.error) {
       toast.error(res.error)
     } else {
-      setTables(tables.filter(t => t.id !== id))
+      setTables(tables.filter(t => t.id !== deletingTable.id))
       toast.success("Meja berhasil dihapus")
     }
+    setDeletingTable(null)
   }
 
   const handleToggleStatus = async (id: string, currentStatus: string) => {
@@ -174,7 +178,7 @@ export function TablesClient({ storeId, initialTables }: { storeId: string; init
                       Set {table.status === 'available' ? 'Terisi' : 'Tersedia'}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem className="gap-2 font-medium text-destructive" onClick={() => handleDeleteTable(table.id)}>
+                    <DropdownMenuItem className="gap-2 font-medium text-destructive" onClick={() => setDeletingTable({id: table.id, name: table.name})}>
                       <IconTrash size={14} /> Hapus
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -265,6 +269,15 @@ export function TablesClient({ storeId, initialTables }: { storeId: string; init
           </form>
         </DialogContent>
       </Dialog>
+
+      <ConfirmDialog
+        open={!!deletingTable}
+        onOpenChange={(open) => !open && setDeletingTable(null)}
+        title="Hapus Meja"
+        description={<>Apakah Anda yakin ingin menghapus meja <strong>{deletingTable?.name}</strong>? Tindakan ini tidak dapat dibatalkan.</>}
+        onConfirm={confirmDeleteTable}
+        isLoading={isLoading}
+      />
     </div>
   )
 }

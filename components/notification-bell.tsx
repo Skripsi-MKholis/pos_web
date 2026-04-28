@@ -18,6 +18,7 @@ import { createClient } from "@/lib/supabase/client"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { getNotifications, markAsRead, markAllAsRead, deleteNotification, clearNotifications } from "@/lib/notification-actions"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { 
   Popover, 
   PopoverContent, 
@@ -57,6 +58,7 @@ export function NotificationBell({ storeId }: { storeId: string }) {
   const [notifications, setNotifications] = React.useState<any[]>([])
   const [unreadCount, setUnreadCount] = React.useState(0)
   const [isLoading, setIsLoading] = React.useState(true)
+  const [isClearDialogOpen, setIsClearDialogOpen] = React.useState(false)
   const supabase = createClient()
   const router = useRouter()
 
@@ -129,12 +131,11 @@ export function NotificationBell({ storeId }: { storeId: string }) {
     if (wasUnread) setUnreadCount(prev => Math.max(0, prev - 1))
   }
 
-  const handleClearAll = async () => {
-    if (confirm("Hapus semua riwayat notifikasi?")) {
-      await clearNotifications(storeId)
-      setNotifications([])
-      setUnreadCount(0)
-    }
+  const confirmClearAll = async () => {
+    await clearNotifications(storeId)
+    setNotifications([])
+    setUnreadCount(0)
+    setIsClearDialogOpen(false)
   }
 
   const handleNotifyClick = async (n: any) => {
@@ -197,7 +198,7 @@ export function NotificationBell({ storeId }: { storeId: string }) {
                 variant="ghost" 
                 size="sm" 
                 className="h-auto p-0 text-xs text-destructive hover:bg-transparent"
-                onClick={(e) => { e.stopPropagation(); handleClearAll(); }}
+                onClick={(e) => { e.stopPropagation(); setIsClearDialogOpen(true); }}
               >
                 Hapus semua
               </Button>
@@ -291,6 +292,13 @@ export function NotificationBell({ storeId }: { storeId: string }) {
           </Link>
         </div>
       </PopoverContent>
+      <ConfirmDialog
+        open={isClearDialogOpen}
+        onOpenChange={setIsClearDialogOpen}
+        title="Hapus Notifikasi"
+        description="Apakah Anda yakin ingin menghapus semua riwayat notifikasi ini? Notifikasi yang dihapus tidak dapat dikembalikan."
+        onConfirm={confirmClearAll}
+      />
     </Popover>
   )
 }

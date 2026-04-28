@@ -3,9 +3,12 @@ import { getStoreStaff } from "@/lib/staff-actions"
 import { redirect } from "next/navigation"
 import { StaffListClient } from "./staff-list-client"
 import { enforceOwner } from "@/lib/rbac"
+import { createClient } from "@/lib/supabase/server"
 
 export default async function StaffSettingsPage() {
   await enforceOwner()
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
   const stores = await getStores()
   
   if (stores.length === 0) {
@@ -25,7 +28,12 @@ export default async function StaffSettingsPage() {
         </p>
       </div>
       
-      <StaffListClient initialData={staff} storeId={store.id} inviteCode={store.invite_code} />
+      <StaffListClient 
+        initialData={staff} 
+        storeId={store.id} 
+        inviteCode={store.invite_code} 
+        currentUserId={user?.id}
+      />
     </div>
   )
 }

@@ -17,6 +17,7 @@ import {
 } from "@tabler/icons-react"
 import { createClient } from "@/lib/supabase/client"
 import { getNotifications, markAsRead, markAllAsRead, deleteNotification, clearNotifications } from "@/lib/notification-actions"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -52,6 +53,7 @@ const getNotificationColor = (type: string) => {
 export function NotificationsClient({ storeId, initialData }: { storeId: string, initialData: any[] }) {
   const [notifications, setNotifications] = React.useState<any[]>(initialData)
   const [filter, setFilter] = React.useState("all")
+  const [isClearDialogOpen, setIsClearDialogOpen] = React.useState(false)
   const supabase = createClient()
   const router = useRouter()
 
@@ -100,12 +102,11 @@ export function NotificationsClient({ storeId, initialData }: { storeId: string,
     toast.success("Notifikasi dihapus")
   }
 
-  const handleClearAll = async () => {
-    if (confirm("Hapus semua riwayat notifikasi?")) {
-      await clearNotifications(storeId)
-      setNotifications([])
-      toast.success("Semua notifikasi dibersihkan")
-    }
+  const confirmClearAll = async () => {
+    await clearNotifications(storeId)
+    setNotifications([])
+    toast.success("Semua notifikasi dibersihkan")
+    setIsClearDialogOpen(false)
   }
 
   const handleNotifyClick = async (n: any) => {
@@ -155,7 +156,7 @@ export function NotificationsClient({ storeId, initialData }: { storeId: string,
             variant="outline" 
             size="sm" 
             className="text-destructive hover:text-destructive hover:bg-destructive/10"
-            onClick={handleClearAll}
+            onClick={() => setIsClearDialogOpen(true)}
             disabled={notifications.length === 0}
           >
             <IconTrash className="mr-2 h-4 w-4" />
@@ -237,6 +238,14 @@ export function NotificationsClient({ storeId, initialData }: { storeId: string,
         ))
       }
       </div>
+
+      <ConfirmDialog
+        open={isClearDialogOpen}
+        onOpenChange={setIsClearDialogOpen}
+        title="Hapus Notifikasi"
+        description="Apakah Anda yakin ingin menghapus semua riwayat notifikasi ini? Notifikasi yang dihapus tidak dapat dikembalikan."
+        onConfirm={confirmClearAll}
+      />
     </div>
   )
 }

@@ -57,6 +57,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion"
 import { format } from "date-fns"
 import { cn, formatCurrency } from "@/lib/utils"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 
 export function PromotionsClient({ 
   storeId, 
@@ -74,6 +75,9 @@ export function PromotionsClient({
   
   const [editingVoucher, setEditingVoucher] = React.useState<any>(null)
   const [editingDiscount, setEditingDiscount] = React.useState<any>(null)
+  
+  const [deletingDiscountId, setDeletingDiscountId] = React.useState<string | null>(null)
+  const [deletingVoucherId, setDeletingVoucherId] = React.useState<string | null>(null)
   
   const [isLoading, setIsLoading] = React.useState(false)
 
@@ -182,21 +186,29 @@ export function PromotionsClient({
     setIsLoading(false)
   }
 
-  const handleDeleteDiscount = async (id: string) => {
-    if (!confirm("Hapus diskon ini?")) return
-    const res = await deleteDiscount(id)
+  const confirmDeleteDiscount = async () => {
+    if (!deletingDiscountId) return
+    setIsLoading(true)
+    const res = await deleteDiscount(deletingDiscountId)
+    setIsLoading(false)
     if (res.success) {
       toast.success("Diskon dihapus")
       window.location.reload()
+    } else {
+      setDeletingDiscountId(null)
     }
   }
 
-  const handleDeleteVoucher = async (id: string) => {
-    if (!confirm("Hapus voucher ini?")) return
-    const res = await deleteVoucher(id)
+  const confirmDeleteVoucher = async () => {
+    if (!deletingVoucherId) return
+    setIsLoading(true)
+    const res = await deleteVoucher(deletingVoucherId)
+    setIsLoading(false)
     if (res.success) {
       toast.success("Voucher dihapus")
       window.location.reload()
+    } else {
+      setDeletingVoucherId(null)
     }
   }
 
@@ -338,7 +350,7 @@ export function PromotionsClient({
                             <span>{v.is_active ? "Nonaktifkan" : "Aktifkan"}</span>
                           </DropdownMenuItem>
                           <DropdownMenuSeparator className="opacity-10" />
-                          <DropdownMenuItem onClick={() => handleDeleteVoucher(v.id)} className="rounded-lg gap-2 cursor-pointer text-destructive focus:bg-destructive/10">
+                          <DropdownMenuItem onClick={() => setDeletingVoucherId(v.id)} className="rounded-lg gap-2 cursor-pointer text-destructive focus:bg-destructive/10">
                             <IconTrash size={14} />
                             <span>Hapus</span>
                           </DropdownMenuItem>
@@ -470,7 +482,7 @@ export function PromotionsClient({
                                 <span>{d.is_active ? "Nonaktifkan" : "Aktifkan"}</span>
                               </DropdownMenuItem>
                               <DropdownMenuSeparator className="opacity-10" />
-                              <DropdownMenuItem onClick={() => handleDeleteDiscount(d.id)} className="rounded-lg gap-2 cursor-pointer text-sm text-destructive focus:bg-destructive/10">
+                              <DropdownMenuItem onClick={() => setDeletingDiscountId(d.id)} className="rounded-lg gap-2 cursor-pointer text-sm text-destructive focus:bg-destructive/10">
                                 <IconTrash size={14} />
                                 <span>Hapus</span>
                               </DropdownMenuItem>
@@ -617,6 +629,24 @@ export function PromotionsClient({
           )}
         </DialogContent>
       </Dialog>
+
+      <ConfirmDialog
+        open={!!deletingDiscountId}
+        onOpenChange={(open) => !open && setDeletingDiscountId(null)}
+        title="Hapus Diskon Toko"
+        description="Apakah Anda yakin ingin menghapus diskon ini? Semua pesanan di masa depan tidak akan bisa menggunakan diskon ini lagi."
+        onConfirm={confirmDeleteDiscount}
+        isLoading={isLoading}
+      />
+
+      <ConfirmDialog
+        open={!!deletingVoucherId}
+        onOpenChange={(open) => !open && setDeletingVoucherId(null)}
+        title="Hapus Voucher"
+        description="Apakah Anda yakin ingin menghapus voucher ini? Voucher yang dihapus tidak dapat digunakan lagi oleh pelanggan."
+        onConfirm={confirmDeleteVoucher}
+        isLoading={isLoading}
+      />
     </div>
   )
 }

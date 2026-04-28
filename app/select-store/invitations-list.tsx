@@ -7,9 +7,11 @@ import { IconBuildingStore, IconCheck, IconX, IconLoader2 } from "@tabler/icons-
 import { acceptInvitation, declineInvitation } from "@/lib/staff-actions"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 
 export function InvitationsList({ invitations }: { invitations: any[] }) {
   const [loadingId, setLoadingId] = React.useState<string | null>(null)
+  const [declineId, setDeclineId] = React.useState<string | null>(null)
   const router = useRouter()
 
   async function onAccept(id: string) {
@@ -24,10 +26,10 @@ export function InvitationsList({ invitations }: { invitations: any[] }) {
     setLoadingId(null)
   }
 
-  async function onDecline(id: string) {
-    if (!confirm("Tolak undangan ini?")) return
-    setLoadingId(id)
-    const res = await declineInvitation(id)
+  async function confirmDecline() {
+    if (!declineId) return
+    setLoadingId(declineId)
+    const res = await declineInvitation(declineId)
     if (res.success) {
       toast.info("Undangan ditolak")
       router.refresh()
@@ -35,6 +37,7 @@ export function InvitationsList({ invitations }: { invitations: any[] }) {
       toast.error(res.error || "Gagal menolak undangan")
     }
     setLoadingId(null)
+    setDeclineId(null)
   }
 
   return (
@@ -60,7 +63,7 @@ export function InvitationsList({ invitations }: { invitations: any[] }) {
                 size="icon" 
                 variant="ghost" 
                 className="h-8 w-8 rounded-lg text-destructive hover:bg-destructive/10"
-                onClick={() => onDecline(invite.id)}
+                onClick={() => setDeclineId(invite.id)}
                 disabled={!!loadingId}
               >
                 <IconX size={16} />
@@ -77,6 +80,14 @@ export function InvitationsList({ invitations }: { invitations: any[] }) {
           </CardContent>
         </Card>
       ))}
+
+      <ConfirmDialog
+        open={!!declineId}
+        onOpenChange={(open) => !open && setDeclineId(null)}
+        title="Tolak Undangan"
+        description="Apakah Anda yakin ingin menolak undangan bergabung dengan toko ini?"
+        onConfirm={confirmDecline}
+      />
     </div>
   )
 }

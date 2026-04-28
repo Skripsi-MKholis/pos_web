@@ -43,6 +43,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox"
 import { GeneralPaymentModal } from "@/components/payment-modal"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 
 export function TablesMonitoringClient({ 
   initialTables, 
@@ -60,6 +61,7 @@ export function TablesMonitoringClient({
   const [isMoveOpen, setIsMoveOpen] = React.useState(false)
   const [isSelectAllMode, setIsSelectAllMode] = React.useState(false)
   const [targetTableId, setTargetTableId] = React.useState<string>("")
+  const [isClearOrdersDialogOpen, setIsClearOrdersDialogOpen] = React.useState(false)
   const router = useRouter()
 
   const handleTableClick = (table: any) => {
@@ -110,8 +112,8 @@ export function TablesMonitoringClient({
     }
   }
 
-  const handleClearOrders = async () => {
-    if (!selectedTable || !confirm("PERINGATAN: Ini akan menghapus paksa seluruh pesanan yang belum dibayar di meja ini. Lanjutkan?")) return
+  const confirmClearOrders = async () => {
+    if (!selectedTable) return
     setIsProcessing(true)
     try {
       const res = await clearTableOrders(selectedTable.id)
@@ -125,6 +127,7 @@ export function TablesMonitoringClient({
       toast.error("Gagal mengosongkan meja")
     } finally {
       setIsProcessing(false)
+      setIsClearOrdersDialogOpen(false)
     }
   }
 
@@ -336,7 +339,7 @@ export function TablesMonitoringClient({
                        <Button 
                           variant="ghost" 
                           className="w-full rounded-xl text-xs font-black uppercase text-destructive/50 hover:text-destructive hover:bg-destructive/5 h-12 transition-all border border-dashed border-destructive/20"
-                          onClick={handleClearOrders}
+                          onClick={() => setIsClearOrdersDialogOpen(true)}
                           disabled={isProcessing}
                         >
                           <IconTrash size={16} className="mr-2" /> Paksa Kosongkan Meja
@@ -452,6 +455,15 @@ export function TablesMonitoringClient({
           mode={isKitchenPrint ? "kitchen" : "invoice"}
         />
       )}
+
+      <ConfirmDialog
+        open={isClearOrdersDialogOpen}
+        onOpenChange={setIsClearOrdersDialogOpen}
+        title="Paksa Kosongkan Meja"
+        description="PERINGATAN: Ini akan menghapus paksa seluruh pesanan yang belum dibayar di meja ini. Lanjutkan?"
+        onConfirm={confirmClearOrders}
+        isLoading={isProcessing}
+      />
     </div>
   )
 }
