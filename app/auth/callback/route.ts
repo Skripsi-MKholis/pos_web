@@ -10,17 +10,31 @@ export async function GET(request: Request) {
   if (code) {
     const supabase = await createClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
+    
     if (!error) {
-      const forwardedHost = request.headers.get('x-forwarded-host') // Hello, Vercel
-      const isLocalEnv = process.env.NODE_ENV === 'development'
-      if (isLocalEnv) {
-        // we can be sure that origin is localhost
-        return NextResponse.redirect(`${origin}${next}`)
-      } else if (forwardedHost) {
-        return NextResponse.redirect(`https://${forwardedHost}${next}`)
-      } else {
-        return NextResponse.redirect(`${origin}${next}`)
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      // Check if user already has a password or email identity
+      const providers = user?.app_metadata?.providers || []
+      const hasEmailProvider = user?.app_metadata?.provider === 'email' || providers.includes('email')
+      const hasPasswordSet = user?.user_metadata?.password_set === true || user?.user_metadata?.password_set === 'true'
+      
+      // If user has a password and we were going to setup-password, go to select-store instead
+      let targetNext = next
+      if ((hasEmailProvider || hasPasswordSet) && next === '/setup-password') {
+        targetNext = '/select-store'
       }
+
+      const forwardedHost = request.headers.get('x-forwarded-host')
+      const isLocalEnv = process.env.NODE_ENV === 'development'
+      
+      const redirectUrl = isLocalEnv 
+        ? `${origin}${targetNext}`
+        : forwardedHost 
+          ? `https://${forwardedHost}${targetNext}`
+          : `${origin}${targetNext}`
+
+      return NextResponse.redirect(redirectUrl)
     }
   }
 

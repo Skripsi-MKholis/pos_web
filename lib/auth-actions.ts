@@ -73,6 +73,7 @@ export async function signup(formData: FormData) {
     options: {
       data: {
         full_name: fullName,
+        password_set: true,
       },
       emailRedirectTo: `${siteUrl}/auth/callback`,
     },
