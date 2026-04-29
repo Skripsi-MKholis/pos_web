@@ -26,7 +26,7 @@ export default async function ProfilePage() {
         </p>
       </div>
       <div className="max-w-2xl">
-        <ProfileForm initialData={profile} />
+        <ProfileForm initialData={profile} user={user} />
       </div>
     </div>
   )

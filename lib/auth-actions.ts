@@ -109,3 +109,16 @@ export async function updateProfile(data: { full_name?: string; avatar_url?: str
   revalidatePath("/dashboard", "layout")
   return { success: true }
 }
+
+export async function updateUserPassword(password: string) {
+  const supabase = await createClient()
+  
+  const { error } = await supabase.auth.updateUser({
+    password: password,
+    data: { password_set: true }
+  })
+
+  if (error) return { error: error.message }
+
+  return { success: true }
+}

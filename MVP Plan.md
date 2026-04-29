@@ -178,6 +178,14 @@ Meningkatkan interaktivitas dan panduan pengguna agar aplikasi terlihat lebih hi
 - [ ] **Contextual Hints**: Tooltip atau pesan hint proaktif di halaman tertentu untuk membantu pengguna memahami fungsi modul modular.
 - [ ] **Session Feedback**: Animasi transisi yang lebih kaya saat berganti toko atau masuk ke dashboard untuk memberikan kesan aplikasi yang responsif.
 
+## Fase 20: Account Security & Profile Enhancement (Selesai pada 2026-04-29 21:06) ✅
+Meningkatkan fungsionalitas manajemen profil dan keamanan akun pengguna.
+
+- [x] **UI Redesign Profile**: Redesain halaman profil dengan sistem tab (General & Security).
+- [x] **Account Linking (Google)**: Fitur untuk menautkan akun Google ke akun email yang sudah ada.
+- [x] **Set Password for OAuth**: Memungkinkan pengguna Google untuk mengatur password agar bisa login via email.
+- [x] **Session Management**: Daftar sesi aktif dan kemampuan logout dari perangkat lain.
+- [x] **Change Password**: Form mandiri untuk mengubah kata sandi bagi pengguna email.
 
 ## Prioritas MVP (MoSCoW)
 - **Must Have**: Login, CRUD Produk, Kasir, Riwayat Transaksi, Multi-Store Selection, Audit Cash/Change.

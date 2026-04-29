@@ -82,6 +82,14 @@ Sistem menggunakan Role-Based Access Control (RBAC) untuk membatasi akses fitur:
 - **Skeleton Loading**: Animasi pemuatan state yang halus untuk menghilangkan kesan lambat saat navigasi.
 - **Database Indexing**: Penggunaan indeks GIN dan B-Tree pada kolom kritikal untuk menjamin performa query kilat meskipun data berjumlah besar.
 
+### 9. Account Security & Identity (NEW)
+- **Unified Profile Management**: Pengelolaan informasi pribadi dan keamanan dalam satu antarmuka yang modern.
+- **Identity Linking**: Kemampuan menautkan beberapa provider (Google & Email) ke satu akun yang sama.
+- **Credential Management**:
+    - Pengaturan kata sandi untuk pengguna OAuth (Google) agar mendukung login manual.
+    - Pembaruan kata sandi berkala bagi pengguna email.
+- **Active Session Tracking**: Monitoring sesi aktif untuk keamanan akun dan deteksi akses tak dikenal.
+
 ---
 
 ## 🎨 UI/UX Design System
