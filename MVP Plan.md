@@ -213,15 +213,15 @@ Halaman manajemen pusat untuk memantau dan mengelola seluruh ekosistem aplikasi.
     - [x] Proteksi route `/admin` hanya untuk pengguna dengan role `SuperAdmin` (via Middleware).
     - [x] Dashboard khusus yang terpisah dari dashboard toko/owner.
 - [x] **Global Management**:
-    - [x] **Manajemen Toko**: Daftar semua toko yang terdaftar, status langganan, dan data owner.
-    - [x] **Manajemen User**: Daftar seluruh pengguna sistem dan indikator admin.
-    - [x] **Manajemen Paket**: Melihat konfigurasi master data `subscription_plans` (harga, limit, fitur).
-- [/] **Global Analytics**:
-    - [/] Statistik total transaksi, total pendapatan, dan pertumbuhan pengguna secara real-time.
-    - Grafik tren pendapatan dari seluruh toko.
-- [ ] **System Control**:
-    - Manajemen pengumuman sistem (System Announcements) untuk seluruh user.
-    - Konfigurasi variabel sistem (Global Toggle Gating, Maintenance Mode).
+    - [x] **Manajemen Toko**: Daftar semua toko, status langganan, dan aksi Suspend/Activate.
+    - [x] **Manajemen User**: Daftar seluruh pengguna dan pengelolaan hak akses Super Admin.
+    - [x] **Manajemen Paket**: UI untuk mengedit master data `subscription_plans` (harga, limit, fitur).
+- [x] **Global Analytics**:
+    - [x] Statistik total transaksi, total pendapatan, dan pertumbuhan pengguna secara real-time.
+    - [x] Grafik tren pendapatan dari seluruh toko.
+- [x] **System Control**:
+    - [x] Manajemen pengumuman sistem (System Announcements) untuk seluruh user.
+    - [x] Konfigurasi variabel sistem (Global Toggle Gating, Maintenance Mode).
 
 
     
