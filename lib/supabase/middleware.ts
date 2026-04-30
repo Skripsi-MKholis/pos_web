@@ -75,6 +75,21 @@ export async function updateSession(request: NextRequest) {
       url.pathname = '/setup-password'
       return NextResponse.redirect(url)
     }
+
+    // Admin Route Protection
+    if (request.nextUrl.pathname.startsWith('/admin')) {
+      const { data: userData } = await supabase
+        .from('users')
+        .select('is_admin')
+        .eq('id', user.id)
+        .single()
+
+      if (!userData?.is_admin) {
+        const url = request.nextUrl.clone()
+        url.pathname = '/dashboard'
+        return NextResponse.redirect(url)
+      }
+    }
   }
 
   return supabaseResponse

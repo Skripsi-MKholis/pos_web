@@ -187,24 +187,44 @@ Meningkatkan fungsionalitas manajemen profil dan keamanan akun pengguna.
 - [x] **Session Management**: Daftar sesi aktif dan kemampuan logout dari perangkat lain.
 - [x] **Change Password**: Form mandiri untuk mengubah kata sandi bagi pengguna email.
 
-## Fase 21: Sistem Langganan & Pembatasan Fitur (Next)
+## Fase 21: Sistem Langganan & Pembatasan Fitur (Selesai pada 2026-04-30 15:35) ✅
 Membatasi fungsionalitas aplikasi berdasarkan paket langganan yang dipilih pengguna.
 
-- [ ] **Skema Database Langganan**:
-    - Tabel `subscription_plans`: Master data paket (Lite, Hebat, Skalabel) beserta limitasinya.
-    - Tabel `subscriptions`: Mencatat status aktif, durasi, dan paket yang sedang digunakan oleh setiap toko.
-    - Tabel `subscription_history`: Log riwayat transaksi dan perubahan paket untuk audit.
-- [ ] **Logic Feature Gating (Server & Client)**:
-    - Implementasi pengecekan hak akses fitur (Feature Toggles) berdasarkan paket aktif.
-    - Pembatasan jumlah transaksi bulanan dan jumlah outlet sesuai limitasi paket.
-    - Global Admin Toggle: Kemampuan bagi admin untuk menonaktifkan pengecekan langganan (semua fitur menjadi free).
-- [ ] **Billing Dashboard Integration**:
-    - Menampilkan informasi paket aktif dan sisa masa berlaku.
-    - UI untuk memilih/upgrade paket yang terintegrasi dengan database.
-    - Riwayat tagihan dan pembayaran sederhana.
-- [ ] **Restricted UI Context**:
-    - Menampilkan indikator "PRO" atau "Locked" pada fitur yang tidak tersedia di paket saat ini.
-    - Modal/Toast informasi upgrade saat pengguna mencoba mengakses fitur terbatas.
+- [x] **Skema Database Langganan**:
+    - [x] Tabel `subscription_plans`: Master data paket (Lite, Hebat, Skalabel) beserta limitasinya.
+    - [x] Tabel `subscriptions`: Mencatat status aktif, durasi, dan paket yang sedang digunakan oleh setiap toko.
+    - [x] Tabel `subscription_history`: Log riwayat transaksi dan perubahan paket untuk audit.
+- [x] **Logic Feature Gating (Server & Client)**:
+    - [x] Implementasi pengecekan hak akses fitur (Feature Toggles) berdasarkan paket aktif.
+    - [x] Pembatasan jumlah transaksi bulanan dan jumlah outlet sesuai limitasi paket.
+    - [x] Global Admin Toggle: Kemampuan bagi admin untuk menonaktifkan pengecekan langganan (semua fitur menjadi free).
+- [x] **Billing Dashboard Integration**:
+    - [x] Menampilkan informasi paket aktif dan sisa masa berlaku.
+    - [x] UI untuk memilih/upgrade paket yang terintegrasi dengan database.
+    - [x] Riwayat tagihan dan pembayaran sederhana.
+- [x] **Restricted UI Context**:
+    - [x] Menampilkan indikator "PRO" atau "Locked" pada fitur yang tidak tersedia di paket saat ini.
+    - [x] Modal/Toast informasi upgrade saat pengguna mencoba mengakses fitur terbatas.
+
+## Fase 22: Dashboard Super Admin (Next)
+Halaman manajemen pusat untuk memantau dan mengelola seluruh ekosistem aplikasi.
+
+- [x] **Admin Authentication & Authorization**:
+    - [x] Proteksi route `/admin` hanya untuk pengguna dengan role `SuperAdmin` (via Middleware).
+    - [x] Dashboard khusus yang terpisah dari dashboard toko/owner.
+- [x] **Global Management**:
+    - [x] **Manajemen Toko**: Daftar semua toko yang terdaftar, status langganan, dan data owner.
+    - [x] **Manajemen User**: Daftar seluruh pengguna sistem dan indikator admin.
+    - [x] **Manajemen Paket**: Melihat konfigurasi master data `subscription_plans` (harga, limit, fitur).
+- [/] **Global Analytics**:
+    - [/] Statistik total transaksi, total pendapatan, dan pertumbuhan pengguna secara real-time.
+    - Grafik tren pendapatan dari seluruh toko.
+- [ ] **System Control**:
+    - Manajemen pengumuman sistem (System Announcements) untuk seluruh user.
+    - Konfigurasi variabel sistem (Global Toggle Gating, Maintenance Mode).
+
+
+    
 - **Must Have**: Login, CRUD Produk, Kasir, Riwayat Transaksi, Multi-Store Selection, Audit Cash/Change.
 - **Should Have**: Dashboard Analytics, Cetak Struk, Manajemen Stok, Laporan Laba Kotor, **Feature Modules Control (Fase 18)**, **Sistem Langganan (Fase 21)**.
 - **Could Have**: Manajemen Meja (F&B), Voucher/Diskon, Manajemen Karyawan (RBAC), Reservasi, KDS.
