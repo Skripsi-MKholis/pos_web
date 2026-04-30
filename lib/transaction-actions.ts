@@ -24,11 +24,29 @@ export type TransactionPayload = {
   changeAmount?: number
 }
 
+import { getStoreSubscription, isSubscriptionGatingEnabled, getMonthlyTransactionCount } from "./subscription-actions"
+
 export async function createTransaction(payload: TransactionPayload) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   
   if (!user) return { error: "Unauthorized" }
+
+  // 1. Check subscription limits
+  const gatingEnabled = await isSubscriptionGatingEnabled()
+  if (gatingEnabled) {
+    const sub = await getStoreSubscription(payload.storeId)
+    const limit = sub?.plan?.max_transactions || 500
+    
+    if (limit > 0) {
+      const count = await getMonthlyTransactionCount(payload.storeId)
+      if (count >= limit) {
+        return { 
+          error: `Batas transaksi bulanan tercapai (${limit}). Silahkan upgrade paket anda untuk melanjutkan.` 
+        }
+      }
+    }
+  }
 
   const { data, error } = await supabase.rpc("create_transaction_v3", {
     p_store_id: payload.storeId,

@@ -5,66 +5,82 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { IconCheck, IconStar, IconCrown, IconBolt, IconRocket, IconBuildingStore } from "@tabler/icons-react"
 import { toast } from "sonner"
+import { useState } from "react"
+import { updateStorePlan, toggleSubscriptionGating, type Plan, type Subscription } from "@/lib/subscription-actions"
+import { useRouter } from "next/navigation"
 
-export default function BillingClient() {
-  const plans = [
-    {
-      name: "Lite (UMKM Pemula)",
-      price: "Rp 0",
-      description: "Solusi dasar untuk memulai bisnis digital.",
-      features: [
-        "1 Outlet Aktif", 
-        "Hingga 100 Transaksi /bulan", 
-        "Manajemen Meja & Dine-in", 
-        "Laporan Penjualan Dasar",
-        "Dukungan Komunitas"
-      ],
-      icon: IconBuildingStore,
-      current: true
-    },
-    {
-      name: "UMKM Hebat",
-      price: "Rp 49rb",
-      description: "Fitur lengkap dengan harga paling bersahabat.",
-      features: [
-        "1 Outlet Aktif", 
-        "Transaksi UNLIMITED", 
-        "Buka Semua Fitur Modular", 
-        "KDS & Sistem Reservasi", 
-        "Manajemen Pelanggan & Promo",
-        "Laporan Detail & Ekspor"
-      ],
-      icon: IconRocket,
-      popular: true
-    },
-    {
-      name: "Bisnis Skalabel",
-      price: "Rp 149rb",
-      description: "Untuk rantai bisnis yang siap ekspansi.",
-      features: [
-        "Hingga 5 Outlet Aktif", 
-        "Transaksi UNLIMITED", 
-        "Semua Fitur Modular + Eksklusif", 
-        "Manajemen Staf Multi-Toko", 
-        "Data Sync Real-time",
-        "Dukungan Prioritas 24/7"
-      ],
-      icon: IconCrown
+interface BillingClientProps {
+  storeId: string
+  initialSubscription: Subscription | null
+  initialPlans: Plan[]
+  initialGatingEnabled: boolean
+}
+
+export default function BillingClient({ 
+  storeId, 
+  initialSubscription, 
+  initialPlans,
+  initialGatingEnabled
+}: BillingClientProps) {
+  const router = useRouter()
+  const [subscription, setSubscription] = useState<Subscription | null>(initialSubscription)
+  const [isUpdating, setIsUpdating] = useState(false)
+
+  const plans = initialPlans.map(plan => {
+    let icon = IconBuildingStore
+    if (plan.slug === 'umkm-hebat') icon = IconRocket
+    if (plan.slug === 'bisnis-skalabel') icon = IconCrown
+
+    // Format features for display
+    const displayFeatures = [
+      `${plan.max_outlets} Outlet Aktif`,
+      plan.max_transactions === 0 ? "Transaksi UNLIMITED" : `Hingga ${plan.max_transactions} Transaksi / bln`,
+    ]
+
+    if (plan.features.tables) displayFeatures.push("Manajemen Meja & Dine-in")
+    if (plan.features.kds) displayFeatures.push("Kitchen Display System (KDS)")
+    if (plan.features.reservations) displayFeatures.push("Sistem Reservasi")
+    if (plan.features.customers) displayFeatures.push("Manajemen Pelanggan")
+    if (plan.features.promotions) displayFeatures.push("Promo & Voucher")
+    if (plan.features.advanced_reports) displayFeatures.push("Laporan Detail & Ekspor")
+    if (plan.features.multi_store_staff) displayFeatures.push("Manajemen Staf Multi-Toko")
+
+    return {
+      ...plan,
+      displayFeatures,
+      icon,
+      popular: plan.slug === 'umkm-hebat',
+      current: subscription?.plan_id === plan.id
     }
-  ]
+  })
 
-  const handleSelect = (planName: string) => {
-    toast.info(`Fitur pilihan paket ${planName} akan segera hadir!`, {
-      description: "Mohon maaf, saat ini sistem pembayaran masih dalam tahap pengembangan.",
-      duration: 4000
-    })
+  const handleSelect = async (plan: any) => {
+    if (plan.current) {
+      toast.info("Anda sudah menggunakan paket ini.")
+      return
+    }
+
+    setIsUpdating(true)
+    try {
+      const result = await updateStorePlan(storeId, plan.slug)
+      if (result.success) {
+        toast.success(`Berhasil beralih ke paket ${plan.name}!`)
+        router.refresh()
+      } else {
+        toast.error("Gagal mengubah paket: " + result.error)
+      }
+    } catch (error) {
+      toast.error("Terjadi kesalahan sistem.")
+    } finally {
+      setIsUpdating(false)
+    }
   }
 
   return (
     <div className="space-y-12">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {plans.map((plan) => (
-          <Card key={plan.name} className={`flex flex-col relative overflow-hidden transition-all duration-300 hover:shadow-xl rounded-[2.5rem] border-none bg-muted/30 ${plan.popular ? 'ring-2 ring-primary' : ''}`}>
+          <Card key={plan.id} className={`flex flex-col relative overflow-hidden transition-all duration-300 hover:shadow-xl rounded-[2.5rem] border-none bg-muted/30 ${plan.popular ? 'ring-2 ring-primary' : ''}`}>
             {plan.current && (
               <div className="absolute top-6 right-6">
                 <Badge className="bg-primary/20 text-primary hover:bg-primary/20 border-none px-3 font-bold uppercase text-[10px] tracking-widest">Paket Sekarang</Badge>
@@ -82,20 +98,20 @@ export default function BillingClient() {
                 <plan.icon size={28} />
               </div>
               <CardTitle className="text-xl font-black">{plan.name}</CardTitle>
-              <CardDescription className="text-xs">{plan.description}</CardDescription>
+              <CardDescription className="text-xs line-clamp-2">{plan.description}</CardDescription>
             </CardHeader>
             
             <CardContent className="flex-1 space-y-6 pt-4">
               <div className="space-y-1">
                 <div className="text-3xl font-black">
-                  {plan.price}
+                  {plan.price === 0 ? "Gratis" : `Rp ${(plan.price / 1000).toLocaleString()}rb`}
                   <span className="text-sm font-normal text-muted-foreground"> /bulan</span>
                 </div>
               </div>
 
               <div className="space-y-4">
                 <ul className="space-y-3 text-sm">
-                  {plan.features.map((feature) => (
+                  {plan.displayFeatures.map((feature) => (
                     <li key={feature} className="flex items-start gap-3">
                       <IconCheck size={16} className="text-primary mt-0.5 shrink-0" strokeWidth={3} />
                       <span className="text-muted-foreground">{feature}</span>
@@ -107,16 +123,47 @@ export default function BillingClient() {
 
             <CardFooter className="pb-8 pt-4">
               <Button 
-                onClick={() => handleSelect(plan.name)}
+                disabled={isUpdating}
+                onClick={() => handleSelect(plan)}
                 className={`w-full rounded-2xl h-12 text-sm font-bold transition-all ${plan.current ? "bg-muted text-muted-foreground" : "shadow-lg shadow-primary/20"}`} 
                 variant={plan.current ? "secondary" : "default"}
               >
-                {plan.current ? "Kelola Paket" : `Pilih Paket`}
+                {plan.current ? "Kelola Paket" : isUpdating ? "Memproses..." : `Pilih Paket`}
               </Button>
             </CardFooter>
           </Card>
         ))}
       </div>
+
+      {/* Admin Toggle Section */}
+      <Card className="rounded-[2.5rem] border-2 border-dashed border-primary/20 bg-primary/5 overflow-hidden">
+        <CardContent className="p-8 flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="space-y-2 text-center md:text-left">
+            <div className="flex items-center justify-center md:justify-start gap-2 text-primary">
+              <Badge className="bg-primary text-primary-foreground">Admin Mode</Badge>
+              <h3 className="text-xl font-black tracking-tight">Toggle Pembatasan Fitur</h3>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Gunakan toggle ini untuk mengaktifkan atau menonaktifkan pengecekan langganan secara global (untuk tujuan pengujian).
+            </p>
+          </div>
+          <Button 
+            onClick={async () => {
+              const newValue = initialGatingEnabled ? 'false' : 'true'
+              // We need an action for this
+              toast.promise(toggleSubscriptionGating(newValue), {
+                loading: 'Memperbarui status...',
+                success: 'Status pembatasan fitur berhasil diubah!',
+                error: 'Gagal memperbarui status.'
+              })
+            }}
+            variant={initialGatingEnabled ? "destructive" : "default"} 
+            className="rounded-xl px-10 h-14 font-bold shrink-0"
+          >
+            {initialGatingEnabled ? "Matikan Pembatasan" : "Aktifkan Pembatasan"}
+          </Button>
+        </CardContent>
+      </Card>
 
       {/* Custom Solution Card - Clean Style */}
       <Card className="rounded-[2.5rem] border-none bg-muted/20 shadow-sm overflow-hidden">
@@ -126,7 +173,6 @@ export default function BillingClient() {
             <p className="text-sm text-muted-foreground text-center md:text-left">Hubungi tim kami untuk penawaran paket kustom sesuai skala bisnis anda.</p>
           </div>
           <Button 
-            onClick={() => handleSelect("Enterprise")}
             variant="outline" 
             className="rounded-xl px-10 h-14 font-bold border-primary text-primary hover:bg-primary/10 shrink-0"
           >

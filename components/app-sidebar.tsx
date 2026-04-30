@@ -245,7 +245,7 @@ export function AppSidebar({
            <SidebarGroupLabel className="px-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/50 mb-2">
              Analytics
            </SidebarGroupLabel>
-           <NavMain items={filteredOverview} />
+           <NavMain items={filteredOverview} storeId={activeStoreId} />
         </div>
 
         {/* OPERATIONS SECTION */}
@@ -253,7 +253,7 @@ export function AppSidebar({
            <SidebarGroupLabel className="px-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/50 mb-2">
              Operasional Kasir
            </SidebarGroupLabel>
-           <NavMain items={filteredPos} />
+           <NavMain items={filteredPos} storeId={activeStoreId} />
         </div>
 
         {/* INVENTORY SECTION (Owner Only) */}
@@ -262,7 +262,7 @@ export function AppSidebar({
              <SidebarGroupLabel className="px-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/50 mb-2">
                Katalog & Stok
              </SidebarGroupLabel>
-             <NavMain items={filteredInventory} />
+             <NavMain items={filteredInventory} storeId={activeStoreId} />
           </div>
         )}
 
@@ -272,7 +272,7 @@ export function AppSidebar({
              <SidebarGroupLabel className="px-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/50 mb-2">
                Pelanggan & Promo
              </SidebarGroupLabel>
-             <NavMain items={filteredMarketing} />
+             <NavMain items={filteredMarketing} storeId={activeStoreId} />
           </div>
         )}
 
@@ -282,7 +282,7 @@ export function AppSidebar({
              <SidebarGroupLabel className="px-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/50 mb-2">
                Laporan & Audit
              </SidebarGroupLabel>
-             <NavMain items={filteredReports} />
+             <NavMain items={filteredReports} storeId={activeStoreId} />
           </div>
         )}
 

@@ -10,15 +10,19 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import { cn } from "@/lib/utils"
+import { FeatureBadge } from "./dashboard/feature-gate"
 
 export function NavMain({
   items,
+  storeId,
 }: {
   items: {
     title: string
     url: string
     icon?: React.ReactNode
+    feature?: string
   }[]
+  storeId?: string
 }) {
   const pathname = usePathname()
 
@@ -39,9 +43,14 @@ export function NavMain({
                     isActive && "!bg-primary !text-primary-foreground font-black shadow-lg shadow-primary/20 hover:!bg-primary hover:!text-primary-foreground"
                   )}
                 >
-                  <Link href={item.url}>
-                    {item.icon}
-                    <span>{item.title}</span>
+                  <Link href={item.url} className="flex items-center justify-between w-full">
+                    <div className="flex items-center gap-2">
+                      {item.icon}
+                      <span>{item.title}</span>
+                    </div>
+                    {item.feature && storeId && (
+                      <FeatureBadge feature={item.feature} storeId={storeId} />
+                    )}
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

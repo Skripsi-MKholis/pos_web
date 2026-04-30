@@ -32,10 +32,34 @@ export async function getStores() {
   return data
 }
 
+import { getStoreSubscription, isSubscriptionGatingEnabled } from "./subscription-actions"
+
 export async function createStore(name: string, address?: string, settings?: any) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: "Unauthorized" }
+
+  // 1. Check if subscription gating is enabled
+  const gatingEnabled = await isSubscriptionGatingEnabled()
+  if (gatingEnabled) {
+    // 2. Get existing stores owned by user
+    const { data: ownedStores } = await supabase
+      .from("stores")
+      .select("id")
+      .eq("owner_id", user.id)
+
+    if (ownedStores && ownedStores.length > 0) {
+      // 3. Check the subscription of the first store (as master)
+      const sub = await getStoreSubscription(ownedStores[0].id)
+      const maxOutlets = sub?.plan?.max_outlets || 1
+      
+      if (ownedStores.length >= maxOutlets) {
+        return { 
+          error: `Batas outlet tercapai. Paket ${sub?.plan?.name || 'Lite'} hanya mengizinkan ${maxOutlets} outlet. Silahkan upgrade paket anda.` 
+        }
+      }
+    }
+  }
 
   const insertData: any = { name, address, owner_id: user.id }
   if (settings) {

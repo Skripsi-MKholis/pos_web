@@ -187,9 +187,26 @@ Meningkatkan fungsionalitas manajemen profil dan keamanan akun pengguna.
 - [x] **Session Management**: Daftar sesi aktif dan kemampuan logout dari perangkat lain.
 - [x] **Change Password**: Form mandiri untuk mengubah kata sandi bagi pengguna email.
 
-## Prioritas MVP (MoSCoW)
+## Fase 21: Sistem Langganan & Pembatasan Fitur (Next)
+Membatasi fungsionalitas aplikasi berdasarkan paket langganan yang dipilih pengguna.
+
+- [ ] **Skema Database Langganan**:
+    - Tabel `subscription_plans`: Master data paket (Lite, Hebat, Skalabel) beserta limitasinya.
+    - Tabel `subscriptions`: Mencatat status aktif, durasi, dan paket yang sedang digunakan oleh setiap toko.
+    - Tabel `subscription_history`: Log riwayat transaksi dan perubahan paket untuk audit.
+- [ ] **Logic Feature Gating (Server & Client)**:
+    - Implementasi pengecekan hak akses fitur (Feature Toggles) berdasarkan paket aktif.
+    - Pembatasan jumlah transaksi bulanan dan jumlah outlet sesuai limitasi paket.
+    - Global Admin Toggle: Kemampuan bagi admin untuk menonaktifkan pengecekan langganan (semua fitur menjadi free).
+- [ ] **Billing Dashboard Integration**:
+    - Menampilkan informasi paket aktif dan sisa masa berlaku.
+    - UI untuk memilih/upgrade paket yang terintegrasi dengan database.
+    - Riwayat tagihan dan pembayaran sederhana.
+- [ ] **Restricted UI Context**:
+    - Menampilkan indikator "PRO" atau "Locked" pada fitur yang tidak tersedia di paket saat ini.
+    - Modal/Toast informasi upgrade saat pengguna mencoba mengakses fitur terbatas.
 - **Must Have**: Login, CRUD Produk, Kasir, Riwayat Transaksi, Multi-Store Selection, Audit Cash/Change.
-- **Should Have**: Dashboard Analytics, Cetak Struk, Manajemen Stok, Laporan Laba Kotor, **Feature Modules Control (Fase 18)**.
+- **Should Have**: Dashboard Analytics, Cetak Struk, Manajemen Stok, Laporan Laba Kotor, **Feature Modules Control (Fase 18)**, **Sistem Langganan (Fase 21)**.
 - **Could Have**: Manajemen Meja (F&B), Voucher/Diskon, Manajemen Karyawan (RBAC), Reservasi, KDS.
 - **Won't Have (Next Version)**: Manajemen Inventaris Global (Sync Antar Cabang), Customer Loyalty Points (Redeem), Integrasi Payment Gateway Otomatis (Xendit/Midtrans).
 

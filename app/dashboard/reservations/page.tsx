@@ -4,6 +4,7 @@ import { redirect } from "next/navigation"
 import { getReservations } from "@/lib/reservation-actions"
 import { getTables } from "@/lib/table-actions"
 import { ReservationsClient } from "./reservations-client"
+import { FeatureGate } from "@/components/dashboard/feature-gate"
 
 export default async function ReservationsPage() {
   const supabase = await createClient()
@@ -18,7 +19,7 @@ export default async function ReservationsPage() {
     .from("store_members")
     .select("store_id, stores(*)")
     .eq("user_id", user.id)
-    .single()
+    .maybeSingle()
 
   if (!staff || !staff.stores) {
     redirect("/dashboard")
@@ -34,11 +35,13 @@ export default async function ReservationsPage() {
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <ReservationsClient 
-        initialReservations={reservations} 
-        tables={tables} 
-        storeId={store.id} 
-      />
+      <FeatureGate feature="reservations" storeId={store.id}>
+        <ReservationsClient 
+          initialReservations={reservations} 
+          tables={tables} 
+          storeId={store.id} 
+        />
+      </FeatureGate>
     </div>
   )
 }

@@ -2,9 +2,18 @@ import { Badge } from "@/components/ui/badge"
 import { IconInfoCircle } from "@tabler/icons-react"
 import { enforceOwner } from "@/lib/rbac"
 import BillingClient from "./billing-client"
+import { getActiveStoreId } from "@/lib/store-actions"
+import { getStoreSubscription, getSubscriptionPlans, isSubscriptionGatingEnabled } from "@/lib/subscription-actions"
 
 export default async function BillingPage() {
   await enforceOwner()
+  const storeId = await getActiveStoreId()
+  
+  if (!storeId) return null
+
+  const subscription = await getStoreSubscription(storeId)
+  const plans = await getSubscriptionPlans()
+  const gatingEnabled = await isSubscriptionGatingEnabled()
   
   return (
     <div className="flex-1 space-y-12 p-4 md:p-8 pt-6 max-w-6xl mx-auto">
@@ -16,14 +25,21 @@ export default async function BillingPage() {
       </div>
 
       {/* Development Phase Note */}
-      <div className="flex items-center gap-3 p-4 bg-primary/10 border border-primary/20 rounded-2xl text-primary max-w-3xl mx-auto">
-        <IconInfoCircle size={24} className="shrink-0" />
-        <p className="text-sm font-bold">
-          Informasi: Semua fitur untuk saat ini bisa diakses selama masa pengembangan.
-        </p>
-      </div>
+      {!gatingEnabled && (
+        <div className="flex items-center gap-3 p-4 bg-primary/10 border border-primary/20 rounded-2xl text-primary max-w-3xl mx-auto">
+          <IconInfoCircle size={24} className="shrink-0" />
+          <p className="text-sm font-bold">
+            Informasi: Semua fitur untuk saat ini bisa diakses secara gratis oleh Admin.
+          </p>
+        </div>
+      )}
 
-      <BillingClient />
+      <BillingClient 
+        storeId={storeId} 
+        initialSubscription={subscription} 
+        initialPlans={plans} 
+        initialGatingEnabled={gatingEnabled}
+      />
     </div>
   )
 }

@@ -3,6 +3,8 @@ import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { getPendingOrders } from "@/lib/kds-actions"
 import { KDSClient } from "./kds-client"
+import { checkFeatureAccess } from "@/lib/subscription-actions"
+import { FeatureGate } from "@/components/dashboard/feature-gate"
 
 export default async function KDSPage() {
   const supabase = await createClient()
@@ -17,7 +19,7 @@ export default async function KDSPage() {
     .from("store_members")
     .select("store_id, stores(*)")
     .eq("user_id", user.id)
-    .single()
+    .maybeSingle()
 
   if (!staff || !staff.stores) {
     redirect("/dashboard")
@@ -28,10 +30,12 @@ export default async function KDSPage() {
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6 bg-muted/30 min-h-screen">
-      <KDSClient 
-        initialOrders={orders} 
-        storeId={store.id} 
-      />
+      <FeatureGate feature="kds" storeId={store.id}>
+        <KDSClient 
+          initialOrders={orders} 
+          storeId={store.id} 
+        />
+      </FeatureGate>
     </div>
   )
 }
