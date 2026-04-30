@@ -29,11 +29,20 @@ export default async function AdminUsersPage() {
   const supabase = await createClient()
   const { data: { user: currentUser } } = await supabase.auth.getUser()
   
-  // Fetch all users
+  // Fetch all users with their store information
   const { data: users, error } = await supabase
     .from('users')
-    .select('*')
+    .select(`
+      *,
+      store:stores!users_store_id_fkey (
+        name
+      )
+    `)
     .order('created_at', { ascending: false })
+
+  if (error) {
+    console.error("DEBUG: Error fetching admin users:", error)
+  }
 
   return (
     <div className="p-6 space-y-8">
