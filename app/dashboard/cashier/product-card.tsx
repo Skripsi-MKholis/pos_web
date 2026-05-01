@@ -1,10 +1,11 @@
 "use client"
 
+import { memo } from "react"
 import { IconPlus, IconPackage } from "@tabler/icons-react"
 import { Badge } from "@/components/ui/badge"
 import { formatCurrency } from "@/lib/utils"
 
-export function ProductCard({ 
+export const ProductCard = memo(function ProductCard({
   product, 
   onAddToCart 
 }: { 
@@ -64,4 +65,4 @@ export function ProductCard({
       <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity" />
     </div>
   )
-}
+})
