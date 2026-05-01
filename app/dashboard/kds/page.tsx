@@ -2,6 +2,7 @@ import * as React from "react"
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { getPendingOrders } from "@/lib/kds-actions"
+import { getStores, getActiveStoreId } from "@/lib/store-actions"
 import { KDSClient } from "./kds-client"
 import { checkFeatureAccess } from "@/lib/subscription-actions"
 import { FeatureGate } from "@/components/dashboard/feature-gate"
@@ -14,26 +15,22 @@ export default async function KDSPage() {
     redirect("/login")
   }
 
-  // Get active store
-  const { data: staff } = await supabase
-    .from("store_members")
-    .select("store_id, stores(*)")
-    .eq("user_id", user.id)
-    .maybeSingle()
+  const stores = await getStores()
+  const activeId = await getActiveStoreId()
+  const activeStoreId = activeId || (stores.length > 0 ? stores[0].id : null)
 
-  if (!staff || !staff.stores) {
+  if (!activeStoreId) {
     redirect("/dashboard")
   }
 
-  const store = staff.stores as any
-  const orders = await getPendingOrders(store.id)
+  const orders = await getPendingOrders(activeStoreId)
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6 bg-muted/30 min-h-screen">
-      <FeatureGate feature="kds" storeId={store.id}>
+      <FeatureGate feature="kds" storeId={activeStoreId}>
         <KDSClient 
           initialOrders={orders} 
-          storeId={store.id} 
+          storeId={activeStoreId}
         />
       </FeatureGate>
     </div>
