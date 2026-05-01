@@ -45,7 +45,6 @@ export function ReceiptPrint({
   mode = "invoice"
 }: ReceiptPrintProps) {
   const isKitchen = mode === "kitchen"
-  // Determine width class based on paper size
   const widthClass = paperSize === "80mm" ? "w-[80mm]" : paperSize === "a4" ? "w-full max-w-[210mm]" : "w-[58mm]"
 
   return (
