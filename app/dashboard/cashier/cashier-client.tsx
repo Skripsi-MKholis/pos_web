@@ -169,15 +169,17 @@ export function CashierClient({
   }, [searchParams, initialTables])
 
   // Filter products
-  const filteredProducts = initialProducts.filter(p => {
-    const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                         p.sku?.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesCategory = selectedCategory === "all" || p.category_id === selectedCategory
-    return matchesSearch && matchesCategory
-  })
+  const filteredProducts = React.useMemo(() => {
+    return initialProducts.filter(p => {
+      const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                           p.sku?.toLowerCase().includes(searchQuery.toLowerCase())
+      const matchesCategory = selectedCategory === "all" || p.category_id === selectedCategory
+      return matchesSearch && matchesCategory
+    })
+  }, [initialProducts, searchQuery, selectedCategory])
 
   // Cart logic
-  const addToCart = (product: any) => {
+  const addToCart = React.useCallback((product: any) => {
     setCart(prev => {
       const existing = prev.find(item => item.id === product.id)
       if (existing) {
@@ -187,7 +189,7 @@ export function CashierClient({
       }
       return [...prev, { ...product, quantity: 1 }]
     })
-  }
+  }, [])
 
   const updateQuantity = (id: string, delta: number) => {
     setCart(prev => prev.map(item => {
