@@ -37,6 +37,7 @@ import {
   TransactionPayload, 
   splitTransaction, 
   moveTransactionTable,
+  moveTransactionsTable,
   clearTableOrders,
   completeFullTransaction
 } from "@/lib/transaction-actions"
@@ -93,13 +94,12 @@ export function TablesMonitoringClient({
     if (!activeTx || !targetTableId) return
     setIsProcessing(true)
     try {
-      const results = await Promise.all(transactions.map((tx: any) => 
-        moveTransactionTable(tx.id, selectedTable.id, targetTableId)
-      ))
+      const transactionIds = transactions.map((tx: any) => tx.id)
+      const res = await moveTransactionsTable(transactionIds, selectedTable.id, targetTableId)
       
-      const hasError = results.find(r => r.error)
-      if (hasError) toast.error(hasError.error)
-      else {
+      if (res.error) {
+        toast.error(res.error)
+      } else {
         toast.success(`Berhasil pindah ke meja ${initialTables.find(t => t.id === targetTableId)?.name}`)
         setIsMoveOpen(false)
         setIsDetailOpen(false)
