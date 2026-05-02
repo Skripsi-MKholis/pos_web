@@ -146,17 +146,24 @@ export function ChartAreaInteractive({ data }: { data: any[] }) {
     setMounted(true)
   }, [])
 
-  const filteredData = data.filter((item) => {
-    const date = new Date(item.date)
+  const filteredData = React.useMemo(() => {
     const referenceDate = new Date()
     let daysToSubtract = 30
     if (timeRange === "7d") {
       daysToSubtract = 7
+    } else if (timeRange === "90d") {
+      daysToSubtract = 90
     }
     const startDate = new Date(referenceDate)
     startDate.setDate(startDate.getDate() - daysToSubtract)
-    return date >= startDate
-  })
+
+    // Performance: Filter array with pre-calculated startDate
+    // to avoid Date object allocation inside the loop
+    return data.filter((item) => {
+      const date = new Date(item.date)
+      return date >= startDate
+    })
+  }, [data, timeRange])
 
   if (!mounted) {
     return (
