@@ -28,8 +28,17 @@ export default async function AdminDashboardPage() {
     supabase.from('transactions').select('total_amount, created_at').order('created_at', { ascending: false }).limit(10)
   ])
 
-  // Simple revenue calculation (mock for now if no global revenue table)
-  const totalRevenue = recentTransactions?.reduce((sum, tx) => sum + Number(tx.total_amount), 0) || 0
+  // Fetch all transactions from this month to calculate real revenue
+  const startOfMonth = new Date()
+  startOfMonth.setDate(1)
+  startOfMonth.setHours(0, 0, 0, 0)
+
+  const { data: monthlyTransactions } = await supabase
+    .from('transactions')
+    .select('total_amount')
+    .gte('created_at', startOfMonth.toISOString())
+
+  const estimatedRevenue = (monthlyTransactions || []).reduce((acc, curr) => acc + Number(curr.total_amount), 0)
 
   const stats = [
     {
@@ -55,15 +64,15 @@ export default async function AdminDashboardPage() {
     },
     {
       title: "Estimasi Revenue",
-      value: `Rp ${(totalRevenue / 1000).toLocaleString()}rb`,
+      value: `Rp ${(estimatedRevenue / 1000).toLocaleString()}rb`,
       icon: <IconCash className="h-5 w-5" />,
-      description: "Dari 10 transaksi terakhir",
+      description: "Total pendapatan bulan ini",
       color: "bg-orange-500/10 text-orange-600"
     }
   ]
 
   return (
-    <div className="p-6 space-y-8">
+    <div className="flex flex-1 flex-col py-4 md:py-6 px-4 lg:px-6 space-y-8">
       <div className="flex flex-col gap-1">
         <h1 className="text-3xl font-black tracking-tight">Super Admin Overview</h1>
         <p className="text-muted-foreground text-sm uppercase tracking-widest font-bold">Monitor ekosistem POS System secara global</p>

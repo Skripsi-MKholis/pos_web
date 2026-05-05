@@ -57,7 +57,7 @@ export default async function AdminStoresPage() {
   }
 
   return (
-    <div className="p-6 space-y-8">
+    <div className="flex flex-1 flex-col py-4 md:py-6 px-4 lg:px-6 space-y-8">
       <div className="flex flex-col gap-1">
         <h1 className="text-3xl font-black tracking-tight">Manajemen Toko</h1>
         <p className="text-muted-foreground text-sm uppercase tracking-widest font-bold">Kelola dan pantau seluruh outlet yang terdaftar</p>

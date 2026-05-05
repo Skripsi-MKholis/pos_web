@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache"
 /**
  * Check if the current user is a super admin
  */
-async function ensureAdmin() {
+export async function ensureAdmin() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error("Unauthorized")
@@ -98,6 +98,41 @@ export async function createAnnouncement(message: string, type: 'info' | 'warnin
       key: `announcement_${Date.now()}`, 
       value: JSON.stringify({ message, type, created_at: new Date().toISOString() }) 
     }])
+
+  if (error) return { error: error.message }
+  
+  revalidatePath('/admin/settings')
+  return { success: true }
+}
+
+/**
+ * Delete a system announcement
+ */
+export async function deleteAnnouncement(key: string) {
+  await ensureAdmin()
+  const supabase = await createClient()
+
+  const { error } = await supabase
+    .from('app_configs')
+    .delete()
+    .eq('key', key)
+
+  if (error) return { error: error.message }
+  
+  revalidatePath('/admin/settings')
+  return { success: true }
+}
+
+/**
+ * Update app configuration
+ */
+export async function updateAppConfig(key: string, value: string) {
+  await ensureAdmin()
+  const supabase = await createClient()
+
+  const { error } = await supabase
+    .from('app_configs')
+    .upsert({ key, value, updated_at: new Date().toISOString() }, { onConflict: 'key' })
 
   if (error) return { error: error.message }
   
