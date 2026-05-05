@@ -63,7 +63,7 @@ export default async function AdminDashboardPage() {
   ]
 
   return (
-    <div className="p-6 space-y-8">
+    <div className="flex flex-1 flex-col py-4 md:py-6 px-4 lg:px-6 space-y-8">
       <div className="flex flex-col gap-1">
         <h1 className="text-3xl font-black tracking-tight">Super Admin Overview</h1>
         <p className="text-muted-foreground text-sm uppercase tracking-widest font-bold">Monitor ekosistem POS System secara global</p>

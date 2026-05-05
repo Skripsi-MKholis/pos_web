@@ -8,13 +8,18 @@ export default function AdminLayout({
   children: React.ReactNode
 }) {
   return (
-    <SidebarProvider>
-      <AdminSidebar />
+    <SidebarProvider
+      style={
+        {
+          "--sidebar-width": "calc(var(--spacing) * 72)",
+          "--header-height": "calc(var(--spacing) * 12)",
+        } as React.CSSProperties
+      }
+    >
+      <AdminSidebar variant="inset" />
       <SidebarInset>
-        <SiteHeader />
-        <main className="flex-1 overflow-y-auto">
-          {children}
-        </main>
+        <SiteHeader title="Super Admin Panel" />
+        {children}
       </SidebarInset>
     </SidebarProvider>
   )

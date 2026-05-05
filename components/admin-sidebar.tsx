@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/sidebar"
 import { NavMain } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"
+import { ModeToggle } from "@/components/mode-toggle"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 
@@ -101,17 +102,25 @@ export function AdminSidebar({ ...props }: React.ComponentProps<typeof Sidebar>)
   } : null
 
   return (
-    <Sidebar collapsible="icon" className="border-none bg-background shadow-xl" {...props}>
-      <SidebarHeader className="h-20 flex items-center justify-center border-b border-muted/50">
-        <div className="flex items-center gap-3 px-4">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/20">
-            <IconShieldCheck size={24} />
-          </div>
-          <div className="flex flex-col group-data-[collapsible=icon]:hidden">
-            <span className="font-black text-xl tracking-tighter uppercase italic">POS<span className="text-primary">ADMIN</span></span>
-            <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-widest -mt-1">Super Admin Panel</span>
-          </div>
-        </div>
+    <Sidebar collapsible="offcanvas" {...props}>
+      <SidebarHeader className="h-(--header-height) flex items-center px-2">
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton size="lg" className="hover:bg-transparent cursor-default">
+              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-lg shadow-primary/20">
+                <IconShieldCheck size={18} />
+              </div>
+              <div className="grid flex-1 text-left text-sm leading-tight group-data-[state=collapsed]:hidden">
+                <span className="truncate font-black tracking-tighter uppercase italic leading-none">
+                  POS<span className="text-primary">ADMIN</span>
+                </span>
+                <span className="truncate text-[8px] text-muted-foreground font-medium uppercase tracking-widest">
+                  Super Admin Panel
+                </span>
+              </div>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarHeader>
 
       <SidebarContent className="py-4">
@@ -130,16 +139,19 @@ export function AdminSidebar({ ...props }: React.ComponentProps<typeof Sidebar>)
         </div>
       </SidebarContent>
 
-      <SidebarFooter className="p-4 border-t border-muted/50 bg-muted/20">
-        {userData && <NavUser user={userData} />}
-        <SidebarMenu className="mt-2">
+      <SidebarFooter className="border-t bg-background">
+        <div className="flex items-center justify-between p-2">
+          {userData && <NavUser user={userData} />}
+          <ModeToggle />
+        </div>
+        <SidebarMenu className="px-2 pb-2">
            <SidebarMenuItem>
              <SidebarMenuButton 
                onClick={() => router.push('/dashboard')}
-               className="text-muted-foreground hover:text-primary transition-colors"
+               className="text-muted-foreground hover:text-primary transition-colors h-9"
              >
                <IconLogout size={18} />
-               <span>Back to Store</span>
+               <span className="text-xs font-medium">Back to Store</span>
              </SidebarMenuButton>
            </SidebarMenuItem>
         </SidebarMenu>

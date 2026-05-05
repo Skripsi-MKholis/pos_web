@@ -25,7 +25,7 @@ export default async function AdminPlansPage() {
     .order('price', { ascending: true })
 
   return (
-    <div className="p-6 space-y-8">
+    <div className="flex flex-1 flex-col py-4 md:py-6 px-4 lg:px-6 space-y-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex flex-col gap-1">
           <h1 className="text-3xl font-black tracking-tight">Manajemen Paket</h1>
