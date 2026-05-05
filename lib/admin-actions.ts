@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache"
 /**
  * Check if the current user is a super admin
  */
-async function ensureAdmin() {
+export async function ensureAdmin() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error("Unauthorized")

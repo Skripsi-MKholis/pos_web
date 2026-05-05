@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Link from "next/link"
 import { 
   IconBuildingStore, 
   IconCreditCard, 
@@ -197,15 +198,16 @@ export function StoresListClient({ stores }: { stores: any[] }) {
                 </TableCell>
                 <TableCell className="text-right pr-8">
                   <div className="flex justify-end gap-2">
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-9 w-9 rounded-xl hover:bg-primary/10 hover:text-primary transition-all active:scale-90"
-                      onClick={() => setSelectedStore(store)}
-                      title="Lihat Detail"
-                    >
-                      <IconEye size={18} />
-                    </Button>
+                    <Link href={`/admin/stores/${store.id}`}>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-9 w-9 rounded-xl hover:bg-primary/10 hover:text-primary transition-all active:scale-90"
+                        title="Lihat Detail"
+                      >
+                        <IconEye size={18} />
+                      </Button>
+                    </Link>
                     <Button 
                       variant="ghost" 
                       size="icon" 
