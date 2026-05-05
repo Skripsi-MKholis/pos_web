@@ -18,12 +18,13 @@ Sistem menggunakan Role-Based Access Control (RBAC) untuk membatasi akses fitur:
 - **Promosi**: Membuat dan mengelola voucher belanja serta diskon toko.
 - **Laporan Finansial**: Melihat laporan laba rugi, analytics penjualan, dan audit kasir secara mendalam.
 
-### 2. Karyawan (Staff/Kasir)
-- **Operasional Kasir**: Melakukan transaksi penjualan, input voucher, dan cetak struk.
-- **Manajemen Meja**: Mengelola pesanan pelanggan di tempat (Dine-in).
-- **Manajemen Produk terbatas**: Melihat daftar produk dan stok.
-- **Komunikasi**: Menerima pengumuman real-time dari Owner.
-- **Laporan terbatas**: Melihat riwayat transaksi yang dilakukan.
+### 3. Super Admin (System Administrator)
+- **Otoritas Global**: Memiliki akses ke seluruh data toko, pengguna, dan transaksi di sistem.
+- **Manajemen Toko (Governance)**: Menangguhkan (Suspend) atau mengaktifkan kembali toko berdasarkan kepatuhan atau status pembayaran.
+- **Manajemen Paket Langganan**: Mengatur detail harga, fitur, dan limitasi pada setiap tingkatan paket (Lite, UMKM, Bisnis).
+- **Konfigurasi Sistem**: Mengirim pengumuman sistem (Announcements) dan mengelola konfigurasi aplikasi (`app_configs`).
+- **Manajemen Pengguna**: Mengelola hak akses admin bagi pengguna lain dan memantau aktivitas akun secara global.
+- **Analytics Agregat**: Melihat performa seluruh platform melalui dashboard analytics terpusat.
 
 ---
 
@@ -78,7 +79,26 @@ Sistem menggunakan Role-Based Access Control (RBAC) untuk membatasi akses fitur:
 - **Print Dapur (KOT)**: Dokumen khusus dapur (tanpa harga) untuk alur persiapan makanan.
 - **Print Tagihan (Invoice)**: Struk sementara untuk pengecekan sebelum pembayaran.
 
-### 8. Performa & UX Optimasi
+### 8. Super Admin Governance & Monitoring (NEW)
+- **Store Inspector**: Detail mendalam untuk setiap toko, mencakup daftar produk, riwayat transaksi, dan metrik performa tanpa perlu masuk sebagai owner.
+- **Quick Action Dashboard**: Panel kontrol cepat untuk tindakan administratif (Hubungi Owner, Kelola Billing, Toggle Status Toko).
+- **Announcement System**: Pengiriman pesan informasi atau peringatan ke seluruh pengguna platform secara real-time.
+
+### 8. Kitchen Display System (KDS) & Operational Flow
+- **Real-time Order Monitoring**: Antarmuka khusus dapur untuk melihat pesanan yang masuk secara instan tanpa perlu kertas fisik.
+- **Status Tracking**: Menandai pesanan sebagai `Processing` atau `Ready` untuk sinkronisasi dengan kasir.
+- **Efisiensi Produksi**: Mengurangi miskomunikasi antara pramusaji dan staf dapur.
+
+### 9. Reservation & Customer Management (CRM)
+- **Manajemen Reservasi**: Pencatatan booking meja dengan informasi waktu, jumlah tamu, dan catatan khusus.
+- **Database Pelanggan**: Menyimpan riwayat kunjungan, total belanja, dan informasi kontak pelanggan untuk loyalitas.
+- **Insights Pelanggan**: Identifikasi pelanggan setia (Top Customers) berdasarkan frekuensi transaksi.
+
+### 10. Broadcast & Internal Communication
+- **Store-wide Broadcast**: Owner dapat mengirimkan pengumuman penting (misal: menu baru, perubahan shift) yang muncul langsung di dashboard seluruh staf.
+- **Notification Hub**: Pusat notifikasi real-time untuk aktivitas penting dalam toko.
+
+### 11. Performa & UX Optimasi
 - **Skeleton Loading**: Animasi pemuatan state yang halus untuk menghilangkan kesan lambat saat navigasi.
 - **Database Indexing**: Penggunaan indeks GIN dan B-Tree pada kolom kritikal untuk menjamin performa query kilat meskipun data berjumlah besar.
 
@@ -106,6 +126,10 @@ Sistem mengadopsi estetika **Modern Premium & Ergonomic**:
 - **Sans/Body (Outfit)**: Keterbacaan tinggi dengan nuansa yang ramah.
 - **Data/Mono (Geist Mono)**: Digunakan untuk SKU, ID Transaksi, dan data teknis.
 
+### 🛡️ Keamanan & Privasi
+- **RBAC (Role-Based Access Control)**: Validasi izin akses di tingkat Server (Middleware & RLS) dan Client.
+- **Super Admin Protection**: Proteksi khusus pada fungsi administratif yang hanya bisa diakses oleh akun dengan flag `is_admin: true`.
+
 ---
 
 ## 📊 Model Data (Schema Supabase)
@@ -119,8 +143,19 @@ Sistem mengadopsi estetika **Modern Premium & Ergonomic**:
 ### Manajemen Operasional
 - **`tables`**: Daftar meja fisik, kapasitas, dan status real-time.
 - **`reservations`**: Pencatatan reservasi pelanggan (Bila diaktifkan).
+- **`kds_orders`**: Status persiapan pesanan di area dapur.
 
 ### Transaksi & Audit
 - **`transactions`**: Log transaksi utama (Total, Metode Bayar, `cash_paid`, `change_amount`).
 - **`transaction_items`**: Detail snapshot produk saat transaksi.
 - **`vouchers` & `discounts`**: Manajemen promosi terintegrasi.
+
+### CRM & Komunikasi
+- **`customers`**: Database profil pelanggan dan metrik loyalitas.
+- **`broadcasts`**: Pesan pengumuman internal toko dari owner ke staf.
+- **`notifications`**: Log pemberitahuan real-time untuk aktivitas sistem.
+
+### Infrastruktur & Konfigurasi Sistem
+- **`subscription_plans`**: Definisi paket layanan, harga, dan fitur yang tersedia bagi owner.
+- **`app_configs`**: Penyimpanan terpusat untuk pengumuman sistem dan pengaturan global aplikasi.
+- **`users`**: Data profil dasar dengan kolom `is_admin` untuk identifikasi Super Admin.
