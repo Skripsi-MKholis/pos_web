@@ -104,3 +104,38 @@ export async function createAnnouncement(message: string, type: 'info' | 'warnin
   revalidatePath('/admin/settings')
   return { success: true }
 }
+
+/**
+ * Delete a system announcement
+ */
+export async function deleteAnnouncement(key: string) {
+  await ensureAdmin()
+  const supabase = await createClient()
+
+  const { error } = await supabase
+    .from('app_configs')
+    .delete()
+    .eq('key', key)
+
+  if (error) return { error: error.message }
+  
+  revalidatePath('/admin/settings')
+  return { success: true }
+}
+
+/**
+ * Update app configuration
+ */
+export async function updateAppConfig(key: string, value: string) {
+  await ensureAdmin()
+  const supabase = await createClient()
+
+  const { error } = await supabase
+    .from('app_configs')
+    .upsert({ key, value, updated_at: new Date().toISOString() }, { onConflict: 'key' })
+
+  if (error) return { error: error.message }
+  
+  revalidatePath('/admin/settings')
+  return { success: true }
+}
