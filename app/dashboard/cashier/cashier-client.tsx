@@ -118,6 +118,217 @@ function VoucherSection({
   )
 }
 
+
+interface CartContentProps {
+  cart: any[];
+  selectedTable: any;
+  notifiedTableRef: React.MutableRefObject<string | null>;
+  appliedVoucher: any;
+  isValidatingVoucher: boolean;
+  cartTotal: number;
+  discountAmount: number;
+  finalTotal: number;
+  showTables: boolean;
+  updateQuantity: (id: string, delta: number) => void;
+  removeFromCart: (id: string) => void;
+  handleApplyVoucher: (code: string) => Promise<void>;
+  removeVoucher: () => void;
+  handleSaveOrder: (shouldPrint?: boolean) => Promise<void>;
+  setIsCartOpen: (open: boolean) => void;
+  setIsCheckoutOpen: (open: boolean) => void;
+  setSelectedTable: (table: any) => void;
+  router: any;
+}
+
+const CartContent = React.memo(function CartContent({
+  cart,
+  selectedTable,
+  notifiedTableRef,
+  appliedVoucher,
+  isValidatingVoucher,
+  cartTotal,
+  discountAmount,
+  finalTotal,
+  showTables,
+  updateQuantity,
+  removeFromCart,
+  handleApplyVoucher,
+  removeVoucher,
+  handleSaveOrder,
+  setIsCartOpen,
+  setIsCheckoutOpen,
+  setSelectedTable,
+  router
+}: CartContentProps) {
+  return (
+
+    <div className="flex flex-col h-full bg-card">
+      <header className="p-4 border-b flex items-center justify-between bg-background">
+        <div className="flex items-center gap-2 font-bold text-lg">
+          <IconShoppingCart className="text-primary h-5 w-5" />
+          <span>Keranjang</span>
+        </div>
+        <span className="bg-primary/10 text-primary text-xs px-2 py-1 rounded-full font-bold">
+          {cart.length} Item
+        </span>
+      </header>
+
+      {/* Continuation Indicator */}
+      {selectedTable?.status === 'occupied' && (
+        <div className="bg-primary/5 border-b border-primary/20 px-4 py-3 flex items-center justify-between">
+           <div className="flex items-center gap-2">
+              <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+              <div className="space-y-0.5">
+                 <p className="text-[10px] font-black uppercase tracking-widest text-primary">Melanjutkan Pesanan</p>
+                 <p className="text-xs font-bold uppercase">{selectedTable.name}</p>
+              </div>
+           </div>
+           <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 rounded-lg text-[10px] font-bold uppercase gap-1 text-primary hover:bg-primary/10"
+            onClick={() => {
+               setSelectedTable(null)
+               notifiedTableRef.current = null
+               router.push("/dashboard/cashier")
+               toast.info("Kembali ke transaksi baru")
+            }}
+           >
+             <IconX size={14} /> Batal
+           </Button>
+        </div>
+      )}
+
+      <ScrollArea className="flex-1 p-0">
+        {cart.length > 0 ? (
+          <div className="divide-y divide-border/50">
+            {cart.map((item) => (
+              <div key={item.id} className="p-4 space-y-3">
+                <div className="flex justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-sm truncate">{item.name}</p>
+                    <p className="text-xs text-muted-foreground">Rp {formatCurrency(item.price)}</p>
+                  </div>
+                  <p className="font-bold text-sm shrink-0">
+                    Rp {formatCurrency(item.price * item.quantity)}
+                  </p>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center border rounded-lg bg-muted/30 p-0.5">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 rounded-md"
+                      onClick={() => updateQuantity(item.id, -1)}
+                    >
+                      <IconMinus className="h-3 w-3" />
+                    </Button>
+                    <span className="w-10 text-center text-sm font-bold">{item.quantity}</span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 rounded-md"
+                      onClick={() => updateQuantity(item.id, 1)}
+                    >
+                      <IconPlus className="h-3 w-3" />
+                    </Button>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-destructive hover:bg-destructive/10"
+                    onClick={() => removeFromCart(item.id)}
+                  >
+                    <IconTrash className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="h-full flex flex-col items-center justify-center p-8 text-center space-y-4">
+            <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
+              <IconShoppingCart className="h-8 w-8 text-muted-foreground/40" />
+            </div>
+            <div className="space-y-1">
+              <p className="font-medium">Keranjang Kosong</p>
+              <p className="text-xs text-muted-foreground">Pilih produk di samping</p>
+            </div>
+          </div>
+        )}
+      </ScrollArea>
+
+      <footer className="p-6 border-t bg-background space-y-4 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+        <VoucherSection
+          appliedVoucher={appliedVoucher}
+          onApply={handleApplyVoucher}
+          onRemove={removeVoucher}
+          discountAmount={discountAmount}
+          isValidating={isValidatingVoucher}
+        />
+
+        <Separator className="opacity-50" />
+
+        <div className="space-y-2">
+          <div className="flex justify-between text-sm">
+            <span className="text-muted-foreground">Subtotal</span>
+            <span className="font-medium">Rp {formatCurrency(cartTotal)}</span>
+          </div>
+          {appliedVoucher && (
+             <div className="flex justify-between text-sm text-green-600 font-medium">
+                <span>Diskon Promo</span>
+                <span>-Rp {formatCurrency(discountAmount)}</span>
+             </div>
+          )}
+          <div className="flex justify-between items-end pt-2">
+            <span className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Total</span>
+            <span className="text-primary font-black text-2xl">Rp {formatCurrency(finalTotal)}</span>
+          </div>
+        </div>
+
+        <div className="flex gap-3">
+          {showTables && (
+            <>
+              <Button
+                variant="outline"
+                className="flex-1 h-12 font-bold gap-2 text-xs"
+                disabled={cart.length === 0 || isValidatingVoucher}
+                onClick={() => handleSaveOrder(false)}
+              >
+                <IconDeviceFloppy size={18} />
+                Simpan
+              </Button>
+
+              <Button
+                variant="outline"
+                className="flex-1 h-12 font-bold gap-2 text-xs border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300"
+                disabled={cart.length === 0 || isValidatingVoucher || !selectedTable}
+                onClick={() => handleSaveOrder(true)}
+              >
+                <IconPrinter size={18} />
+                KOT
+              </Button>
+            </>
+          )}
+
+          <Button
+            className="flex-[2] h-12 text-lg font-bold shadow-lg shadow-primary/20"
+            disabled={cart.length === 0}
+            onClick={() => {
+              setIsCartOpen(false)
+              setIsCheckoutOpen(true)
+            }}
+          >
+            <IconReceipt className="mr-2 h-5 w-5" />
+            Bayar
+          </Button>
+        </div>
+      </footer>
+    </div>
+  )
+})
+
 export function CashierClient({ 
   store,
   userName,
@@ -158,6 +369,8 @@ export function CashierClient({
     if (tableId && initialTables.length > 0) {
       const table = initialTables.find(t => t.id === tableId)
       if (table) {
+        // Setting state here to handle URL param
+
         setSelectedTable(table)
         // Only show toast if we haven't notified for THIS tableId yet
         if (table.status === 'occupied' && notifiedTableRef.current !== tableId) {
@@ -191,7 +404,7 @@ export function CashierClient({
     })
   }, [])
 
-  const updateQuantity = (id: string, delta: number) => {
+  const updateQuantity = React.useCallback((id: string, delta: number) => {
     setCart(prev => prev.map(item => {
       if (item.id === id) {
         const newQty = Math.max(1, item.quantity + delta)
@@ -199,11 +412,11 @@ export function CashierClient({
       }
       return item
     }))
-  }
+  }, [])
 
-  const removeFromCart = (id: string) => {
+  const removeFromCart = React.useCallback((id: string) => {
     setCart(prev => prev.filter(item => item.id !== id))
-  }
+  }, [])
 
   const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)
 
@@ -224,7 +437,7 @@ export function CashierClient({
 
   const finalTotal = Math.max(0, cartTotal - discountAmount)
 
-  const handleApplyVoucher = async (code: string) => {
+  const handleApplyVoucher = React.useCallback(async (code: string) => {
     if (!code) return
     setIsValidatingVoucher(true)
     try {
@@ -235,19 +448,19 @@ export function CashierClient({
       } else {
         toast.error(res.error || "Voucher tidak ditemukan")
       }
-    } catch (err) {
+    } catch {
       toast.error("Terjadi kesalahan saat memvalidasi voucher")
     } finally {
       setIsValidatingVoucher(false)
     }
-  }
+  }, [cartTotal, store.id])
 
-  const removeVoucher = () => {
+  const removeVoucher = React.useCallback(() => {
     setAppliedVoucher(null)
     toast.info("Voucher dilepas")
-  }
+  }, [])
 
-  const handleSaveOrder = async (shouldPrint: boolean = false) => {
+  const handleSaveOrder = React.useCallback(async (shouldPrint: boolean = false) => {
     if (cart.length === 0) return
     if (!selectedTable) {
       toast.error("Pilih meja terlebih dahulu untuk menyimpan pesanan tunda")
@@ -304,180 +517,13 @@ export function CashierClient({
           setIsCartOpen(false)
         }
       }
-    } catch (err) {
+    } catch {
       toast.error("Gagal menyimpan pesanan")
     } finally {
       setIsValidatingVoucher(false)
     }
-  }
+  }, [cart, selectedTable, finalTotal, discountAmount, appliedVoucher, store.id])
 
-  // Reusable Cart Content
-  const CartContent = () => (
-    <div className="flex flex-col h-full bg-card">
-      <header className="p-4 border-b flex items-center justify-between bg-background">
-        <div className="flex items-center gap-2 font-bold text-lg">
-          <IconShoppingCart className="text-primary h-5 w-5" />
-          <span>Keranjang</span>
-        </div>
-        <span className="bg-primary/10 text-primary text-xs px-2 py-1 rounded-full font-bold">
-          {cart.length} Item
-        </span>
-      </header>
-
-      {/* Continuation Indicator */}
-      {selectedTable?.status === 'occupied' && (
-        <div className="bg-primary/5 border-b border-primary/20 px-4 py-3 flex items-center justify-between">
-           <div className="flex items-center gap-2">
-              <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
-              <div className="space-y-0.5">
-                 <p className="text-[10px] font-black uppercase tracking-widest text-primary">Melanjutkan Pesanan</p>
-                 <p className="text-xs font-bold uppercase">{selectedTable.name}</p>
-              </div>
-           </div>
-           <Button 
-            variant="ghost" 
-            size="sm" 
-            className="h-8 rounded-lg text-[10px] font-bold uppercase gap-1 text-primary hover:bg-primary/10"
-            onClick={() => {
-               setSelectedTable(null)
-               notifiedTableRef.current = null
-               router.push("/dashboard/cashier")
-               toast.info("Kembali ke transaksi baru")
-            }}
-           >
-             <IconX size={14} /> Batal
-           </Button>
-        </div>
-      )}
-
-      <ScrollArea className="flex-1 p-0">
-        {cart.length > 0 ? (
-          <div className="divide-y divide-border/50">
-            {cart.map((item) => (
-              <div key={item.id} className="p-4 space-y-3">
-                <div className="flex justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-sm truncate">{item.name}</p>
-                    <p className="text-xs text-muted-foreground">Rp {formatCurrency(item.price)}</p>
-                  </div>
-                  <p className="font-bold text-sm shrink-0">
-                    Rp {formatCurrency(item.price * item.quantity)}
-                  </p>
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center border rounded-lg bg-muted/30 p-0.5">
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-7 w-7 rounded-md" 
-                      onClick={() => updateQuantity(item.id, -1)}
-                    >
-                      <IconMinus className="h-3 w-3" />
-                    </Button>
-                    <span className="w-10 text-center text-sm font-bold">{item.quantity}</span>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-7 w-7 rounded-md" 
-                      onClick={() => updateQuantity(item.id, 1)}
-                    >
-                      <IconPlus className="h-3 w-3" />
-                    </Button>
-                  </div>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className="h-8 w-8 text-destructive hover:bg-destructive/10"
-                    onClick={() => removeFromCart(item.id)}
-                  >
-                    <IconTrash className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="h-full flex flex-col items-center justify-center p-8 text-center space-y-4">
-            <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
-              <IconShoppingCart className="h-8 w-8 text-muted-foreground/40" />
-            </div>
-            <div className="space-y-1">
-              <p className="font-medium">Keranjang Kosong</p>
-              <p className="text-xs text-muted-foreground">Pilih produk di samping</p>
-            </div>
-          </div>
-        )}
-      </ScrollArea>
-
-      <footer className="p-6 border-t bg-background space-y-4 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
-        <VoucherSection 
-          appliedVoucher={appliedVoucher}
-          onApply={handleApplyVoucher}
-          onRemove={removeVoucher}
-          discountAmount={discountAmount}
-          isValidating={isValidatingVoucher}
-        />
-
-        <Separator className="opacity-50" />
-
-        <div className="space-y-2">
-          <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Subtotal</span>
-            <span className="font-medium">Rp {formatCurrency(cartTotal)}</span>
-          </div>
-          {appliedVoucher && (
-             <div className="flex justify-between text-sm text-green-600 font-medium">
-                <span>Diskon Promo</span>
-                <span>-Rp {formatCurrency(discountAmount)}</span>
-             </div>
-          )}
-          <div className="flex justify-between items-end pt-2">
-            <span className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Total</span>
-            <span className="text-primary font-black text-2xl">Rp {formatCurrency(finalTotal)}</span>
-          </div>
-        </div>
-
-        <div className="flex gap-3">
-          {showTables && (
-            <>
-              <Button 
-                variant="outline"
-                className="flex-1 h-12 font-bold gap-2 text-xs"
-                disabled={cart.length === 0 || isValidatingVoucher}
-                onClick={() => handleSaveOrder(false)}
-              >
-                <IconDeviceFloppy size={18} />
-                Simpan
-              </Button>
-
-              <Button 
-                variant="outline"
-                className="flex-1 h-12 font-bold gap-2 text-xs border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300"
-                disabled={cart.length === 0 || isValidatingVoucher || !selectedTable}
-                onClick={() => handleSaveOrder(true)}
-              >
-                <IconPrinter size={18} />
-                KOT
-              </Button>
-            </>
-          )}
-
-          <Button 
-            className="flex-[2] h-12 text-lg font-bold shadow-lg shadow-primary/20" 
-            disabled={cart.length === 0}
-            onClick={() => {
-              setIsCartOpen(false)
-              setIsCheckoutOpen(true)
-            }}
-          >
-            <IconReceipt className="mr-2 h-5 w-5" />
-            Bayar
-          </Button>
-        </div>
-      </footer>
-    </div>
-  )
 
   return (
     <div className="flex h-full gap-0 overflow-hidden bg-muted/30 relative">
@@ -535,7 +581,8 @@ export function CashierClient({
                            table.status === 'occupied' && "opacity-50 border-dashed"
                          )}
                          onClick={() => {
-                           setSelectedTable(table)
+
+        setSelectedTable(table)
                            setIsTableSelectOpen(false)
                          }}
                          disabled={table.status === 'occupied'}
@@ -612,7 +659,26 @@ export function CashierClient({
 
       {/* Desktop Sidebar Cart */}
       <div className="hidden lg:flex w-[380px] flex-col shrink-0">
-        <CartContent />
+        <CartContent
+          cart={cart}
+          selectedTable={selectedTable}
+          notifiedTableRef={notifiedTableRef}
+          appliedVoucher={appliedVoucher}
+          isValidatingVoucher={isValidatingVoucher}
+          cartTotal={cartTotal}
+          discountAmount={discountAmount}
+          finalTotal={finalTotal}
+          showTables={showTables}
+          updateQuantity={updateQuantity}
+          removeFromCart={removeFromCart}
+          handleApplyVoucher={handleApplyVoucher}
+          removeVoucher={removeVoucher}
+          handleSaveOrder={handleSaveOrder}
+          setIsCartOpen={setIsCartOpen}
+          setIsCheckoutOpen={setIsCheckoutOpen}
+          setSelectedTable={setSelectedTable}
+          router={router}
+        />
       </div>
 
       {/* Mobile Drawer Cart */}
@@ -621,7 +687,26 @@ export function CashierClient({
           <SheetHeader className="sr-only">
             <SheetTitle>Keranjang Belanja</SheetTitle>
           </SheetHeader>
-          <CartContent />
+          <CartContent
+          cart={cart}
+          selectedTable={selectedTable}
+          notifiedTableRef={notifiedTableRef}
+          appliedVoucher={appliedVoucher}
+          isValidatingVoucher={isValidatingVoucher}
+          cartTotal={cartTotal}
+          discountAmount={discountAmount}
+          finalTotal={finalTotal}
+          showTables={showTables}
+          updateQuantity={updateQuantity}
+          removeFromCart={removeFromCart}
+          handleApplyVoucher={handleApplyVoucher}
+          removeVoucher={removeVoucher}
+          handleSaveOrder={handleSaveOrder}
+          setIsCartOpen={setIsCartOpen}
+          setIsCheckoutOpen={setIsCheckoutOpen}
+          setSelectedTable={setSelectedTable}
+          router={router}
+        />
         </SheetContent>
       </Sheet>
 
