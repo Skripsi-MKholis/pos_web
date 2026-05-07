@@ -20,6 +20,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { login, signInWithGoogle } from "@/lib/auth-actions"
+import posthog from "posthog-js"
 
 const loginSchema = z.object({
   email: z.string().email("Email tidak valid"),
@@ -46,10 +47,13 @@ export default function LoginPage() {
     formData.append("password", data.password)
     
     const result = await login(formData)
-    
+
     if (result?.error) {
       toast.error(result.error)
       setIsLoading(false)
+    } else {
+      posthog.identify(data.email, { email: data.email })
+      posthog.capture("user_logged_in", { method: "email" })
     }
   }
 
@@ -150,7 +154,7 @@ export default function LoginPage() {
                 variant="outline" 
                 type="button" 
                 className="w-full" 
-                onClick={() => signInWithGoogle()}
+                onClick={() => { posthog.capture("user_logged_in_google", { method: "google" }); signInWithGoogle() }}
                 disabled={isLoading}
               >
                 <IconBrandGoogle className="mr-2 h-4 w-4" />

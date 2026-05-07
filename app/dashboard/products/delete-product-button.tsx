@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { deleteProduct } from "@/lib/product-actions"
 import { createClient } from "@/lib/supabase/client"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import posthog from "posthog-js"
 
 export function DeleteProductButton({ 
   id, 
@@ -47,6 +48,7 @@ export function DeleteProductButton({
       if (result.error) {
         toast.error(result.error)
       } else {
+        posthog.capture("product_deleted", { product_id: id })
         toast.success("Produk berhasil dihapus")
         router.refresh()
       }

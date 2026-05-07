@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/select"
 import { createProduct } from "@/lib/product-actions"
 import { createClient } from "@/lib/supabase/client"
+import posthog from "posthog-js"
 
 export function AddProductDialog({ 
   storeId, 
@@ -123,6 +124,12 @@ export function AddProductDialog({
       if (result.error) {
         toast.error(result.error)
       } else {
+        posthog.capture("product_added", {
+          product_name: payload.name,
+          price: payload.price,
+          has_image: !!imageUrl,
+          store_id: storeId,
+        })
         toast.success("Produk berhasil ditambahkan")
         setOpen(false)
         resetForm()

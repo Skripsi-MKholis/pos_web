@@ -24,6 +24,7 @@ import { Label } from "@/components/ui/label"
 import { cn, formatCurrency } from "@/lib/utils"
 import { toast } from "sonner"
 import { splitTransaction, completeFullTransaction, createTransaction } from "@/lib/transaction-actions"
+import posthog from "posthog-js"
 import { ReceiptPrint } from "@/components/receipt-print"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
@@ -166,6 +167,14 @@ export function GeneralPaymentModal({
       if (res.error) {
         toast.error(res.error)
       } else {
+        posthog.capture("transaction_completed", {
+          payment_method: paymentMethod,
+          total_amount: finalTotal,
+          discount_total: discountTotal,
+          mode: isSettle ? "settle" : "create",
+          store_id: store.id,
+          has_voucher: !!voucherInfo,
+        })
         toast.success("Transaksi Berhasil!")
         setTransactionId(res.transactionId || "")
         setIsSuccess(true)

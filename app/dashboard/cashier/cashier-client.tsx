@@ -42,6 +42,7 @@ import { cn, formatCurrency } from "@/lib/utils"
 import { validateVoucher } from "@/lib/promotion-actions"
 import { useSearchParams, useRouter } from "next/navigation"
 import { createTransaction, TransactionPayload } from "@/lib/transaction-actions"
+import posthog from "posthog-js"
 
 // Sub-component for Voucher to prevent full parent re-renders on every keystroke
 function VoucherSection({ 
@@ -180,16 +181,22 @@ export function CashierClient({
 
   // Cart logic
   const addToCart = React.useCallback((product: any) => {
+    posthog.capture("product_added_to_cart", {
+      product_id: product.id,
+      product_name: product.name,
+      price: product.price,
+      store_id: store.id,
+    })
     setCart(prev => {
       const existing = prev.find(item => item.id === product.id)
       if (existing) {
-        return prev.map(item => 
+        return prev.map(item =>
           item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
         )
       }
       return [...prev, { ...product, quantity: 1 }]
     })
-  }, [])
+  }, [store.id])
 
   const updateQuantity = (id: string, delta: number) => {
     setCart(prev => prev.map(item => {
@@ -231,6 +238,11 @@ export function CashierClient({
       const res = await validateVoucher(store.id, code, cartTotal)
       if (res.success) {
         setAppliedVoucher(res.voucher)
+        posthog.capture("voucher_applied", {
+          voucher_code: res.voucher.code,
+          voucher_type: res.voucher.type,
+          store_id: store.id,
+        })
         toast.success(`Voucher "${res.voucher.code}" berhasil dipasang!`)
       } else {
         toast.error(res.error || "Voucher tidak ditemukan")
@@ -277,6 +289,14 @@ export function CashierClient({
       if (res.error) {
         toast.error(res.error)
       } else {
+        posthog.capture("order_saved_pending", {
+          table_name: selectedTable.name,
+          table_id: selectedTable.id,
+          total_amount: finalTotal,
+          item_count: cart.length,
+          store_id: store.id,
+          with_kot_print: shouldPrint,
+        })
         toast.success(`Pesanan untuk ${selectedTable.name} berhasil disimpan!`)
         
         if (shouldPrint) {

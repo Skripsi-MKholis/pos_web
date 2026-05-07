@@ -18,6 +18,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { createCategory } from "@/lib/product-actions"
+import posthog from "posthog-js"
 
 export function AddCategoryDialog({ storeId }: { storeId: string }) {
   const [open, setOpen] = React.useState(false)
@@ -35,6 +36,7 @@ export function AddCategoryDialog({ storeId }: { storeId: string }) {
       if (result.error) {
         toast.error(result.error)
       } else {
+        posthog.capture("category_created", { category_name: name, store_id: storeId })
         toast.success("Kategori berhasil ditambahkan")
         setName("")
         setOpen(false)
