@@ -8,6 +8,7 @@ import { toast } from "sonner"
 import { useState } from "react"
 import { updateStorePlan, toggleSubscriptionGating, type Plan, type Subscription } from "@/lib/subscription-actions"
 import { useRouter } from "next/navigation"
+import posthog from "posthog-js"
 
 interface BillingClientProps {
   storeId: string
@@ -64,6 +65,12 @@ export default function BillingClient({
     try {
       const result = await updateStorePlan(storeId, plan.slug)
       if (result.success) {
+        posthog.capture("plan_upgraded", {
+          plan_name: plan.name,
+          plan_slug: plan.slug,
+          plan_price: plan.price,
+          store_id: storeId,
+        })
         toast.success(`Berhasil beralih ke paket ${plan.name}!`)
         router.refresh()
       } else {

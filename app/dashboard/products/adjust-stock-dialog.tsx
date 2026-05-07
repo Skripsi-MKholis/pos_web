@@ -18,6 +18,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { updateStock } from "@/lib/product-actions"
+import posthog from "posthog-js"
 
 export function AdjustStockDialog({ 
   id, 
@@ -37,10 +38,17 @@ export function AdjustStockDialog({
     e.preventDefault()
     setIsLoading(true)
     try {
-      const result = await updateStock(id, parseInt(quantity))
+      const newQty = parseInt(quantity)
+      const result = await updateStock(id, newQty)
       if (result.error) {
         toast.error(result.error)
       } else {
+        posthog.capture("stock_adjusted", {
+          product_id: id,
+          product_name: productName,
+          previous_stock: currentStock,
+          new_stock: newQty,
+        })
         toast.success(`Stok ${productName} diperbarui`)
         setOpen(false)
         router.refresh()

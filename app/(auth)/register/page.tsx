@@ -21,6 +21,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { signup, signInWithGoogle } from "@/lib/auth-actions"
+import posthog from "posthog-js"
 
 const registerSchema = z.object({
   fullName: z.string().min(2, "Nama minimal 2 karakter"),
@@ -61,6 +62,8 @@ export default function RegisterPage() {
       toast.error(result.error)
       setIsLoading(false)
     } else {
+      posthog.identify(data.email, { email: data.email, name: data.fullName })
+      posthog.capture("user_signed_up", { method: "email" })
       toast.success("Registrasi berhasil! Mengamankan akun...")
       router.push("/setup-password")
     }
