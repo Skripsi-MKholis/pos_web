@@ -71,17 +71,30 @@ export function TablesMonitoringClient({
   }
 
   // Get active transaction summary (Aggregating multiple pending transactions if they exist)
-  const transactions = selectedTable?.transactions || []
+  const transactions = React.useMemo(() => selectedTable?.transactions || [], [selectedTable?.transactions])
   
-  // Aggregate all items from all pending transactions
-  const aggregatedItems = transactions.reduce((acc: any[], tx: any) => {
-    return [...acc, ...tx.transaction_items]
-  }, [])
+  // Aggregate and calculate totals in a single pass memoized block to prevent redundant O(N) ops on every render
+  const { aggregatedItems, totalAmount, earliestCreatedAt } = React.useMemo(() => {
+    const items = []
+    let sum = 0
+    let minDate = transactions.length > 0 ? transactions[0].created_at : null
 
-  const totalAmount = transactions.reduce((acc: number, tx: any) => acc + Number(tx.total_amount), 0)
-  const earliestCreatedAt = transactions.length > 0 
-    ? transactions.reduce((min: string, tx: any) => tx.created_at < min ? tx.created_at : min, transactions[0].created_at)
-    : null
+    for (const tx of transactions) {
+      if (tx.transaction_items) {
+        items.push(...tx.transaction_items)
+      }
+      sum += Number(tx.total_amount || 0)
+      if (tx.created_at < minDate) {
+        minDate = tx.created_at
+      }
+    }
+
+    return {
+      aggregatedItems: items,
+      totalAmount: sum,
+      earliestCreatedAt: minDate
+    }
+  }, [transactions])
 
   const activeTx = transactions[0] ? {
     ...transactions[0],
@@ -150,8 +163,13 @@ export function TablesMonitoringClient({
         {initialTables.map((table) => {
           const isOccupied = table.status === 'occupied'
           const txs = table.transactions || []
-          const billTotal = txs.reduce((sum: number, t: any) => sum + Number(t.total_amount), 0)
-          const oldestTx = txs.length > 0 ? txs.reduce((oldest: any, cur: any) => cur.created_at < oldest.created_at ? cur : oldest, txs[0]) : null
+
+          let billTotal = 0
+          let oldestTx = txs.length > 0 ? txs[0] : null
+          for (const t of txs) {
+            billTotal += Number(t.total_amount)
+            if (t.created_at < oldestTx.created_at) oldestTx = t
+          }
           
           return (
             <button
