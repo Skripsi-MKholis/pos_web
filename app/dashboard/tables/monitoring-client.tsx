@@ -73,22 +73,33 @@ export function TablesMonitoringClient({
   // Get active transaction summary (Aggregating multiple pending transactions if they exist)
   const transactions = selectedTable?.transactions || []
   
-  // Aggregate all items from all pending transactions
-  const aggregatedItems = transactions.reduce((acc: any[], tx: any) => {
-    return [...acc, ...tx.transaction_items]
-  }, [])
+  // Aggregate all items from all pending transactions in a single pass
+  const activeTx = React.useMemo(() => {
+    if (!transactions || transactions.length === 0) return null;
 
-  const totalAmount = transactions.reduce((acc: number, tx: any) => acc + Number(tx.total_amount), 0)
-  const earliestCreatedAt = transactions.length > 0 
-    ? transactions.reduce((min: string, tx: any) => tx.created_at < min ? tx.created_at : min, transactions[0].created_at)
-    : null
+    const result = transactions.reduce(
+      (acc: { items: any[]; totalAmount: number; earliestCreatedAt: string }, tx: any) => {
+        acc.items.push(...tx.transaction_items);
+        acc.totalAmount += Number(tx.total_amount);
+        if (tx.created_at < acc.earliestCreatedAt) {
+          acc.earliestCreatedAt = tx.created_at;
+        }
+        return acc;
+      },
+      {
+        items: [],
+        totalAmount: 0,
+        earliestCreatedAt: transactions[0].created_at,
+      }
+    );
 
-  const activeTx = transactions[0] ? {
-    ...transactions[0],
-    total_amount: totalAmount,
-    transaction_items: aggregatedItems,
-    created_at: earliestCreatedAt
-  } : null
+    return {
+      ...transactions[0],
+      total_amount: result.totalAmount,
+      transaction_items: result.items,
+      created_at: result.earliestCreatedAt,
+    };
+  }, [transactions]);
 
   const handleMoveOrder = async () => {
     if (!activeTx || !targetTableId) return
@@ -150,8 +161,19 @@ export function TablesMonitoringClient({
         {initialTables.map((table) => {
           const isOccupied = table.status === 'occupied'
           const txs = table.transactions || []
-          const billTotal = txs.reduce((sum: number, t: any) => sum + Number(t.total_amount), 0)
-          const oldestTx = txs.length > 0 ? txs.reduce((oldest: any, cur: any) => cur.created_at < oldest.created_at ? cur : oldest, txs[0]) : null
+
+          let billTotal = 0;
+          let oldestTx = null;
+
+          if (txs.length > 0) {
+            oldestTx = txs[0];
+            for (let i = 0; i < txs.length; i++) {
+              billTotal += Number(txs[i].total_amount);
+              if (txs[i].created_at < oldestTx.created_at) {
+                oldestTx = txs[i];
+              }
+            }
+          }
           
           return (
             <button
