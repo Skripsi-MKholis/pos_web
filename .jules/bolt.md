@@ -5,3 +5,6 @@
 ## 2024-05-18 - Memoize Cashier POS Product Grid
 **Learning:** In a POS system, adding items to the cart updates the local cart state frequently. Without memoization, every keystroke in the cart or product addition causes the entire product grid to re-render, leading to noticeable UI lag on slower devices.
 **Action:** Always wrap heavy list item components like `ProductCard` with `React.memo` and memoize callbacks (e.g. `addToCart` via `useCallback`) and derived lists (e.g. `filteredProducts` via `useMemo`) that are passed to them as props to prevent these cascading re-renders.
+## 2026-05-16 - [Optimize Array Operations in Rendering Loops]
+**Learning:** Using the spread operator `[...acc, ...items]` within an array `.reduce()` to aggregate items creates an O(N^2) memory allocation bottleneck, and executing multiple `.reduce()` loops over the same array within a component body leads to O(mN) computational overhead on every render.
+**Action:** Replace the spread operator inside reducers with `.push(...items)` or use `.flatMap()`, consolidate multiple single-pass iterations into a combined `.reduce()`, and wrap these expensive derived calculations in a `React.useMemo()` hook.
