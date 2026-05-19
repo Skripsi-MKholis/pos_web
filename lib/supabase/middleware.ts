@@ -38,6 +38,7 @@ export async function updateSession(request: NextRequest) {
     !request.nextUrl.pathname.startsWith('/register') &&
     !request.nextUrl.pathname.startsWith('/setup') &&
     !request.nextUrl.pathname.startsWith('/auth') &&
+    !request.nextUrl.pathname.startsWith('/download') &&
     !request.nextUrl.pathname.startsWith('/privacy') &&
     !request.nextUrl.pathname.startsWith('/terms') &&
     request.nextUrl.pathname !== '/'
@@ -66,6 +67,7 @@ export async function updateSession(request: NextRequest) {
     const isSetupPasswordPage = request.nextUrl.pathname.startsWith('/setup-password')
     const isAuthPath = request.nextUrl.pathname.startsWith('/auth')
     const isExcludedPath = 
+      request.nextUrl.pathname.startsWith('/download') ||
       request.nextUrl.pathname.startsWith('/privacy') || 
       request.nextUrl.pathname.startsWith('/terms') || 
       request.nextUrl.pathname === '/'

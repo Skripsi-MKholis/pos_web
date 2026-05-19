@@ -67,6 +67,7 @@ export default function LandingPage() {
             <Link href="#features" className="hover:text-primary transition-all hover:tracking-[0.15em]">Sistem</Link>
             <Link href="#solutions" className="hover:text-primary transition-all hover:tracking-[0.15em]">Solusi</Link>
             <Link href="#pricing" className="hover:text-primary transition-all hover:tracking-[0.15em]">Harga</Link>
+            <Link href="/download" className="hover:text-primary transition-all hover:tracking-[0.15em]">Download</Link>
             <Link href="/privacy" className="hover:text-primary transition-all hover:tracking-[0.15em]">Privasi</Link>
           </nav>
 
@@ -136,6 +137,11 @@ export default function LandingPage() {
               <Link href="#features">
                 <Button size="lg" variant="outline" className="h-16 px-10 text-sm font-black uppercase tracking-widest rounded-2xl bg-white/5 backdrop-blur-xl border-2 border-white/10 hover:bg-white/10 group">
                   <IconBolt className="mr-3 text-amber-400 group-hover:animate-bounce" /> Lihat Fitur
+                </Button>
+              </Link>
+              <Link href="/download">
+                <Button size="lg" variant="outline" className="h-16 px-10 text-sm font-black uppercase tracking-widest rounded-2xl bg-white/5 backdrop-blur-xl border-2 border-white/10 hover:bg-white/10 group">
+                  <IconDeviceMobile className="mr-3 text-primary group-hover:scale-110 transition-transform" /> Download App
                 </Button>
               </Link>
             </motion.div>
@@ -326,6 +332,7 @@ export default function LandingPage() {
                 <li><Link href="#">Tentang Kami</Link></li>
                 <li><Link href="#">Karir</Link></li>
                 <li><Link href="#">Blog</Link></li>
+                <li><Link href="/download">Download App</Link></li>
              </ul>
           </div>
 
