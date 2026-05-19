@@ -15,7 +15,7 @@ export async function updateSession(request: NextRequest) {
           return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
           supabaseResponse = NextResponse.next({
             request,
           })
@@ -38,6 +38,7 @@ export async function updateSession(request: NextRequest) {
     !request.nextUrl.pathname.startsWith('/register') &&
     !request.nextUrl.pathname.startsWith('/setup') &&
     !request.nextUrl.pathname.startsWith('/auth') &&
+    !request.nextUrl.pathname.startsWith('/api/download-leads') &&
     !request.nextUrl.pathname.startsWith('/download') &&
     !request.nextUrl.pathname.startsWith('/privacy') &&
     !request.nextUrl.pathname.startsWith('/terms') &&
@@ -67,6 +68,7 @@ export async function updateSession(request: NextRequest) {
     const isSetupPasswordPage = request.nextUrl.pathname.startsWith('/setup-password')
     const isAuthPath = request.nextUrl.pathname.startsWith('/auth')
     const isExcludedPath = 
+      request.nextUrl.pathname.startsWith('/api/download-leads') ||
       request.nextUrl.pathname.startsWith('/download') ||
       request.nextUrl.pathname.startsWith('/privacy') || 
       request.nextUrl.pathname.startsWith('/terms') || 
