@@ -18,7 +18,7 @@ const navItems = [
 export function PublicHeader({ backHref }: { backHref?: string }) {
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/85 backdrop-blur-xl">
-      <div className="container mx-auto flex h-16 items-center justify-between gap-3 px-4 sm:h-20">
+      <div className="mx-auto max-w-7xl flex h-16 items-center justify-between gap-3 px-6 sm:h-20 sm:px-10 md:px-16 lg:px-24">
         <Link href="/" className="flex min-w-0 items-center gap-3">
           <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/20">
             <IconBuildingStore size={22} strokeWidth={2.4} />
@@ -73,7 +73,7 @@ export function PublicHeader({ backHref }: { backHref?: string }) {
 export function PublicFooter() {
   return (
     <footer className="border-t border-border/60 bg-muted/20">
-      <div className="container mx-auto grid gap-10 px-4 py-12 md:grid-cols-[1.4fr_0.8fr_0.8fr]">
+      <div className="mx-auto max-w-7xl grid gap-10 px-6 py-12 sm:px-10 md:px-16 lg:px-24 md:grid-cols-[1.4fr_0.8fr_0.8fr]">
         <div className="max-w-md space-y-4">
           <Link href="/" className="flex items-center gap-3">
             <span className="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground">
@@ -105,7 +105,7 @@ export function PublicFooter() {
           </div>
         </div>
       </div>
-      <div className="container mx-auto flex flex-col gap-3 border-t border-border/60 px-4 py-5 text-xs font-bold text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+      <div className="mx-auto max-w-7xl flex flex-col gap-3 border-t border-border/60 px-6 py-5 text-xs font-bold text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-10 md:px-16 lg:px-24">
         <p>© {new Date().getFullYear()} Parzello Systems. All rights reserved.</p>
         <p>Dibuat untuk operasional bisnis modern.</p>
       </div>

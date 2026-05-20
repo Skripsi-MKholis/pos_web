@@ -29,7 +29,7 @@ export default function DownloadPage() {
       <PublicHeader backHref="/" />
 
       <main>
-        <section className="container mx-auto grid gap-10 px-4 py-10 sm:py-14 lg:grid-cols-[0.85fr_1.15fr] lg:items-center lg:gap-14">
+        <section className="mx-auto max-w-7xl grid gap-10 px-6 py-10 sm:px-10 sm:py-14 md:px-16 lg:grid-cols-[0.85fr_1.15fr] lg:items-center lg:gap-14 lg:px-24">
           <div className="max-w-2xl space-y-7">
             <div className="inline-flex max-w-full items-center gap-2 rounded-full border border-border bg-card/80 px-4 py-2 text-[11px] font-black uppercase tracking-widest text-primary shadow-sm">
               <IconDeviceMobile size={16} />

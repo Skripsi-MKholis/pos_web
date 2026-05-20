@@ -27,7 +27,7 @@ export default function PrivacyPage() {
       <LandingBackground />
       <PublicHeader backHref="/" />
 
-      <main className="container mx-auto max-w-4xl px-4 py-12 sm:py-16">
+      <main className="mx-auto max-w-4xl px-6 py-12 sm:px-10 sm:py-16 md:px-12">
         <div className="mb-10 space-y-5">
           <div className="flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
             <IconShieldCheck size={30} />
