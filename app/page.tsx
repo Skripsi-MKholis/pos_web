@@ -90,7 +90,7 @@ export default function LandingPage() {
       <PublicHeader />
 
       <main>
-        <section className="container mx-auto grid min-h-[calc(100vh-4rem)] gap-12 px-4 py-12 sm:min-h-[calc(100vh-5rem)] sm:py-16 lg:grid-cols-[1.02fr_0.98fr] lg:items-center lg:gap-16">
+        <section className="mx-auto max-w-7xl grid min-h-[calc(100vh-4rem)] gap-12 px-6 py-12 sm:min-h-[calc(100vh-5rem)] sm:py-16 sm:px-10 md:px-16 lg:grid-cols-[1.02fr_0.98fr] lg:items-center lg:gap-16 lg:px-24">
           <div className="max-w-3xl space-y-8">
             <div className="inline-flex max-w-full items-center gap-2 rounded-full border border-border bg-card/80 px-4 py-2 text-[11px] font-black uppercase tracking-widest text-primary shadow-sm">
               <IconCloud size={16} />
@@ -140,8 +140,8 @@ export default function LandingPage() {
           <DashboardPreview />
         </section>
 
-        <section id="features" className="border-y border-border/60 bg-muted/20 px-4 py-16 sm:py-20">
-          <div className="container mx-auto space-y-10">
+        <section id="features" className="border-y border-border/60 bg-muted/20 py-16 sm:py-20">
+          <div className="mx-auto max-w-7xl px-6 sm:px-10 md:px-16 lg:px-24 space-y-10">
             <SectionHeading
               eyebrow="Fitur utama"
               title="Alur kerja kasir sampai laporan dibuat dalam satu sistem."
@@ -162,7 +162,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section id="solutions" className="container mx-auto grid gap-10 px-4 py-16 sm:py-20 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+        <section id="solutions" className="mx-auto max-w-7xl grid gap-10 px-6 py-16 sm:px-10 sm:py-20 md:px-16 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:px-24">
           <SectionHeading
             eyebrow="Solusi"
             title="Dipakai untuk operasional toko yang butuh cepat dan terukur."
@@ -181,38 +181,40 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section id="pricing" className="px-4 py-16 sm:py-20">
-          <div className="container mx-auto grid gap-8 rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-8 lg:grid-cols-[1fr_0.9fr] lg:items-center">
-            <div className="space-y-5">
-              <p className="text-[11px] font-black uppercase tracking-widest text-primary">Paket awal</p>
-              <h2 className="text-3xl font-black leading-tight tracking-tight sm:text-4xl">
-                Mulai dari ekosistem web dan mobile untuk operasional harian.
-              </h2>
-              <p className="max-w-2xl text-sm font-medium leading-relaxed text-muted-foreground sm:text-base">
-                Gunakan web untuk setup dan monitoring, lalu aplikasi mobile untuk kebutuhan kasir dan akses cepat di lapangan.
-              </p>
-              <div className="flex flex-col gap-3 sm:flex-row">
-                <Button asChild className="h-12 rounded-xl text-xs font-black uppercase tracking-widest">
-                  <Link href="/login">Mulai Sekarang</Link>
-                </Button>
-                <Button asChild variant="outline" className="h-12 rounded-xl text-xs font-black uppercase tracking-widest">
-                  <Link href="/download">Lihat Mobile App</Link>
-                </Button>
-              </div>
-            </div>
-
-            <div className="grid gap-3">
-              {pricing.map((item) => (
-                <div key={item} className="flex items-center gap-3 rounded-xl border border-border bg-background/60 px-4 py-3">
-                  <IconCheck size={18} className="shrink-0 text-primary" strokeWidth={3} />
-                  <span className="text-sm font-bold">{item}</span>
+        <section id="pricing" className="py-16 sm:py-20">
+          <div className="mx-auto max-w-7xl px-6 sm:px-10 md:px-16 lg:px-24">
+            <div className="grid gap-8 rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-10 lg:grid-cols-[1fr_0.9fr] lg:items-center lg:p-12">
+              <div className="space-y-5">
+                <p className="text-[11px] font-black uppercase tracking-widest text-primary">Paket awal</p>
+                <h2 className="text-3xl font-black leading-tight tracking-tight sm:text-4xl">
+                  Mulai dari ekosistem web dan mobile untuk operasional harian.
+                </h2>
+                <p className="max-w-2xl text-sm font-medium leading-relaxed text-muted-foreground sm:text-base">
+                  Gunakan web untuk setup dan monitoring, lalu aplikasi mobile untuk kebutuhan kasir and akses cepat di lapangan.
+                </p>
+                <div className="flex flex-col gap-3 sm:flex-row">
+                  <Button asChild className="h-12 rounded-xl text-xs font-black uppercase tracking-widest">
+                    <Link href="/login">Mulai Sekarang</Link>
+                  </Button>
+                  <Button asChild variant="outline" className="h-12 rounded-xl text-xs font-black uppercase tracking-widest">
+                    <Link href="/download">Lihat Mobile App</Link>
+                  </Button>
                 </div>
-              ))}
+              </div>
+
+              <div className="grid gap-3">
+                {pricing.map((item) => (
+                  <div key={item} className="flex items-center gap-3 rounded-xl border border-border bg-background/60 px-4 py-3">
+                    <IconCheck size={18} className="shrink-0 text-primary" strokeWidth={3} />
+                    <span className="text-sm font-bold">{item}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </section>
 
-        <section className="container mx-auto px-4 pb-16 sm:pb-20">
+        <section className="mx-auto max-w-7xl px-6 pb-16 sm:px-10 sm:pb-20 md:px-16 lg:px-24">
           <div className="overflow-hidden rounded-3xl bg-primary p-6 text-primary-foreground sm:p-10 lg:p-12">
             <div className="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center">
               <div className="max-w-3xl space-y-3">
