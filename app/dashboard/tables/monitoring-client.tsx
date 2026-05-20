@@ -71,24 +71,34 @@ export function TablesMonitoringClient({
   }
 
   // Get active transaction summary (Aggregating multiple pending transactions if they exist)
-  const transactions = selectedTable?.transactions || []
+  const transactions = React.useMemo(() => selectedTable?.transactions || [], [selectedTable?.transactions])
   
-  // Aggregate all items from all pending transactions
-  const aggregatedItems = transactions.reduce((acc: any[], tx: any) => {
-    return [...acc, ...tx.transaction_items]
-  }, [])
+  const activeTx = React.useMemo(() => {
+    if (!transactions || transactions.length === 0) return null;
 
-  const totalAmount = transactions.reduce((acc: number, tx: any) => acc + Number(tx.total_amount), 0)
-  const earliestCreatedAt = transactions.length > 0 
-    ? transactions.reduce((min: string, tx: any) => tx.created_at < min ? tx.created_at : min, transactions[0].created_at)
-    : null
+    let totalAmount = 0;
+    let earliestCreatedAt = transactions[0].created_at;
+    const aggregatedItems: any[] = [];
 
-  const activeTx = transactions[0] ? {
-    ...transactions[0],
-    total_amount: totalAmount,
-    transaction_items: aggregatedItems,
-    created_at: earliestCreatedAt
-  } : null
+    // O(N) single-pass aggregation to prevent redundant iterations and O(N^2) memory allocation
+    for (let i = 0; i < transactions.length; i++) {
+      const tx = transactions[i];
+      totalAmount += Number(tx.total_amount);
+      if (tx.created_at < earliestCreatedAt) {
+        earliestCreatedAt = tx.created_at;
+      }
+      if (tx.transaction_items) {
+        aggregatedItems.push(...tx.transaction_items);
+      }
+    }
+
+    return {
+      ...transactions[0],
+      total_amount: totalAmount,
+      transaction_items: aggregatedItems,
+      created_at: earliestCreatedAt
+    };
+  }, [transactions]);
 
   const handleMoveOrder = async () => {
     if (!activeTx || !targetTableId) return
