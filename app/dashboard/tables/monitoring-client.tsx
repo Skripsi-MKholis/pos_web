@@ -71,17 +71,26 @@ export function TablesMonitoringClient({
   }
 
   // Get active transaction summary (Aggregating multiple pending transactions if they exist)
-  const transactions = selectedTable?.transactions || []
+  const transactions = React.useMemo(() => selectedTable?.transactions || [], [selectedTable])
   
-  // Aggregate all items from all pending transactions
-  const aggregatedItems = transactions.reduce((acc: any[], tx: any) => {
-    return [...acc, ...tx.transaction_items]
-  }, [])
+  // ⚡ Bolt Performance Optimization: Single pass reduction and eliminate O(N^2) memory allocation
+  // Consolidates three separate reduce passes into one, and uses direct push for arrays.
+  const { aggregatedItems, totalAmount, earliestCreatedAt } = React.useMemo(() => {
+    if (!transactions || transactions.length === 0) {
+      return { aggregatedItems: [], totalAmount: 0, earliestCreatedAt: null }
+    }
 
-  const totalAmount = transactions.reduce((acc: number, tx: any) => acc + Number(tx.total_amount), 0)
-  const earliestCreatedAt = transactions.length > 0 
-    ? transactions.reduce((min: string, tx: any) => tx.created_at < min ? tx.created_at : min, transactions[0].created_at)
-    : null
+    return transactions.reduce((acc: any, tx: any) => {
+      // Avoid O(N^2) spread operator
+      acc.aggregatedItems.push(...(tx.transaction_items || []))
+      acc.totalAmount += Number(tx.total_amount)
+
+      if (!acc.earliestCreatedAt || tx.created_at < acc.earliestCreatedAt) {
+        acc.earliestCreatedAt = tx.created_at
+      }
+      return acc
+    }, { aggregatedItems: [], totalAmount: 0, earliestCreatedAt: null })
+  }, [transactions])
 
   const activeTx = transactions[0] ? {
     ...transactions[0],
@@ -150,8 +159,15 @@ export function TablesMonitoringClient({
         {initialTables.map((table) => {
           const isOccupied = table.status === 'occupied'
           const txs = table.transactions || []
-          const billTotal = txs.reduce((sum: number, t: any) => sum + Number(t.total_amount), 0)
-          const oldestTx = txs.length > 0 ? txs.reduce((oldest: any, cur: any) => cur.created_at < oldest.created_at ? cur : oldest, txs[0]) : null
+
+          // ⚡ Bolt Performance Optimization: Consolidate reductions into a single pass
+          const { billTotal, oldestTx } = txs.reduce((acc: any, t: any) => {
+            acc.billTotal += Number(t.total_amount)
+            if (!acc.oldestTx || t.created_at < acc.oldestTx.created_at) {
+              acc.oldestTx = t
+            }
+            return acc
+          }, { billTotal: 0, oldestTx: null })
           
           return (
             <button
