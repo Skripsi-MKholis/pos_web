@@ -71,17 +71,37 @@ export function TablesMonitoringClient({
   }
 
   // Get active transaction summary (Aggregating multiple pending transactions if they exist)
-  const transactions = selectedTable?.transactions || []
+  // Wrapped in useMemo to maintain referential stability and prevent downstream re-renders
+  const transactions = React.useMemo(() => selectedTable?.transactions || [], [selectedTable?.transactions])
   
-  // Aggregate all items from all pending transactions
-  const aggregatedItems = transactions.reduce((acc: any[], tx: any) => {
-    return [...acc, ...tx.transaction_items]
-  }, [])
+  // Consolidate multiple iterations and avoid O(N^2) memory allocation from spread operators
+  const { aggregatedItems, totalAmount, earliestCreatedAt } = React.useMemo(() => {
+    if (transactions.length === 0) {
+      return { aggregatedItems: [], totalAmount: 0, earliestCreatedAt: null }
+    }
 
-  const totalAmount = transactions.reduce((acc: number, tx: any) => acc + Number(tx.total_amount), 0)
-  const earliestCreatedAt = transactions.length > 0 
-    ? transactions.reduce((min: string, tx: any) => tx.created_at < min ? tx.created_at : min, transactions[0].created_at)
-    : null
+    return transactions.reduce(
+      (acc: any, tx: any) => {
+        // Mutate array directly to avoid O(N^2) spread operator reallocation
+        if (tx.transaction_items) {
+          acc.aggregatedItems.push(...tx.transaction_items)
+        }
+
+        acc.totalAmount += Number(tx.total_amount || 0)
+
+        if (!acc.earliestCreatedAt || tx.created_at < acc.earliestCreatedAt) {
+          acc.earliestCreatedAt = tx.created_at
+        }
+
+        return acc
+      },
+      {
+        aggregatedItems: [] as any[],
+        totalAmount: 0,
+        earliestCreatedAt: null as string | null
+      }
+    )
+  }, [transactions])
 
   const activeTx = transactions[0] ? {
     ...transactions[0],
@@ -89,6 +109,28 @@ export function TablesMonitoringClient({
     transaction_items: aggregatedItems,
     created_at: earliestCreatedAt
   } : null
+
+  const memoizedTables = React.useMemo(() => {
+    return initialTables.map((table) => {
+      const isOccupied = table.status === 'occupied'
+      const txs = table.transactions || []
+      const txsCount = txs.length
+
+      // Consolidate array derivations into single reduce pass
+      const { billTotal, oldestTx } = txs.reduce(
+        (acc: any, t: any) => {
+          acc.billTotal += Number(t.total_amount || 0)
+          if (!acc.oldestTx || t.created_at < acc.oldestTx.created_at) {
+            acc.oldestTx = t
+          }
+          return acc
+        },
+        { billTotal: 0, oldestTx: null as any }
+      )
+
+      return { ...table, isOccupied, billTotal, oldestTx, txsCount }
+    })
+  }, [initialTables])
 
   const handleMoveOrder = async () => {
     if (!activeTx || !targetTableId) return
@@ -147,11 +189,8 @@ export function TablesMonitoringClient({
 
       {/* Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
-        {initialTables.map((table) => {
-          const isOccupied = table.status === 'occupied'
-          const txs = table.transactions || []
-          const billTotal = txs.reduce((sum: number, t: any) => sum + Number(t.total_amount), 0)
-          const oldestTx = txs.length > 0 ? txs.reduce((oldest: any, cur: any) => cur.created_at < oldest.created_at ? cur : oldest, txs[0]) : null
+        {memoizedTables.map((table) => {
+          const { isOccupied, billTotal, oldestTx, txsCount } = table
           
           return (
             <button
@@ -173,7 +212,7 @@ export function TablesMonitoringClient({
               {isOccupied && oldestTx && (
                 <div className="absolute inset-x-0 bottom-0 bg-black/10 py-2 px-3 text-[10px] font-bold flex flex-col items-center">
                    <p>Rp {formatCurrency(billTotal)}</p>
-                   {txs.length > 1 && <p className="text-[8px] opacity-70 mb-0.5">{txs.length} Transaksi</p>}
+                   {txsCount > 1 && <p className="text-[8px] opacity-70 mb-0.5">{txsCount} Transaksi</p>}
                    <p className="opacity-70 mt-0.5 truncate w-full text-center">{formatDistanceToNow(new Date(oldestTx.created_at), { addSuffix: true, locale: id })}</p>
                 </div>
               )}
