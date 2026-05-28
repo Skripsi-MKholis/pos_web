@@ -5,3 +5,7 @@
 ## 2024-05-18 - Memoize Cashier POS Product Grid
 **Learning:** In a POS system, adding items to the cart updates the local cart state frequently. Without memoization, every keystroke in the cart or product addition causes the entire product grid to re-render, leading to noticeable UI lag on slower devices.
 **Action:** Always wrap heavy list item components like `ProductCard` with `React.memo` and memoize callbacks (e.g. `addToCart` via `useCallback`) and derived lists (e.g. `filteredProducts` via `useMemo`) that are passed to them as props to prevent these cascading re-renders.
+
+## 2026-05-28 - [Extracting Nested Functional Components]
+**Learning:** Defining a functional component inside another component's render scope (like `CartContent` inside `CashierClient`) is a massive React anti-pattern. It causes the inner component to be recreated as a brand new reference on every parent render, forcing a complete unmount and remount of its DOM tree, which destroys performance and state.
+**Action:** Always extract inner UI components to the module level, pass dependencies as props, and memoize with `React.memo`.
