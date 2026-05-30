@@ -73,15 +73,20 @@ export function TablesMonitoringClient({
   // Get active transaction summary (Aggregating multiple pending transactions if they exist)
   const transactions = selectedTable?.transactions || []
   
-  // Aggregate all items from all pending transactions
-  const aggregatedItems = transactions.reduce((acc: any[], tx: any) => {
-    return [...acc, ...tx.transaction_items]
-  }, [])
-
-  const totalAmount = transactions.reduce((acc: number, tx: any) => acc + Number(tx.total_amount), 0)
-  const earliestCreatedAt = transactions.length > 0 
-    ? transactions.reduce((min: string, tx: any) => tx.created_at < min ? tx.created_at : min, transactions[0].created_at)
-    : null
+  // Aggregate all items, sum total amount, and find earliest creation date in a single pass
+  const { aggregatedItems, totalAmount, earliestCreatedAt } = React.useMemo(() => {
+    return transactions.reduce(
+      (acc: { aggregatedItems: any[]; totalAmount: number; earliestCreatedAt: string | null }, tx: any) => {
+        acc.aggregatedItems.push(...(tx.transaction_items || []))
+        acc.totalAmount += Number(tx.total_amount)
+        if (!acc.earliestCreatedAt || tx.created_at < acc.earliestCreatedAt) {
+          acc.earliestCreatedAt = tx.created_at
+        }
+        return acc
+      },
+      { aggregatedItems: [], totalAmount: 0, earliestCreatedAt: transactions.length > 0 ? transactions[0].created_at : null }
+    )
+  }, [transactions])
 
   const activeTx = transactions[0] ? {
     ...transactions[0],
