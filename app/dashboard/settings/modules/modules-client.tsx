@@ -53,7 +53,7 @@ export default function ModuleSettingsClient({ storeId, initialSettings }: Modul
   }
 
   const applyPreset = (model: string) => {
-    let preset = JSON.parse(JSON.stringify(storeSettings)) // Deep clone
+    const preset = JSON.parse(JSON.stringify(storeSettings)) // Deep clone
     
     if (model === "restaurant") {
       preset.features = { tables: true, reservations: true, kds: true, promotions: true, customers: true }

@@ -48,7 +48,7 @@ export function StoresListClient({ stores }: { stores: any[] }) {
 
   // Sorting Logic
   const sortedStores = React.useMemo(() => {
-    let items = [...stores]
+    const items = [...stores]
     if (sortConfig !== null) {
       items.sort((a, b) => {
         let aValue = a[sortConfig.key]
