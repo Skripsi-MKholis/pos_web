@@ -73,22 +73,26 @@ export function TablesMonitoringClient({
   // Get active transaction summary (Aggregating multiple pending transactions if they exist)
   const transactions = selectedTable?.transactions || []
   
-  // Aggregate all items from all pending transactions
-  const aggregatedItems = transactions.reduce((acc: any[], tx: any) => {
-    return [...acc, ...tx.transaction_items]
-  }, [])
+  // ⚡ Bolt: Consolidated 3 O(N) loops into a single pass and replaced O(N^2) array spread with .push() inside useMemo to optimize render performance.
+  const activeTx = React.useMemo(() => {
+    if (!transactions || transactions.length === 0) return null
 
-  const totalAmount = transactions.reduce((acc: number, tx: any) => acc + Number(tx.total_amount), 0)
-  const earliestCreatedAt = transactions.length > 0 
-    ? transactions.reduce((min: string, tx: any) => tx.created_at < min ? tx.created_at : min, transactions[0].created_at)
-    : null
-
-  const activeTx = transactions[0] ? {
-    ...transactions[0],
-    total_amount: totalAmount,
-    transaction_items: aggregatedItems,
-    created_at: earliestCreatedAt
-  } : null
+    return transactions.reduce((acc: any, tx: any) => {
+      acc.total_amount += Number(tx.total_amount)
+      if (tx.transaction_items) {
+        acc.transaction_items.push(...tx.transaction_items)
+      }
+      if (tx.created_at < acc.created_at) {
+        acc.created_at = tx.created_at
+      }
+      return acc
+    }, {
+      ...transactions[0],
+      total_amount: 0,
+      transaction_items: [],
+      created_at: transactions[0].created_at
+    })
+  }, [transactions])
 
   const handleMoveOrder = async () => {
     if (!activeTx || !targetTableId) return
