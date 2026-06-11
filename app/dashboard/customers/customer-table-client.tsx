@@ -54,11 +54,16 @@ export function CustomerTableClient({ initialData, storeId }: { initialData: any
   const [selectedCustomer, setSelectedCustomer] = React.useState<any>(null)
   const [isLoading, setIsLoading] = React.useState(false)
 
-  const filteredData = initialData.filter((item) =>
-    item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (item.phone && item.phone.includes(searchQuery)) ||
-    (item.email && item.email.toLowerCase().includes(searchQuery.toLowerCase()))
-  )
+  // Bolt: Memoize filtered list to prevent re-filtering on every render (e.g. state changes like modal open/close)
+  // and hoist toLowerCase() outside the loop to avoid O(N) string allocations
+  const filteredData = React.useMemo(() => {
+    const query = searchQuery.toLowerCase()
+    return initialData.filter((item) =>
+      !query || item.name.toLowerCase().includes(query) ||
+      (item.phone && item.phone.includes(searchQuery)) ||
+      (item.email && item.email.toLowerCase().includes(query))
+    )
+  }, [initialData, searchQuery])
 
   async function handleAdd(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
