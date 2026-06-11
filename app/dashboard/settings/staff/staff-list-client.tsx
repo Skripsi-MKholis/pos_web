@@ -72,11 +72,16 @@ export function StaffListClient({
   const [deletingMember, setDeletingMember] = React.useState<{id: string, name: string} | null>(null)
   const [isRefreshCodeDialogOpen, setIsRefreshCodeDialogOpen] = React.useState(false)
 
-  const filteredStaff = initialData.filter(m => {
-    if (!searchQuery) return true
-    return m.users?.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-           m.users?.email?.toLowerCase().includes(searchQuery.toLowerCase())
-  })
+  // Bolt: Memoize filtered list to prevent re-filtering on every render (e.g. state changes like modal open/close)
+  // and hoist toLowerCase() outside the loop to avoid O(N) string allocations
+  const filteredStaff = React.useMemo(() => {
+    const query = searchQuery.toLowerCase()
+    return initialData.filter(m => {
+      if (!query) return true
+      return m.users?.full_name?.toLowerCase().includes(query) ||
+             m.users?.email?.toLowerCase().includes(query)
+    })
+  }, [initialData, searchQuery])
 
   async function handleAddStaff(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()

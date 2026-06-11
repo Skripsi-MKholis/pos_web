@@ -20,9 +20,14 @@ export function CategoryTableClient({
 }) {
   const [searchQuery, setSearchQuery] = React.useState("")
 
-  const filteredCategories = categories.filter((category) => 
-    category.name.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  // Bolt: Memoize filtered list to prevent re-filtering on every render (e.g. state changes like modal open/close)
+  // and hoist toLowerCase() outside the loop to avoid O(N) string allocations
+  const filteredCategories = React.useMemo(() => {
+    const query = searchQuery.toLowerCase()
+    return categories.filter((category) =>
+      category.name.toLowerCase().includes(query)
+    )
+  }, [categories, searchQuery])
 
   return (
     <div className="flex flex-col gap-4">
