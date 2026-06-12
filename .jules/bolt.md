@@ -5,3 +5,7 @@
 ## 2024-05-18 - Memoize Cashier POS Product Grid
 **Learning:** In a POS system, adding items to the cart updates the local cart state frequently. Without memoization, every keystroke in the cart or product addition causes the entire product grid to re-render, leading to noticeable UI lag on slower devices.
 **Action:** Always wrap heavy list item components like `ProductCard` with `React.memo` and memoize callbacks (e.g. `addToCart` via `useCallback`) and derived lists (e.g. `filteredProducts` via `useMemo`) that are passed to them as props to prevent these cascading re-renders.
+
+## 2024-06-12 - [Hoist Invariant Operations in Array Filtering]
+**Learning:** Performing invariant operations like `searchQuery.toLowerCase()` inside a `.filter` callback re-executes the operation on every item, resulting in O(N) string allocations.
+**Action:** Always hoist invariant string transformations outside of loops or array iteration methods like `.filter` or `.map` to reduce memory allocations and improve iteration performance to O(1) for the invariant part. Additionally, ensure derived lists are wrapped in `React.useMemo` to avoid redundant filtering on unrelated re-renders.
