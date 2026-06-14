@@ -92,8 +92,10 @@ export function ReservationsClient({
     notes: ""
   })
 
+  // Hoist lowercase conversion to prevent O(N) string allocations during filter
+  const searchLower = search.toLowerCase()
   const filteredReservations = reservations.filter(r => {
-    const matchesSearch = r.customer_name.toLowerCase().includes(search.toLowerCase()) || 
+    const matchesSearch = r.customer_name.toLowerCase().includes(searchLower) ||
                          r.customer_phone?.includes(search)
     const matchesStatus = statusFilter === "all" || r.status === statusFilter
     return matchesSearch && matchesStatus

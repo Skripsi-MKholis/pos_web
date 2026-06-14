@@ -33,9 +33,11 @@ export function ProductTableClient({
   const [searchQuery, setSearchQuery] = React.useState("")
   const [selectedCategory, setSelectedCategory] = React.useState("all")
 
+  // Hoist lowercase conversion to prevent O(N) string allocations during filter
+  const queryLower = searchQuery.toLowerCase()
   const filteredProducts = products.filter((product) => {
-    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                         (product.sku?.toLowerCase() || "").includes(searchQuery.toLowerCase())
+    const matchesSearch = product.name.toLowerCase().includes(queryLower) ||
+                         (product.sku?.toLowerCase() || "").includes(queryLower)
     const matchesCategory = selectedCategory === "all" || product.category_id === selectedCategory
     
     return matchesSearch && matchesCategory
