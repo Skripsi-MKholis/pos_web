@@ -20,8 +20,10 @@ export function CategoryTableClient({
 }) {
   const [searchQuery, setSearchQuery] = React.useState("")
 
+  // Hoist lowercase conversion to prevent O(N) string allocations during filter
+  const queryLower = searchQuery.toLowerCase()
   const filteredCategories = categories.filter((category) => 
-    category.name.toLowerCase().includes(searchQuery.toLowerCase())
+    category.name.toLowerCase().includes(queryLower)
   )
 
   return (

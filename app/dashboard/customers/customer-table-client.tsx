@@ -54,10 +54,12 @@ export function CustomerTableClient({ initialData, storeId }: { initialData: any
   const [selectedCustomer, setSelectedCustomer] = React.useState<any>(null)
   const [isLoading, setIsLoading] = React.useState(false)
 
+  // Hoist lowercase conversion to prevent O(N) string allocations during filter
+  const queryLower = searchQuery.toLowerCase()
   const filteredData = initialData.filter((item) =>
-    item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.name.toLowerCase().includes(queryLower) ||
     (item.phone && item.phone.includes(searchQuery)) ||
-    (item.email && item.email.toLowerCase().includes(searchQuery.toLowerCase()))
+    (item.email && item.email.toLowerCase().includes(queryLower))
   )
 
   async function handleAdd(e: React.FormEvent<HTMLFormElement>) {
