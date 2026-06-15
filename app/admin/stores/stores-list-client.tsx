@@ -72,11 +72,15 @@ export function StoresListClient({ stores }: { stores: any[] }) {
   }, [stores, sortConfig])
 
   // Filtering Logic
-  const filteredStores = sortedStores.filter(store => 
-    store.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    store.owner?.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    store.owner?.email?.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  // ⚡ Bolt Performance Optimization: Memoize and hoist invariant string allocation
+  const filteredStores = React.useMemo(() => {
+    const queryLower = searchQuery.toLowerCase()
+    return sortedStores.filter(store =>
+      store.name.toLowerCase().includes(queryLower) ||
+      store.owner?.full_name?.toLowerCase().includes(queryLower) ||
+      store.owner?.email?.toLowerCase().includes(queryLower)
+    )
+  }, [sortedStores, searchQuery])
 
   const requestSort = (key: string) => {
     let direction: 'asc' | 'desc' = 'asc'

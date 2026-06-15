@@ -77,10 +77,13 @@ export function UsersListClient({ users, currentUserId }: { users: any[], curren
   }
 
   const filteredUsers = React.useMemo(() => {
+    // ⚡ Bolt Performance Optimization: Hoist invariant toLowerCase() outside O(N) loop
+    const termLower = searchTerm.toLowerCase()
+
     return users
       .filter(user => 
-        user.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email?.toLowerCase().includes(searchTerm.toLowerCase())
+        user.full_name?.toLowerCase().includes(termLower) ||
+        user.email?.toLowerCase().includes(termLower)
       )
       .sort((a, b) => {
         const factor = sortOrder === 'asc' ? 1 : -1
