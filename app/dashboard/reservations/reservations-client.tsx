@@ -92,12 +92,16 @@ export function ReservationsClient({
     notes: ""
   })
 
-  const filteredReservations = reservations.filter(r => {
-    const matchesSearch = r.customer_name.toLowerCase().includes(search.toLowerCase()) || 
-                         r.customer_phone?.includes(search)
-    const matchesStatus = statusFilter === "all" || r.status === statusFilter
-    return matchesSearch && matchesStatus
-  })
+  // ⚡ Bolt Performance Optimization: Memoize and hoist invariant string allocation
+  const filteredReservations = React.useMemo(() => {
+    const searchLower = search.toLowerCase()
+    return reservations.filter(r => {
+      const matchesSearch = r.customer_name.toLowerCase().includes(searchLower) ||
+                           r.customer_phone?.includes(search)
+      const matchesStatus = statusFilter === "all" || r.status === statusFilter
+      return matchesSearch && matchesStatus
+    })
+  }, [reservations, search, statusFilter])
 
   async function handleAdd() {
     if (!formData.customerName) {

@@ -171,9 +171,12 @@ export function CashierClient({
 
   // Filter products
   const filteredProducts = React.useMemo(() => {
+    // ⚡ Bolt Performance Optimization: Hoist invariant toLowerCase() outside O(N) loop
+    const queryLower = searchQuery.toLowerCase()
+
     return initialProducts.filter(p => {
-      const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                           p.sku?.toLowerCase().includes(searchQuery.toLowerCase())
+      const matchesSearch = p.name.toLowerCase().includes(queryLower) ||
+                           p.sku?.toLowerCase().includes(queryLower)
       const matchesCategory = selectedCategory === "all" || p.category_id === selectedCategory
       return matchesSearch && matchesCategory
     })

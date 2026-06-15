@@ -20,9 +20,13 @@ export function CategoryTableClient({
 }) {
   const [searchQuery, setSearchQuery] = React.useState("")
 
-  const filteredCategories = categories.filter((category) => 
-    category.name.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  // ⚡ Bolt Performance Optimization: Memoize and hoist invariant string allocation
+  const filteredCategories = React.useMemo(() => {
+    const queryLower = searchQuery.toLowerCase()
+    return categories.filter((category) =>
+      category.name.toLowerCase().includes(queryLower)
+    )
+  }, [categories, searchQuery])
 
   return (
     <div className="flex flex-col gap-4">
