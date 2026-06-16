@@ -77,10 +77,12 @@ export function UsersListClient({ users, currentUserId }: { users: any[], curren
   }
 
   const filteredUsers = React.useMemo(() => {
+    // Hoist invariant toLowerCase() to avoid O(N) allocations
+    const queryLower = searchTerm.toLowerCase()
     return users
       .filter(user => 
-        user.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email?.toLowerCase().includes(searchTerm.toLowerCase())
+        user.full_name?.toLowerCase().includes(queryLower) ||
+        user.email?.toLowerCase().includes(queryLower)
       )
       .sort((a, b) => {
         const factor = sortOrder === 'asc' ? 1 : -1
