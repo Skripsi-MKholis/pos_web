@@ -5,3 +5,7 @@
 ## 2024-05-18 - Memoize Cashier POS Product Grid
 **Learning:** In a POS system, adding items to the cart updates the local cart state frequently. Without memoization, every keystroke in the cart or product addition causes the entire product grid to re-render, leading to noticeable UI lag on slower devices.
 **Action:** Always wrap heavy list item components like `ProductCard` with `React.memo` and memoize callbacks (e.g. `addToCart` via `useCallback`) and derived lists (e.g. `filteredProducts` via `useMemo`) that are passed to them as props to prevent these cascading re-renders.
+
+## 2024-05-18 - [Preventing Component Remounting in React]
+**Learning:** Defining functional components inside a parent component's render scope (like `CartContent` inside `CashierClient`) is a major anti-pattern. It causes the inner component to be treated as a brand new component type on every parent render. This leads to complete unmounting and remounting, destroying local state and causing severe performance bottlenecks.
+**Action:** Always extract nested functional components to the module level. Pass necessary data as props and use `React.memo` along with `React.useCallback` for event handlers to prevent unnecessary re-renders.
