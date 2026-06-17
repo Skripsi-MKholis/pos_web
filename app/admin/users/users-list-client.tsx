@@ -77,10 +77,11 @@ export function UsersListClient({ users, currentUserId }: { users: any[], curren
   }
 
   const filteredUsers = React.useMemo(() => {
+    const searchLower = searchTerm.toLowerCase()
     return users
       .filter(user => 
-        user.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email?.toLowerCase().includes(searchTerm.toLowerCase())
+        user.full_name?.toLowerCase().includes(searchLower) ||
+        user.email?.toLowerCase().includes(searchLower)
       )
       .sort((a, b) => {
         const factor = sortOrder === 'asc' ? 1 : -1

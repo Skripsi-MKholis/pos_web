@@ -72,10 +72,11 @@ export function StoresListClient({ stores }: { stores: any[] }) {
   }, [stores, sortConfig])
 
   // Filtering Logic
+  const searchLower = searchQuery.toLowerCase()
   const filteredStores = sortedStores.filter(store => 
-    store.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    store.owner?.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    store.owner?.email?.toLowerCase().includes(searchQuery.toLowerCase())
+    store.name.toLowerCase().includes(searchLower) ||
+    store.owner?.full_name?.toLowerCase().includes(searchLower) ||
+    store.owner?.email?.toLowerCase().includes(searchLower)
   )
 
   const requestSort = (key: string) => {

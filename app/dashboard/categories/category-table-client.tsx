@@ -20,8 +20,9 @@ export function CategoryTableClient({
 }) {
   const [searchQuery, setSearchQuery] = React.useState("")
 
+  const searchLower = searchQuery.toLowerCase()
   const filteredCategories = categories.filter((category) => 
-    category.name.toLowerCase().includes(searchQuery.toLowerCase())
+    category.name.toLowerCase().includes(searchLower)
   )
 
   return (
