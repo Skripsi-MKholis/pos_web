@@ -67,14 +67,16 @@ export function StoreDetailClient({ store, products, transactions }: StoreDetail
   const totalRevenue = transactions.reduce((sum, tx) => sum + Number(tx.total_amount), 0)
   const activeStaff = store.members?.length || 0
 
+  const productSearchLower = productSearch.toLowerCase()
   const filteredProducts = products.filter(p => 
-    p.name.toLowerCase().includes(productSearch.toLowerCase()) ||
-    p.category?.name?.toLowerCase().includes(productSearch.toLowerCase())
+    p.name.toLowerCase().includes(productSearchLower) ||
+    p.category?.name?.toLowerCase().includes(productSearchLower)
   )
 
+  const transactionSearchLower = transactionSearch.toLowerCase()
   const filteredTransactions = transactions.filter(tx => 
-    tx.id.toLowerCase().includes(transactionSearch.toLowerCase()) ||
-    tx.payment_method?.toLowerCase().includes(transactionSearch.toLowerCase())
+    tx.id.toLowerCase().includes(transactionSearchLower) ||
+    tx.payment_method?.toLowerCase().includes(transactionSearchLower)
   )
 
   return (

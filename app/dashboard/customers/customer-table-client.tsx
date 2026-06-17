@@ -54,10 +54,11 @@ export function CustomerTableClient({ initialData, storeId }: { initialData: any
   const [selectedCustomer, setSelectedCustomer] = React.useState<any>(null)
   const [isLoading, setIsLoading] = React.useState(false)
 
+  const searchLower = searchQuery.toLowerCase()
   const filteredData = initialData.filter((item) =>
-    item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.name.toLowerCase().includes(searchLower) ||
     (item.phone && item.phone.includes(searchQuery)) ||
-    (item.email && item.email.toLowerCase().includes(searchQuery.toLowerCase()))
+    (item.email && item.email.toLowerCase().includes(searchLower))
   )
 
   async function handleAdd(e: React.FormEvent<HTMLFormElement>) {

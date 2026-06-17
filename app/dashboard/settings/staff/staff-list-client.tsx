@@ -72,10 +72,11 @@ export function StaffListClient({
   const [deletingMember, setDeletingMember] = React.useState<{id: string, name: string} | null>(null)
   const [isRefreshCodeDialogOpen, setIsRefreshCodeDialogOpen] = React.useState(false)
 
+  const searchLower = searchQuery.toLowerCase()
   const filteredStaff = initialData.filter(m => {
     if (!searchQuery) return true
-    return m.users?.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-           m.users?.email?.toLowerCase().includes(searchQuery.toLowerCase())
+    return m.users?.full_name?.toLowerCase().includes(searchLower) ||
+           m.users?.email?.toLowerCase().includes(searchLower)
   })
 
   async function handleAddStaff(e: React.FormEvent<HTMLFormElement>) {
