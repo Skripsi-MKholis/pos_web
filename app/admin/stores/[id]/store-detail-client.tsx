@@ -64,18 +64,32 @@ export function StoreDetailClient({ store, products, transactions }: StoreDetail
   }
 
   // Calculate metrics
-  const totalRevenue = transactions.reduce((sum, tx) => sum + Number(tx.total_amount), 0)
+  // ⚡ Bolt Performance Optimization: Memoize totalRevenue computation
+  const totalRevenue = React.useMemo(() =>
+    transactions.reduce((sum, tx) => sum + Number(tx.total_amount), 0),
+  [transactions])
+
   const activeStaff = store.members?.length || 0
 
-  const filteredProducts = products.filter(p => 
-    p.name.toLowerCase().includes(productSearch.toLowerCase()) ||
-    p.category?.name?.toLowerCase().includes(productSearch.toLowerCase())
-  )
+  // ⚡ Bolt Performance Optimization:
+  // Memoize filteredProducts and hoist lowercased search strings to O(1) outside O(N) loop
+  const filteredProducts = React.useMemo(() => {
+    const lowerProductSearch = productSearch.toLowerCase();
+    return products.filter(p =>
+      p.name.toLowerCase().includes(lowerProductSearch) ||
+      p.category?.name?.toLowerCase().includes(lowerProductSearch)
+    )
+  }, [products, productSearch])
 
-  const filteredTransactions = transactions.filter(tx => 
-    tx.id.toLowerCase().includes(transactionSearch.toLowerCase()) ||
-    tx.payment_method?.toLowerCase().includes(transactionSearch.toLowerCase())
-  )
+  // ⚡ Bolt Performance Optimization:
+  // Memoize filteredTransactions and hoist lowercased search strings
+  const filteredTransactions = React.useMemo(() => {
+    const lowerTransactionSearch = transactionSearch.toLowerCase();
+    return transactions.filter(tx =>
+      tx.id.toLowerCase().includes(lowerTransactionSearch) ||
+      tx.payment_method?.toLowerCase().includes(lowerTransactionSearch)
+    )
+  }, [transactions, transactionSearch])
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
