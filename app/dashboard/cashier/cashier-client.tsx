@@ -171,9 +171,10 @@ export function CashierClient({
 
   // Filter products
   const filteredProducts = React.useMemo(() => {
+    const lowerSearchQuery = searchQuery.toLowerCase();
     return initialProducts.filter(p => {
-      const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                           p.sku?.toLowerCase().includes(searchQuery.toLowerCase())
+      const matchesSearch = p.name.toLowerCase().includes(lowerSearchQuery) ||
+                           p.sku?.toLowerCase().includes(lowerSearchQuery)
       const matchesCategory = selectedCategory === "all" || p.category_id === selectedCategory
       return matchesSearch && matchesCategory
     })
