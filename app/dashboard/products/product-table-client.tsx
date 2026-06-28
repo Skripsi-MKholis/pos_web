@@ -33,9 +33,10 @@ export function ProductTableClient({
   const [searchQuery, setSearchQuery] = React.useState("")
   const [selectedCategory, setSelectedCategory] = React.useState("all")
 
+  const lowerSearchQuery = searchQuery.toLowerCase();
   const filteredProducts = products.filter((product) => {
-    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                         (product.sku?.toLowerCase() || "").includes(searchQuery.toLowerCase())
+    const matchesSearch = product.name.toLowerCase().includes(lowerSearchQuery) ||
+                         (product.sku?.toLowerCase() || "").includes(lowerSearchQuery)
     const matchesCategory = selectedCategory === "all" || product.category_id === selectedCategory
     
     return matchesSearch && matchesCategory
