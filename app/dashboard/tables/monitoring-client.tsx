@@ -74,9 +74,8 @@ export function TablesMonitoringClient({
   const transactions = selectedTable?.transactions || []
   
   // Aggregate all items from all pending transactions
-  const aggregatedItems = transactions.reduce((acc: any[], tx: any) => {
-    return [...acc, ...tx.transaction_items]
-  }, [])
+  // ⚡ Bolt: Performance Improvement - Replaced O(N^2) array spread inside reduce with O(N) flatMap
+  const aggregatedItems = transactions.flatMap((tx: any) => tx.transaction_items || [])
 
   const totalAmount = transactions.reduce((acc: number, tx: any) => acc + Number(tx.total_amount), 0)
   const earliestCreatedAt = transactions.length > 0 
