@@ -170,10 +170,12 @@ export function CashierClient({
   }, [searchParams, initialTables])
 
   // Filter products
+  // ⚡ Bolt: Performance Improvement - Hoisted toLowerCase() to prevent O(N) string allocations during filter loop
   const filteredProducts = React.useMemo(() => {
+    const query = searchQuery.toLowerCase()
     return initialProducts.filter(p => {
-      const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                           p.sku?.toLowerCase().includes(searchQuery.toLowerCase())
+      const matchesSearch = p.name.toLowerCase().includes(query) ||
+                           p.sku?.toLowerCase().includes(query)
       const matchesCategory = selectedCategory === "all" || p.category_id === selectedCategory
       return matchesSearch && matchesCategory
     })
