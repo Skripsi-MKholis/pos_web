@@ -92,12 +92,19 @@ export function ReservationsClient({
     notes: ""
   })
 
-  const filteredReservations = reservations.filter(r => {
-    const matchesSearch = r.customer_name.toLowerCase().includes(search.toLowerCase()) || 
-                         r.customer_phone?.includes(search)
-    const matchesStatus = statusFilter === "all" || r.status === statusFilter
-    return matchesSearch && matchesStatus
-  })
+  const filteredReservations = React.useMemo(() => {
+    const searchLower = search.toLowerCase()
+    return reservations.filter(r => {
+      const matchesSearch = r.customer_name.toLowerCase().includes(searchLower) ||
+                           r.customer_phone?.includes(searchLower)
+      const matchesStatus = statusFilter === "all" || r.status === statusFilter
+      return matchesSearch && matchesStatus
+    })
+  }, [reservations, search, statusFilter])
+
+  const pendingCount = React.useMemo(() => reservations.filter(r => r.status === 'Pending').length, [reservations])
+  const confirmedCount = React.useMemo(() => reservations.filter(r => r.status === 'Confirmed').length, [reservations])
+  const totalGuests = React.useMemo(() => reservations.filter(r => r.status !== 'Cancelled').reduce((sum, r) => sum + r.number_of_guests, 0), [reservations])
 
   async function handleAdd() {
     if (!formData.customerName) {
@@ -226,7 +233,7 @@ export function ReservationsClient({
             <p className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Menunggu</p>
             <div className="flex items-end justify-between">
                <h3 className="text-2xl md:text-4xl font-black leading-none text-yellow-600">
-                  {reservations.filter(r => r.status === 'Pending').length}
+                  {pendingCount}
                </h3>
                <IconClock size={20} className="text-yellow-600/50 hidden sm:block" />
             </div>
@@ -240,7 +247,7 @@ export function ReservationsClient({
             <p className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Dikonfirmasi</p>
             <div className="flex items-end justify-between">
                <h3 className="text-2xl md:text-4xl font-black leading-none text-[#00C2FF]">
-                  {reservations.filter(r => r.status === 'Confirmed').length}
+                  {confirmedCount}
                </h3>
                <IconCheck size={20} className="text-[#00C2FF]/50 hidden sm:block" />
             </div>
@@ -254,7 +261,7 @@ export function ReservationsClient({
             <p className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Total Tamu</p>
             <div className="flex items-end justify-between">
                <h3 className="text-2xl md:text-4xl font-black leading-none text-primary">
-                  {reservations.filter(r => r.status !== 'Cancelled').reduce((sum, r) => sum + r.number_of_guests, 0)}
+                  {totalGuests}
                </h3>
                <IconUsers size={20} className="text-primary/50 hidden sm:block" />
             </div>
