@@ -171,9 +171,11 @@ export function CashierClient({
 
   // Filter products
   const filteredProducts = React.useMemo(() => {
+    // Hoist invariant toLowerCase to avoid O(N) redundant string allocations
+    const searchLower = searchQuery.toLowerCase()
     return initialProducts.filter(p => {
-      const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                           p.sku?.toLowerCase().includes(searchQuery.toLowerCase())
+      const matchesSearch = p.name.toLowerCase().includes(searchLower) ||
+                           p.sku?.toLowerCase().includes(searchLower)
       const matchesCategory = selectedCategory === "all" || p.category_id === selectedCategory
       return matchesSearch && matchesCategory
     })
