@@ -170,10 +170,13 @@ export function CashierClient({
   }, [searchParams, initialTables])
 
   // Filter products
+  // Optimization: Hoist `.toLowerCase()` outside the filter loop to make string allocation O(1) instead of O(N).
+  // Wrapped in `useMemo` to maintain referential stability and prevent redundant evaluations.
   const filteredProducts = React.useMemo(() => {
+    const lowercasedSearch = searchQuery.toLowerCase()
     return initialProducts.filter(p => {
-      const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                           p.sku?.toLowerCase().includes(searchQuery.toLowerCase())
+      const matchesSearch = p.name.toLowerCase().includes(lowercasedSearch) ||
+                           p.sku?.toLowerCase().includes(lowercasedSearch)
       const matchesCategory = selectedCategory === "all" || p.category_id === selectedCategory
       return matchesSearch && matchesCategory
     })

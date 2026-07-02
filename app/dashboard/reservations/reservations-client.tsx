@@ -92,12 +92,31 @@ export function ReservationsClient({
     notes: ""
   })
 
-  const filteredReservations = reservations.filter(r => {
-    const matchesSearch = r.customer_name.toLowerCase().includes(search.toLowerCase()) || 
-                         r.customer_phone?.includes(search)
-    const matchesStatus = statusFilter === "all" || r.status === statusFilter
-    return matchesSearch && matchesStatus
-  })
+  // Optimization: Hoist `.toLowerCase()` outside the filter loop to make string allocation O(1) instead of O(N).
+  // Wrapped in `useMemo` to maintain referential stability and prevent redundant evaluations.
+  const filteredReservations = React.useMemo(() => {
+    const lowercasedSearch = search.toLowerCase()
+    return reservations.filter(r => {
+      const matchesSearch = r.customer_name.toLowerCase().includes(lowercasedSearch) ||
+                           r.customer_phone?.includes(search)
+      const matchesStatus = statusFilter === "all" || r.status === statusFilter
+      return matchesSearch && matchesStatus
+    })
+  }, [reservations, search, statusFilter])
+
+  // Optimization: Pre-compute derived stats in a single pass using `reduce` within `useMemo`.
+  // Avoids O(mN) computational overhead of calling `reservations.filter().length` repeatedly.
+  const stats = React.useMemo(() => {
+    return reservations.reduce(
+      (acc, r) => {
+        if (r.status === "Pending") acc.pending++
+        if (r.status === "Confirmed") acc.confirmed++
+        if (r.status !== "Cancelled") acc.guests += r.number_of_guests
+        return acc
+      },
+      { pending: 0, confirmed: 0, guests: 0 }
+    )
+  }, [reservations])
 
   async function handleAdd() {
     if (!formData.customerName) {
@@ -226,7 +245,7 @@ export function ReservationsClient({
             <p className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Menunggu</p>
             <div className="flex items-end justify-between">
                <h3 className="text-2xl md:text-4xl font-black leading-none text-yellow-600">
-                  {reservations.filter(r => r.status === 'Pending').length}
+                  {stats.pending}
                </h3>
                <IconClock size={20} className="text-yellow-600/50 hidden sm:block" />
             </div>
@@ -240,7 +259,7 @@ export function ReservationsClient({
             <p className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Dikonfirmasi</p>
             <div className="flex items-end justify-between">
                <h3 className="text-2xl md:text-4xl font-black leading-none text-[#00C2FF]">
-                  {reservations.filter(r => r.status === 'Confirmed').length}
+                  {stats.confirmed}
                </h3>
                <IconCheck size={20} className="text-[#00C2FF]/50 hidden sm:block" />
             </div>
@@ -254,7 +273,7 @@ export function ReservationsClient({
             <p className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Total Tamu</p>
             <div className="flex items-end justify-between">
                <h3 className="text-2xl md:text-4xl font-black leading-none text-primary">
-                  {reservations.filter(r => r.status !== 'Cancelled').reduce((sum, r) => sum + r.number_of_guests, 0)}
+                  {stats.guests}
                </h3>
                <IconUsers size={20} className="text-primary/50 hidden sm:block" />
             </div>
