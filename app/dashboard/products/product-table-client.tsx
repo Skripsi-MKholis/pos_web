@@ -33,13 +33,18 @@ export function ProductTableClient({
   const [searchQuery, setSearchQuery] = React.useState("")
   const [selectedCategory, setSelectedCategory] = React.useState("all")
 
-  const filteredProducts = products.filter((product) => {
-    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                         (product.sku?.toLowerCase() || "").includes(searchQuery.toLowerCase())
-    const matchesCategory = selectedCategory === "all" || product.category_id === selectedCategory
+  const filteredProducts = React.useMemo(() => {
+    // ⚡ Bolt Performance Optimization: Hoist `.toLowerCase()` outside the loop
+    const lowerSearchQuery = searchQuery.toLowerCase();
     
-    return matchesSearch && matchesCategory
-  })
+    return products.filter((product) => {
+      const matchesSearch = product.name.toLowerCase().includes(lowerSearchQuery) ||
+                           (product.sku?.toLowerCase() || "").includes(lowerSearchQuery)
+      const matchesCategory = selectedCategory === "all" || product.category_id === selectedCategory
+
+      return matchesSearch && matchesCategory
+    })
+  }, [products, searchQuery, selectedCategory]);
 
   return (
     <div className="flex flex-col gap-4">
