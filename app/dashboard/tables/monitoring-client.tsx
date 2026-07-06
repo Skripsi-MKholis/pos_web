@@ -73,21 +73,38 @@ export function TablesMonitoringClient({
   // Get active transaction summary (Aggregating multiple pending transactions if they exist)
   const transactions = selectedTable?.transactions || []
   
-  // Aggregate all items from all pending transactions
-  const aggregatedItems = transactions.reduce((acc: any[], tx: any) => {
-    return [...acc, ...tx.transaction_items]
-  }, [])
+  // Optimize: Single pass aggregation instead of multiple iterations and avoid O(N^2) spread operator
+  const activeTxStats = React.useMemo(() => {
+    if (transactions.length === 0) return null;
 
-  const totalAmount = transactions.reduce((acc: number, tx: any) => acc + Number(tx.total_amount), 0)
-  const earliestCreatedAt = transactions.length > 0 
-    ? transactions.reduce((min: string, tx: any) => tx.created_at < min ? tx.created_at : min, transactions[0].created_at)
-    : null
+    const items: any[] = [];
+    let totalAmt = 0;
+    let earliestDate = transactions[0].created_at;
 
-  const activeTx = transactions[0] ? {
+    for (let i = 0; i < transactions.length; i++) {
+      const tx = transactions[i];
+      if (tx.transaction_items && Array.isArray(tx.transaction_items)) {
+        // Push items instead of spreading into a new array to prevent memory allocation bottlenecks
+        items.push(...tx.transaction_items);
+      }
+      totalAmt += Number(tx.total_amount || 0);
+      if (tx.created_at < earliestDate) {
+        earliestDate = tx.created_at;
+      }
+    }
+
+    return {
+      aggregatedItems: items,
+      totalAmount: totalAmt,
+      earliestCreatedAt: earliestDate
+    };
+  }, [transactions]);
+
+  const activeTx = transactions[0] && activeTxStats ? {
     ...transactions[0],
-    total_amount: totalAmount,
-    transaction_items: aggregatedItems,
-    created_at: earliestCreatedAt
+    total_amount: activeTxStats.totalAmount,
+    transaction_items: activeTxStats.aggregatedItems,
+    created_at: activeTxStats.earliestCreatedAt
   } : null
 
   const handleMoveOrder = async () => {
@@ -150,8 +167,16 @@ export function TablesMonitoringClient({
         {initialTables.map((table) => {
           const isOccupied = table.status === 'occupied'
           const txs = table.transactions || []
-          const billTotal = txs.reduce((sum: number, t: any) => sum + Number(t.total_amount), 0)
-          const oldestTx = txs.length > 0 ? txs.reduce((oldest: any, cur: any) => cur.created_at < oldest.created_at ? cur : oldest, txs[0]) : null
+
+          let billTotal = 0;
+          let oldestTx = txs.length > 0 ? txs[0] : null;
+
+          for (let i = 0; i < txs.length; i++) {
+            billTotal += Number(txs[i].total_amount || 0);
+            if (oldestTx && txs[i].created_at < oldestTx.created_at) {
+              oldestTx = txs[i];
+            }
+          }
           
           return (
             <button
