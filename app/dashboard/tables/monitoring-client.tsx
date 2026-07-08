@@ -73,22 +73,31 @@ export function TablesMonitoringClient({
   // Get active transaction summary (Aggregating multiple pending transactions if they exist)
   const transactions = selectedTable?.transactions || []
   
-  // Aggregate all items from all pending transactions
-  const aggregatedItems = transactions.reduce((acc: any[], tx: any) => {
-    return [...acc, ...tx.transaction_items]
-  }, [])
+  // Consolidate array aggregations and memoize to prevent recalculation on every render
+  const activeTx = React.useMemo(() => {
+    if (!transactions.length) return null
 
-  const totalAmount = transactions.reduce((acc: number, tx: any) => acc + Number(tx.total_amount), 0)
-  const earliestCreatedAt = transactions.length > 0 
-    ? transactions.reduce((min: string, tx: any) => tx.created_at < min ? tx.created_at : min, transactions[0].created_at)
-    : null
+    // Use flatMap instead of reduce with spread operator to avoid O(N^2) memory allocation
+    const aggregatedItems = transactions.flatMap((tx: any) => tx.transaction_items || [])
 
-  const activeTx = transactions[0] ? {
-    ...transactions[0],
-    total_amount: totalAmount,
-    transaction_items: aggregatedItems,
-    created_at: earliestCreatedAt
-  } : null
+    // Single pass for both amount and earliest date to optimize iterations
+    let totalAmount = 0
+    let earliestCreatedAt = transactions[0].created_at
+
+    for (const tx of transactions) {
+      totalAmount += Number(tx.total_amount)
+      if (tx.created_at < earliestCreatedAt) {
+        earliestCreatedAt = tx.created_at
+      }
+    }
+
+    return {
+      ...transactions[0],
+      total_amount: totalAmount,
+      transaction_items: aggregatedItems,
+      created_at: earliestCreatedAt
+    }
+  }, [transactions])
 
   const handleMoveOrder = async () => {
     if (!activeTx || !targetTableId) return
