@@ -171,9 +171,12 @@ export function CashierClient({
 
   // Filter products
   const filteredProducts = React.useMemo(() => {
+    // Performance: lowercasing search query once instead of doing it per product item in the loop
+    const lowerQuery = searchQuery.toLowerCase()
+
     return initialProducts.filter(p => {
-      const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                           p.sku?.toLowerCase().includes(searchQuery.toLowerCase())
+      const matchesSearch = p.name.toLowerCase().includes(lowerQuery) ||
+                           p.sku?.toLowerCase().includes(lowerQuery)
       const matchesCategory = selectedCategory === "all" || p.category_id === selectedCategory
       return matchesSearch && matchesCategory
     })
@@ -212,7 +215,10 @@ export function CashierClient({
     setCart(prev => prev.filter(item => item.id !== id))
   }
 
-  const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+  // Performance: Memoize cart total calculations to avoid unnecessary reduce on re-renders
+  const cartTotal = React.useMemo(() => {
+    return cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+  }, [cart])
 
   // Calculate Discount
   const discountAmount = React.useMemo(() => {
@@ -229,7 +235,9 @@ export function CashierClient({
     }
   }, [appliedVoucher, cartTotal])
 
-  const finalTotal = Math.max(0, cartTotal - discountAmount)
+  const finalTotal = React.useMemo(() => {
+    return Math.max(0, cartTotal - discountAmount)
+  }, [cartTotal, discountAmount])
 
   const handleApplyVoucher = async (code: string) => {
     if (!code) return
