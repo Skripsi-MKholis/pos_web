@@ -7,7 +7,9 @@ import {
   IconReceipt,
   IconLoader2,
   IconPrinter,
-  IconWallet
+  IconWallet,
+  IconExternalLink,
+  IconCopy
 } from "@tabler/icons-react"
 import {
   Dialog,
@@ -222,6 +224,39 @@ export function GeneralPaymentModal({
                    <span>Rp {formatCurrency(finalTotal)}</span>
                 </div>
              </div>
+
+             {/* Online Receipt Link Action */}
+             {(transactionId || activeTx?.id) && (
+               <div className="flex items-center gap-2">
+                 <Button
+                   type="button"
+                   variant="outline"
+                   className="flex-1 rounded-2xl h-11 text-xs font-bold gap-2 border-slate-200 dark:border-zinc-800 hover:bg-slate-50"
+                   onClick={() => {
+                     const txId = transactionId || activeTx?.id
+                     const receiptUrl = `${window.location.origin}/receipt/${txId}`
+                     window.open(receiptUrl, "_blank")
+                   }}
+                 >
+                   <IconExternalLink size={16} /> Buka Struk Online
+                 </Button>
+                 <Button
+                   type="button"
+                   variant="outline"
+                   size="icon"
+                   className="h-11 w-11 rounded-2xl border-slate-200 dark:border-zinc-800 hover:bg-slate-50 shrink-0"
+                   title="Salin Link Struk"
+                   onClick={() => {
+                     const txId = transactionId || activeTx?.id
+                     const receiptUrl = `${window.location.origin}/receipt/${txId}`
+                     navigator.clipboard.writeText(receiptUrl)
+                     toast.success("Link struk online disalin!")
+                   }}
+                 >
+                   <IconCopy size={16} />
+                 </Button>
+               </div>
+             )}
 
              <DialogFooter className="grid grid-cols-2 gap-3">
                 <Button 

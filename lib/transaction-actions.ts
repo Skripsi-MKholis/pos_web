@@ -405,3 +405,59 @@ export async function clearTableOrders(tableId: string) {
   revalidatePath("/dashboard/tables")
   return { success: true }
 }
+
+export async function getPublicReceipt(transactionId: string) {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from("transactions")
+    .select(`
+      id,
+      created_at,
+      total_amount,
+      payment_method,
+      status,
+      discount_total,
+      cash_paid,
+      change_amount,
+      voucher_info,
+      stores (
+        id,
+        name,
+        address,
+        phone,
+        email,
+        logo_url,
+        settings
+      ),
+      cashier:users (
+        full_name
+      ),
+      customers (
+        name
+      ),
+      tables (
+        name
+      ),
+      transaction_items (
+        id,
+        product_name,
+        quantity,
+        unit_price,
+        subtotal,
+        notes,
+        products (
+          image_url
+        )
+      )
+    `)
+    .eq("id", transactionId)
+    .maybeSingle()
+
+  if (error) {
+    console.error("Error fetching public receipt:", error)
+    return { data: null, error: error.message }
+  }
+
+  return { data, error: null }
+}

@@ -40,6 +40,7 @@ export async function updateSession(request: NextRequest) {
     !request.nextUrl.pathname.startsWith('/auth') &&
     !request.nextUrl.pathname.startsWith('/api/download-leads') &&
     !request.nextUrl.pathname.startsWith('/download') &&
+    !request.nextUrl.pathname.startsWith('/receipt') &&
     !request.nextUrl.pathname.startsWith('/privacy') &&
     !request.nextUrl.pathname.startsWith('/terms') &&
     request.nextUrl.pathname !== '/'
@@ -70,6 +71,7 @@ export async function updateSession(request: NextRequest) {
     const isExcludedPath = 
       request.nextUrl.pathname.startsWith('/api/download-leads') ||
       request.nextUrl.pathname.startsWith('/download') ||
+      request.nextUrl.pathname.startsWith('/receipt') ||
       request.nextUrl.pathname.startsWith('/privacy') || 
       request.nextUrl.pathname.startsWith('/terms') || 
       request.nextUrl.pathname === '/'

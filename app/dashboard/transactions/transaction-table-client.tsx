@@ -18,8 +18,11 @@ import {
   IconUser,
   IconUserCircle,
   IconTicket,
-  IconCalculator
+  IconCalculator,
+  IconExternalLink,
+  IconCopy
 } from "@tabler/icons-react"
+import { toast } from "sonner"
 import {
   Table,
   TableBody,
@@ -299,6 +302,37 @@ export function TransactionTableClient({
                                     </div>
                                  </div>
                                )}
+                            </div>
+
+                            {/* Online Receipt Link Action */}
+                            <div className="pt-2 flex items-center gap-2">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                className="flex-1 rounded-xl h-10 text-xs font-bold gap-2 border-slate-200 dark:border-zinc-800 hover:bg-slate-50"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  const receiptUrl = `${window.location.origin}/receipt/${tx.id}`
+                                  window.open(receiptUrl, "_blank")
+                                }}
+                              >
+                                <IconExternalLink size={15} /> Lihat Struk Online
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="icon"
+                                className="h-10 w-10 rounded-xl border border-slate-200 dark:border-zinc-800 hover:bg-slate-50 shrink-0"
+                                title="Salin Link Struk Online"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  const receiptUrl = `${window.location.origin}/receipt/${tx.id}`
+                                  navigator.clipboard.writeText(receiptUrl)
+                                  toast.success("Link struk online disalin ke clipboard!")
+                                }}
+                              >
+                                <IconCopy size={15} />
+                              </Button>
                             </div>
 
                             {tx.status === 'Pending' && (
